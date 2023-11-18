@@ -31,12 +31,12 @@
     "node": ">=14"
   },
   "dependencies": {
-    "@uniswap/v2-core": "1.0.1",
-    "@uniswap/v3-core": "1.0.0",
-    "@openzeppelin/contracts": "4.7.0"
+    "@openzeppelin/contracts": "4.7.0",
+    "@uniswap/v2-core": "1.0.1"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "1.0.4",
+    "@nomicfoundation/hardhat-foundry": "^1.1.1",
     "@nomiclabs/hardhat-ethers": "^2.2.2",
     "@typechain/ethers-v5": "^4.0.0",
     "@types/chai": "^4.2.6",
@@ -49,7 +49,7 @@
     "bignumber.js": "^9.0.0",
     "chai": "^4.3.4",
     "ethers": "^5.7.2",
-    "hardhat": "2.12.2",
+    "hardhat": "2.19.0",
     "hardhat-typechain": "^0.3.5",
     "mocha-chai-jest-snapshot": "^1.1.0",
     "prettier": "^2.0.5",

@@ -23,9 +23,15 @@ struct RouterParameters {
     address looksRareRewardsDistributor;
     address looksRareToken;
     address v2Factory;
+    address v2Implementation;
     address v3Factory;
-    bytes32 pairInitCodeHash;
     bytes32 poolInitCodeHash;
+}
+
+struct Route {
+    address from;
+    address to;
+    bool stable;
 }
 
 /// @title Router Immutable Storage contract
@@ -82,8 +88,8 @@ contract RouterImmutables {
     /// @dev The address of UniswapV2Factory
     address internal immutable UNISWAP_V2_FACTORY;
 
-    /// @dev The UniswapV2Pair initcodehash
-    bytes32 internal immutable UNISWAP_V2_PAIR_INIT_CODE_HASH;
+    /// @dev The address of the UniswapV2 Pool implementation
+    address internal immutable UNISWAP_V2_IMPLEMENTATION;
 
     /// @dev The address of UniswapV3Factory
     address internal immutable UNISWAP_V3_FACTORY;
@@ -114,7 +120,7 @@ contract RouterImmutables {
         LOOKS_RARE_REWARDS_DISTRIBUTOR = params.looksRareRewardsDistributor;
         ROUTER_REWARDS_DISTRIBUTOR = params.routerRewardsDistributor;
         UNISWAP_V2_FACTORY = params.v2Factory;
-        UNISWAP_V2_PAIR_INIT_CODE_HASH = params.pairInitCodeHash;
+        UNISWAP_V2_IMPLEMENTATION = params.v2Implementation;
         UNISWAP_V3_FACTORY = params.v3Factory;
         UNISWAP_V3_POOL_INIT_CODE_HASH = params.poolInitCodeHash;
     }

@@ -5,7 +5,7 @@ import {V2SwapRouter} from '../modules/uniswap/v2/V2SwapRouter.sol';
 import {V3SwapRouter} from '../modules/uniswap/v3/V3SwapRouter.sol';
 import {BytesLib} from '../modules/uniswap/v3/BytesLib.sol';
 import {Payments} from '../modules/Payments.sol';
-import {RouterImmutables} from '../base/RouterImmutables.sol';
+import {RouterImmutables, Route} from '../base/RouterImmutables.sol';
 import {Callbacks} from '../base/Callbacks.sol';
 import {Commands} from '../libraries/Commands.sol';
 import {LockAndMsgSender} from './LockAndMsgSender.sol';
@@ -134,32 +134,22 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                         uint256 amountIn;
                         uint256 amountOutMin;
                         bool payerIsUser;
-                        assembly {
-                            recipient := calldataload(inputs.offset)
-                            amountIn := calldataload(add(inputs.offset, 0x20))
-                            amountOutMin := calldataload(add(inputs.offset, 0x40))
-                            // 0x60 offset is the path, decoded below
-                            payerIsUser := calldataload(add(inputs.offset, 0x80))
-                        }
-                        address[] calldata path = inputs.toAddressArray(3);
+                        Route[] memory routes;
+                        (recipient, amountIn, amountOutMin, routes, payerIsUser) =
+                            abi.decode(inputs, (address, uint256, uint256, Route[], bool));
                         address payer = payerIsUser ? lockedBy : address(this);
-                        v2SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer);
+                        v2SwapExactInput(map(recipient), amountIn, amountOutMin, routes, payer);
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
                         address recipient;
                         uint256 amountOut;
                         uint256 amountInMax;
                         bool payerIsUser;
-                        assembly {
-                            recipient := calldataload(inputs.offset)
-                            amountOut := calldataload(add(inputs.offset, 0x20))
-                            amountInMax := calldataload(add(inputs.offset, 0x40))
-                            // 0x60 offset is the path, decoded below
-                            payerIsUser := calldataload(add(inputs.offset, 0x80))
-                        }
-                        address[] calldata path = inputs.toAddressArray(3);
+                        Route[] memory routes;
+                        (recipient, amountOut, amountInMax, routes, payerIsUser) =
+                            abi.decode(inputs, (address, uint256, uint256, Route[], bool));
                         address payer = payerIsUser ? lockedBy : address(this);
-                        v2SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer);
+                        v2SwapExactOutput(map(recipient), amountOut, amountInMax, routes, payer);
                     } else if (command == Commands.PERMIT2_PERMIT) {
                         // equivalent: abi.decode(inputs, (IAllowanceTransfer.PermitSingle, bytes))
                         IAllowanceTransfer.PermitSingle calldata permitSingle;

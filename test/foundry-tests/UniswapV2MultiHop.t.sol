@@ -14,22 +14,19 @@ import {RouterParameters, Route} from '../../contracts/base/RouterImmutables.sol
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
 
-abstract contract UniswapV2Test is Test {
+abstract contract UniswapV2MultiHopTest is Test {
     address constant RECIPIENT = address(10);
-    uint256 constant AMOUNT = 1 ether;
     uint256 constant BALANCE = 100000 ether;
     IPoolFactory constant FACTORY = IPoolFactory(0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a);
     address constant POOL_IMPLEMENTATION = address(0x95885Af5492195F0754bE71AD1545Fe81364E531);
     ERC20 constant WETH9 = ERC20(0x4200000000000000000000000000000000000006);
+    ERC20 constant bUSDC = ERC20(0x7F5c764cBc14f9669B88837ca1490cCa17c31607);
     Permit2 constant PERMIT2 = Permit2(0x000000000022D473030F116dDEE9F6B43aC78BA3);
     address constant FROM = address(1234);
 
     UniversalRouter public router;
-    address public pair;
-
-    modifier skipIfTrue() {
-        if (!stable()) _;
-    }
+    address public firstPair;
+    address public secondPair;
 
     function setUp() public virtual {
         vm.createSelectFork(vm.envString('RPC_URL'), 111000000);
@@ -59,7 +56,8 @@ abstract contract UniswapV2Test is Test {
         });
         router = new UniversalRouter(params);
 
-        pair = createAndSeedPair(token0(), token1(), stable());
+        firstPair = createAndSeedPair(token0(), address(bUSDC), stable0());
+        secondPair = createAndSeedPair(token1(), address(bUSDC), stable1());
 
         vm.startPrank(FROM);
         deal(FROM, BALANCE);
@@ -73,100 +71,120 @@ abstract contract UniswapV2Test is Test {
         labelContracts();
     }
 
-    function testExactInput0For1() public {
+    modifier skipIfTrue() {
+        if (!stable0() && !stable1()) _;
+    }
+
+    function testMultiHopExactInput0For1() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token0(), token1(), stable());
+        uint256 amount = 10 ** ERC20(token0()).decimals();
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token0(), address(bUSDC), stable0());
+        routes[1] = Route(address(bUSDC), token1(), stable1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, true);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, 0, routes, true);
 
         router.execute(commands, inputs);
-        assertEq(ERC20(token0()).balanceOf(FROM), BALANCE - AMOUNT);
+        assertEq(ERC20(token0()).balanceOf(FROM), BALANCE - amount);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
     }
 
-    function testExactInput1For0() public {
+    function testMultiHopExactInput1For0() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token1(), token0(), stable());
+        uint256 amount = 10 ** ERC20(token1()).decimals();
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token1(), address(bUSDC), stable1());
+        routes[1] = Route(address(bUSDC), token0(), stable0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, true);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, 0, routes, true);
 
         router.execute(commands, inputs);
-        assertEq(ERC20(token1()).balanceOf(FROM), BALANCE - AMOUNT);
+        assertEq(ERC20(token1()).balanceOf(FROM), BALANCE - amount);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
     }
 
-    function testExactInput0For1FromRouter() public {
+    function testMultiHopExactInput0For1FromRouter() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
-        deal(token0(), address(router), AMOUNT);
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token0(), token1(), stable());
+        uint256 amount = 10 ** ERC20(token0()).decimals();
+        deal(token0(), address(router), amount);
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token0(), address(bUSDC), stable0());
+        routes[1] = Route(address(bUSDC), token1(), stable1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, false);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, 0, routes, false);
 
         router.execute(commands, inputs);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
     }
 
-    function testExactInput1For0FromRouter() public {
+    function testMultiHopExactInput1For0FromRouter() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
-        deal(token1(), address(router), AMOUNT);
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token1(), token0(), stable());
+        uint256 amount = 10 ** ERC20(token1()).decimals();
+        deal(token1(), address(router), amount);
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token1(), address(bUSDC), stable1());
+        routes[1] = Route(address(bUSDC), token0(), stable0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, false);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, 0, routes, false);
 
         router.execute(commands, inputs);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
     }
 
-    function testExactOutput0For1() public skipIfTrue {
+    function testMultiHopExactOutput0For1() public skipIfTrue {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token0(), token1(), stable());
+        uint256 amount = 10 ** ERC20(token0()).decimals();
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token0(), address(bUSDC), stable0());
+        routes[1] = Route(address(bUSDC), token1(), stable1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, true);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, type(uint256).max, routes, true);
 
         router.execute(commands, inputs);
         assertLt(ERC20(token0()).balanceOf(FROM), BALANCE);
-        assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + AMOUNT);
+        assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + amount);
     }
 
-    function testExactOutput1For0() public skipIfTrue {
+    function testMultiHopExactOutput1For0() public skipIfTrue {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token1(), token0(), stable());
+        uint256 amount = 10 ** ERC20(token1()).decimals();
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token1(), address(bUSDC), stable1());
+        routes[1] = Route(address(bUSDC), token0(), stable0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, true);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, type(uint256).max, routes, true);
 
         router.execute(commands, inputs);
         assertLt(ERC20(token1()).balanceOf(FROM), BALANCE);
-        assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + AMOUNT);
+        assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + amount);
     }
 
-    function testExactOutput0For1FromRouter() public skipIfTrue {
+    function testMultiHopExactOutput0For1FromRouter() public skipIfTrue {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
+        uint256 amount = 10 ** ERC20(token0()).decimals();
         deal(token0(), address(router), BALANCE);
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token0(), token1(), stable());
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token0(), address(bUSDC), stable0());
+        routes[1] = Route(address(bUSDC), token1(), stable1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, false);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, type(uint256).max, routes, false);
 
         router.execute(commands, inputs);
-        assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + AMOUNT);
+        assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + amount);
     }
 
-    function testExactOutput1For0FromRouter() public skipIfTrue {
+    function testMultiHopExactOutput1For0FromRouter() public skipIfTrue {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
+        uint256 amount = 10 ** ERC20(token1()).decimals();
         deal(token1(), address(router), BALANCE);
-        Route[] memory routes = new Route[](1);
-        routes[0] = Route(token1(), token0(), stable());
+        Route[] memory routes = new Route[](2);
+        routes[0] = Route(token1(), address(bUSDC), stable1());
+        routes[1] = Route(address(bUSDC), token0(), stable0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, false);
+        inputs[0] = abi.encode(Constants.MSG_SENDER, amount, type(uint256).max, routes, false);
 
         router.execute(commands, inputs);
-        assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + AMOUNT);
+        assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + amount);
     }
 
     function createAndSeedPair(address tokenA, address tokenB, bool _stable) internal returns (address newPair) {
@@ -175,17 +193,19 @@ abstract contract UniswapV2Test is Test {
             newPair = FACTORY.createPair(tokenA, tokenB, _stable);
         }
 
-        deal(tokenA, address(this), 100 * 10 ** ERC20(tokenA).decimals());
-        deal(tokenB, address(this), 100 * 10 ** ERC20(tokenB).decimals());
-        ERC20(tokenA).transfer(address(newPair), 100 * 10 ** ERC20(tokenA).decimals());
-        ERC20(tokenB).transfer(address(newPair), 100 * 10 ** ERC20(tokenB).decimals());
+        deal(tokenA, address(this), 1_000_000 * 10 ** ERC20(tokenA).decimals());
+        deal(tokenB, address(this), 1_000_000 * 10 ** ERC20(tokenB).decimals());
+        ERC20(tokenA).transfer(address(newPair), 1_000_000 * 10 ** ERC20(tokenA).decimals());
+        ERC20(tokenB).transfer(address(newPair), 1_000_000 * 10 ** ERC20(tokenB).decimals());
         IPool(newPair).mint(address(this));
     }
 
     function token0() internal virtual returns (address);
     function token1() internal virtual returns (address);
-    // stability of token0 and token1 pair
-    function stable() internal virtual returns (bool);
+    // stability of token0 and bUSDC pair
+    function stable0() internal virtual returns (bool);
+    // stability of token1 and bUSDC pair
+    function stable1() internal virtual returns (bool);
 
     function setUpTokens() internal virtual {}
 
@@ -195,7 +215,9 @@ abstract contract UniswapV2Test is Test {
         vm.label(address(FACTORY), 'V2 Pool Factory');
         vm.label(POOL_IMPLEMENTATION, 'V2 Pool Implementation');
         vm.label(address(WETH9), 'WETH');
+        vm.label(address(bUSDC), 'Bridged USDC');
         vm.label(FROM, 'from');
-        vm.label(pair, string.concat(ERC20(token0()).symbol(), '-', string.concat(ERC20(token1()).symbol()), 'Pool'));
+        vm.label(firstPair, string.concat(ERC20(token0()).symbol(), '-bUSDC Pool'));
+        vm.label(secondPair, string.concat(ERC20(token1()).symbol(), '-bUSDC Pool'));
     }
 }

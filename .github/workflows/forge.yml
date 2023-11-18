@@ -56,4 +56,4 @@ jobs:
           forge test -vvv
         id: test
         env:
-          FORK_URL: https://mainnet.infura.io/v3/${{ secrets.INFURA_API_KEY }}
+          RPC_URL: ${{ secrets.RPC_URL }}

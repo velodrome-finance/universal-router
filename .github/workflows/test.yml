@@ -21,6 +21,11 @@ jobs:
           node-version: 16.x
           registry-url: https://registry.npmjs.org
 
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
       - id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
@@ -41,4 +46,4 @@ jobs:
       - name: Run Integration tests
         run: yarn test
         env:
-          INFURA_API_KEY: ${{ secrets.INFURA_API_KEY }}
+          RPC_URL: ${{ secrets.RPC_URL }}

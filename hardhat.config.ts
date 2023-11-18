@@ -1,6 +1,7 @@
 import 'hardhat-typechain'
 import '@nomiclabs/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
+import '@nomicfoundation/hardhat-foundry'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -11,7 +12,7 @@ const DEFAULT_COMPILER_SETTINGS = {
     evmVersion: 'istanbul',
     optimizer: {
       enabled: true,
-      runs: 1_000_000,
+      runs: 200, // TODO: change back 1_000_000
     },
     metadata: {
       bytecodeHash: 'none',
@@ -26,26 +27,26 @@ export default {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: false,
-      chainId: 1,
+      chainId: 10,
       forking: {
-        url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-        blockNumber: 15360000,
+        url: `${process.env.RPC_URL}`,
+        blockNumber: 111000000,
       },
     },
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `${process.env.RPC_URL}`,
     },
     ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `${process.env.RPC_URL}`,
     },
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `${process.env.RPC_URL}`,
     },
     goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `${process.env.RPC_URL}`,
     },
     kovan: {
-      url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `${process.env.RPC_URL}`,
     },
     arbitrumRinkeby: {
       url: `https://rinkeby.arbitrum.io/rpc`,
@@ -60,10 +61,10 @@ export default {
       url: `https://mainnet.optimism.io`,
     },
     polygon: {
-      url: `https://polygon-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: `${process.env.RPC_URL}`,
     },
     base: {
-      url: `https://developer-access-mainnet.base.org`,
+      url: `${process.env.RPC_URL}`,
     },
     baseGoerli: {
       url: `https://goerli.base.org`,

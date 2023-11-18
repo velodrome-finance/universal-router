@@ -4,11 +4,11 @@ import hre from 'hardhat'
 const { ethers } = hre
 
 export const V2_EVENTS = new Interface([
-  'event Swap(address indexed sender, uint amount0In, uint amount1In, uint amount0Out, uint amount1Out, address indexed to)',
+  'event Swap(address indexed sender, address indexed to, uint256 amount0In, uint256 amount1In, uint256 amount0Out, uint256 amount1Out)',
 ])
 
 export const V3_EVENTS = new Interface([
-  'event Swap( address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)',
+  'event Swap(address indexed sender, address indexed recipient, int256 amount0, int256 amount1, uint160 sqrtPriceX96, uint128 liquidity, int24 tick)',
 ])
 
 export function parseEvents(iface: Interface, receipt: TransactionReceipt): (LogDescription | undefined)[] {

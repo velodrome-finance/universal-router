@@ -3,9 +3,9 @@ pragma solidity ^0.8.17;
 
 import {V3Path} from './V3Path.sol';
 import {BytesLib} from './BytesLib.sol';
-import {SafeCast} from '@uniswap/v3-core/contracts/libraries/SafeCast.sol';
-import {IUniswapV3Pool} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol';
-import {IUniswapV3SwapCallback} from '@uniswap/v3-core/contracts/interfaces/callback/IUniswapV3SwapCallback.sol';
+import {SafeCast} from 'contracts/interfaces/external/SafeCast.sol';
+import {ICLPool} from 'contracts/interfaces/external/ICLPool.sol';
+import {ICLSwapCallback} from 'contracts/interfaces/external/ICLSwapCallback.sol';
 import {Constants} from '../../../libraries/Constants.sol';
 import {RouterImmutables} from '../../../base/RouterImmutables.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
@@ -13,7 +13,7 @@ import {Constants} from '../../../libraries/Constants.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 
 /// @title Router for Uniswap v3 Trades
-abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, IUniswapV3SwapCallback {
+abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, ICLSwapCallback {
     using V3Path for bytes;
     using BytesLib for bytes;
     using SafeCast for uint256;
@@ -148,7 +148,7 @@ abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, IUniswapV3S
 
         zeroForOne = isExactIn ? tokenIn < tokenOut : tokenOut < tokenIn;
 
-        (amount0Delta, amount1Delta) = IUniswapV3Pool(computePoolAddress(tokenIn, tokenOut, fee)).swap(
+        (amount0Delta, amount1Delta) = ICLPool(computePoolAddress(tokenIn, tokenOut, fee)).swap(
             recipient,
             zeroForOne,
             amount,

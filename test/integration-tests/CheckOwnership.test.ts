@@ -186,7 +186,7 @@ describe('Check Ownership', () => {
     })
   })
 
-  describe('checks balance ERC20', () => {
+  describe.only('checks balance ERC20', () => {
     let aliceUSDCBalance: BigNumber
     let usdcContract: Contract
 

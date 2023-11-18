@@ -84,8 +84,20 @@ const ABI_DEFINITION: { [key in CommandType]: string[] } = {
   // Uniswap Actions
   [CommandType.V3_SWAP_EXACT_IN]: ['address', 'uint256', 'uint256', 'bytes', 'bool'],
   [CommandType.V3_SWAP_EXACT_OUT]: ['address', 'uint256', 'uint256', 'bytes', 'bool'],
-  [CommandType.V2_SWAP_EXACT_IN]: ['address', 'uint256', 'uint256', 'address[]', 'bool'],
-  [CommandType.V2_SWAP_EXACT_OUT]: ['address', 'uint256', 'uint256', 'address[]', 'bool'],
+  [CommandType.V2_SWAP_EXACT_IN]: [
+    'address',
+    'uint256',
+    'uint256',
+    'tuple(address from, address to, bool stable)[]',
+    'bool',
+  ],
+  [CommandType.V2_SWAP_EXACT_OUT]: [
+    'address',
+    'uint256',
+    'uint256',
+    'tuple(address from, address to, bool stable)[]',
+    'bool',
+  ],
 
   // Token Actions and Checks
   [CommandType.WRAP_ETH]: ['address', 'uint256'],

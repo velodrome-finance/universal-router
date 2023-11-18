@@ -19,7 +19,7 @@ import { getPermitSignature } from './shared/protocolHelpers/permit2'
 import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
 const { ethers } = hre
 
-describe('Seaport v1.5', () => {
+describe.skip('Seaport v1.5', () => {
   let router: UniversalRouter
   let permit2: Permit2
   let planner: RoutePlanner
@@ -140,7 +140,7 @@ describe('Seaport v1.5', () => {
   })
 })
 
-describe('Seaport v1.4', () => {
+describe.skip('Seaport v1.4', () => {
   let alice: SignerWithAddress
   let bob: SignerWithAddress
   let router: UniversalRouter

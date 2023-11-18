@@ -47,12 +47,12 @@ contract UniversalRouterTest is Test {
             looksRareToken: address(0),
             v2Factory: address(0),
             v3Factory: address(0),
-            pairInitCodeHash: bytes32(0),
+            v2Implementation: address(0),
             poolInitCodeHash: bytes32(0)
         });
         router = new UniversalRouter(params);
         testModule = new ExampleModule();
-        erc20 = new MockERC20();
+        erc20 = new MockERC20("Test", "TEST");
         erc1155 = new MockERC1155();
         callbacks = new Callbacks();
     }

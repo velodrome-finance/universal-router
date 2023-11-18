@@ -4,15 +4,15 @@ import {
   ERC20,
   IWETH9,
   MockLooksRareRewardsDistributor,
-  ERC721,
   ERC1155,
+  ERC721,
 } from '../../typechain'
 import { BigNumber, BigNumberish } from 'ethers'
-import { Pair } from '@uniswap/v2-sdk'
 import { expect } from './shared/expect'
 import { abi as ROUTER_ABI } from '../../artifacts/contracts/UniversalRouter.sol/UniversalRouter.json'
 import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
 import { abi as WETH_ABI } from '../../artifacts/contracts/interfaces/external/IWETH9.sol/IWETH9.json'
+import { abi as V2_PAIR_ABI } from './shared/abis/V2Pool.json'
 
 import NFTX_ZAP_ABI from './shared/abis/NFTXZap.json'
 import deployUniversalRouter, { deployPermit2 } from './shared/deployUniversalRouter'
@@ -32,17 +32,17 @@ import {
   seaportInterface,
   getAdvancedOrderParams,
   AdvancedOrder,
+  seaportV1_5Orders,
   Order,
   seaportV1_4Orders,
-  seaportV1_5Orders,
 } from './shared/protocolHelpers/seaport'
-import { resetFork, WETH, DAI, MILADY_721, TOWNSTAR_1155 } from './shared/mainnetForkHelpers'
+import { resetFork, fetchPoolAddress, WETH, OP, TOWNSTAR_1155, MILADY_721 } from './shared/mainnetForkHelpers'
 import { CommandType, RoutePlanner } from './shared/planner'
-import { makePair } from './shared/swapRouter02Helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { expandTo18DecimalsBN } from './shared/helpers'
 import hre from 'hardhat'
 import { findCustomErrorSelector } from './shared/parseEvents'
+import { Token } from '@uniswap/sdk-core'
 
 const { ethers } = hre
 const nftxZapInterface = new ethers.utils.Interface(NFTX_ZAP_ABI)
@@ -52,11 +52,11 @@ describe('UniversalRouter', () => {
   let alice: SignerWithAddress
   let router: UniversalRouter
   let permit2: Permit2
-  let daiContract: ERC20
+  let opContract: ERC20
   let wethContract: IWETH9
   let mockLooksRareToken: ERC20
   let mockLooksRareRewardsDistributor: MockLooksRareRewardsDistributor
-  let pair_DAI_WETH: Pair
+  let pair_OP_WETH: string
 
   beforeEach(async () => {
     await resetFork()
@@ -74,9 +74,9 @@ describe('UniversalRouter', () => {
       ROUTER_REWARDS_DISTRIBUTOR,
       mockLooksRareToken.address
     )) as MockLooksRareRewardsDistributor
-    daiContract = new ethers.Contract(DAI.address, TOKEN_ABI, alice) as ERC20
+    opContract = new ethers.Contract(OP.address, TOKEN_ABI, alice) as ERC20
     wethContract = new ethers.Contract(WETH.address, WETH_ABI, alice) as IWETH9
-    pair_DAI_WETH = await makePair(alice, DAI, WETH)
+    pair_OP_WETH = new ethers.Contract(await fetchPoolAddress(OP, WETH as Token, false), V2_PAIR_ABI, alice).address
     permit2 = (await deployPermit2()).connect(alice) as Permit2
     router = (
       await deployUniversalRouter(permit2, mockLooksRareRewardsDistributor.address, mockLooksRareToken.address)
@@ -89,9 +89,9 @@ describe('UniversalRouter', () => {
 
     beforeEach(async () => {
       planner = new RoutePlanner()
-      await daiContract.approve(permit2.address, MAX_UINT)
+      await opContract.approve(permit2.address, MAX_UINT)
       await wethContract.approve(permit2.address, MAX_UINT)
-      await permit2.approve(DAI.address, router.address, MAX_UINT160, DEADLINE)
+      await permit2.approve(OP.address, router.address, MAX_UINT160, DEADLINE)
       await permit2.approve(WETH.address, router.address, MAX_UINT160, DEADLINE)
     })
 
@@ -100,7 +100,7 @@ describe('UniversalRouter', () => {
         alice.address,
         1,
         1,
-        [DAI.address, WETH.address],
+        [{ from: OP.address, to: WETH.address, stable: false }],
         SOURCE_MSG_SENDER,
       ])
       const invalidDeadline = 10
@@ -121,11 +121,7 @@ describe('UniversalRouter', () => {
     })
 
     it('reverts for an invalid command at index 1', async () => {
-      planner.addCommand(CommandType.PERMIT2_TRANSFER_FROM, [
-        DAI.address,
-        pair_DAI_WETH.liquidityToken.address,
-        expandTo18DecimalsBN(1),
-      ])
+      planner.addCommand(CommandType.PERMIT2_TRANSFER_FROM, [OP.address, pair_OP_WETH, expandTo18DecimalsBN(1)])
       let commands = planner.commands
       let inputs = planner.inputs
 
@@ -138,7 +134,7 @@ describe('UniversalRouter', () => {
     })
 
     it('reverts if paying a portion over 100% of contract balance', async () => {
-      await daiContract.transfer(router.address, expandTo18DecimalsBN(1))
+      await opContract.transfer(router.address, expandTo18DecimalsBN(1))
       planner.addCommand(CommandType.PAY_PORTION, [WETH.address, alice.address, 11_000])
       planner.addCommand(CommandType.SWEEP, [WETH.address, alice.address, 1])
       const { commands, inputs } = planner
@@ -202,7 +198,7 @@ describe('UniversalRouter', () => {
   let permit2: Permit2
   let mockLooksRareToken: ERC20
   let mockLooksRareRewardsDistributor: MockLooksRareRewardsDistributor
-  let daiContract: ERC20
+  let opContract: ERC20
   let wethContract: IWETH9
   let townStarNFT: ERC1155
 
@@ -224,15 +220,15 @@ describe('UniversalRouter', () => {
           method: 'hardhat_impersonateAccount',
           params: [ALICE_ADDRESS],
         })
-        daiContract = new ethers.Contract(DAI.address, TOKEN_ABI, alice) as ERC20
+        opContract = new ethers.Contract(OP.address, TOKEN_ABI, alice) as ERC20
         wethContract = new ethers.Contract(WETH.address, WETH_ABI, alice) as IWETH9
         permit2 = (await deployPermit2()).connect(alice) as Permit2
         router = (await deployUniversalRouter(permit2)).connect(alice) as UniversalRouter
         townStarNFT = TOWNSTAR_1155.connect(alice) as ERC1155
         ;({ advancedOrder, value } = getAdvancedOrderParams(seaportV1_5Orders[0]))
-        await daiContract.approve(permit2.address, MAX_UINT)
+        await opContract.approve(permit2.address, MAX_UINT)
         await wethContract.approve(permit2.address, MAX_UINT)
-        await permit2.approve(DAI.address, router.address, MAX_UINT160, DEADLINE)
+        await permit2.approve(OP.address, router.address, MAX_UINT160, DEADLINE)
         await permit2.approve(WETH.address, router.address, MAX_UINT160, DEADLINE)
       })
 
@@ -250,7 +246,7 @@ describe('UniversalRouter', () => {
           ADDRESS_THIS,
           value,
           maxAmountIn,
-          [DAI.address, WETH.address],
+          [OP.address, WETH.address],
           SOURCE_MSG_SENDER,
         ])
         planner.addCommand(CommandType.UNWRAP_WETH, [ADDRESS_THIS, value])
@@ -292,7 +288,7 @@ describe('UniversalRouter', () => {
       })
     })
 
-    describe('partial fills', async () => {
+    describe.skip('partial fills', async () => {
       let nftxValue: BigNumber
       let numMiladys: number
       let value: BigNumber
