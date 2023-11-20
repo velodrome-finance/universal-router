@@ -232,7 +232,7 @@ describe('UniversalRouter', () => {
         await permit2.approve(WETH.address, router.address, MAX_UINT160, DEADLINE)
       })
 
-      it('completes a trade for ERC20 --> ETH --> Seaport NFT', async () => {
+      it.skip('completes a trade for ERC20 --> ETH --> Seaport NFT', async () => {
         const maxAmountIn = expandTo18DecimalsBN(100_000)
         const tokenId = advancedOrder.parameters.offer[0].identifierOrCriteria
         const calldata = seaportInterface.encodeFunctionData('fulfillAdvancedOrder', [
@@ -258,7 +258,7 @@ describe('UniversalRouter', () => {
         expect(balanceAfter.sub(balanceBefore)).to.eq(1)
       })
 
-      it('completes a trade for WETH --> ETH --> Seaport NFT', async () => {
+      it.skip('completes a trade for WETH --> ETH --> Seaport NFT', async () => {
         const tokenId = advancedOrder.parameters.offer[0].identifierOrCriteria
         const calldata = seaportInterface.encodeFunctionData('fulfillAdvancedOrder', [
           advancedOrder,

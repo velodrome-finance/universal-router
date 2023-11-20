@@ -48,7 +48,7 @@ contract UniversalRouterTest is Test {
             v2Factory: address(0),
             v3Factory: address(0),
             v2Implementation: address(0),
-            poolInitCodeHash: bytes32(0)
+            clImplementation: address(0)
         });
         router = new UniversalRouter(params);
         testModule = new ExampleModule();

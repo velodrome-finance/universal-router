@@ -52,7 +52,7 @@ abstract contract UniswapV2MultiHopTest is Test {
             v2Factory: address(FACTORY),
             v3Factory: address(0),
             v2Implementation: POOL_IMPLEMENTATION,
-            poolInitCodeHash: bytes32(0)
+            clImplementation: address(0)
         });
         router = new UniversalRouter(params);
 

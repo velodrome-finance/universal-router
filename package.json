@@ -31,8 +31,8 @@
     "node": ">=14"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.7.0",
-    "@uniswap/v2-core": "1.0.1"
+    "@uniswap/v2-core": "1.0.1",
+    "@openzeppelin/contracts": "4.7.0"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "1.0.4",

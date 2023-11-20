@@ -5,10 +5,10 @@ import {
   V2_FACTORY_MAINNET,
   V3_FACTORY_MAINNET,
   POOL_IMPLEMENTATION,
-  V3_INIT_CODE_HASH_MAINNET,
   ROUTER_REWARDS_DISTRIBUTOR,
   LOOKSRARE_REWARDS_DISTRIBUTOR,
   LOOKSRARE_TOKEN,
+  CL_POOL_IMPLEMENTATION,
 } from './constants'
 
 export async function deployRouter(
@@ -37,7 +37,7 @@ export async function deployRouter(
     v2Factory: V2_FACTORY_MAINNET,
     v3Factory: V3_FACTORY_MAINNET,
     v2Implementation: POOL_IMPLEMENTATION,
-    poolInitCodeHash: V3_INIT_CODE_HASH_MAINNET,
+    clImplementation: CL_POOL_IMPLEMENTATION,
   }
 
   const routerFactory = await ethers.getContractFactory('UniversalRouter')

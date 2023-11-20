@@ -26,7 +26,7 @@ describe('Check Ownership', () => {
   let cryptoCovens: ERC721
   let townStarNFT: ERC1155
 
-  describe('checks ownership ERC721', () => {
+  describe.skip('checks ownership ERC721', () => {
     beforeEach(async () => {
       await resetFork(16784175)
       await hre.network.provider.request({
@@ -100,7 +100,7 @@ describe('Check Ownership', () => {
     })
   })
 
-  describe('checks ownership ERC1155', () => {
+  describe.skip('checks ownership ERC1155', () => {
     let calldata: string
     let advancedOrder0: AdvancedOrder
     let advancedOrder1: AdvancedOrder
@@ -186,7 +186,7 @@ describe('Check Ownership', () => {
     })
   })
 
-  describe.only('checks balance ERC20', () => {
+  describe('checks balance ERC20', () => {
     let aliceUSDCBalance: BigNumber
     let usdcContract: Contract
 

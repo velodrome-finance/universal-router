@@ -11,6 +11,7 @@ import {RouterImmutables} from '../../../base/RouterImmutables.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
 import {Constants} from '../../../libraries/Constants.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
+import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
 
 /// @title Router for Uniswap v3 Trades
 abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, ICLSwapCallback {
@@ -43,9 +44,9 @@ abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, ICLSwapCall
         bytes calldata path = data.toBytes(0);
 
         // because exact output swaps are executed in reverse order, in this case tokenOut is actually tokenIn
-        (address tokenIn, uint24 fee, address tokenOut) = path.decodeFirstPool();
+        (address tokenIn, int24 tickSpacing, address tokenOut) = path.decodeFirstPool();
 
-        if (computePoolAddress(tokenIn, tokenOut, fee) != msg.sender) revert V3InvalidCaller();
+        if (computePoolAddress(tokenIn, tokenOut, tickSpacing) != msg.sender) revert V3InvalidCaller();
 
         (bool isExactInput, uint256 amountToPay) =
             amount0Delta > 0 ? (tokenIn < tokenOut, uint256(amount0Delta)) : (tokenOut < tokenIn, uint256(amount1Delta));
@@ -144,11 +145,10 @@ abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, ICLSwapCall
         private
         returns (int256 amount0Delta, int256 amount1Delta, bool zeroForOne)
     {
-        (address tokenIn, uint24 fee, address tokenOut) = path.decodeFirstPool();
+        (address tokenIn, int24 tickSpacing, address tokenOut) = path.decodeFirstPool();
 
         zeroForOne = isExactIn ? tokenIn < tokenOut : tokenOut < tokenIn;
-
-        (amount0Delta, amount1Delta) = ICLPool(computePoolAddress(tokenIn, tokenOut, fee)).swap(
+        (amount0Delta, amount1Delta) = ICLPool(computePoolAddress(tokenIn, tokenOut, tickSpacing)).swap(
             recipient,
             zeroForOne,
             amount,
@@ -157,21 +157,17 @@ abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, ICLSwapCall
         );
     }
 
-    function computePoolAddress(address tokenA, address tokenB, uint24 fee) private view returns (address pool) {
-        if (tokenA > tokenB) (tokenA, tokenB) = (tokenB, tokenA);
-        pool = address(
-            uint160(
-                uint256(
-                    keccak256(
-                        abi.encodePacked(
-                            hex'ff',
-                            UNISWAP_V3_FACTORY,
-                            keccak256(abi.encode(tokenA, tokenB, fee)),
-                            UNISWAP_V3_POOL_INIT_CODE_HASH
-                        )
-                    )
-                )
-            )
-        );
+    function computePoolAddress(address tokenA, address tokenB, int24 tickSpacing)
+        private
+        view
+        returns (address pool)
+    {
+        (address token0, address token1) = tokenA < tokenB ? (tokenA, tokenB) : (tokenB, tokenA);
+        bytes32 salt = keccak256(abi.encode(token0, token1, tickSpacing));
+        pool = Clones.predictDeterministicAddress({
+            implementation: UNISWAP_V3_IMPLEMENTATION,
+            salt: salt,
+            deployer: UNISWAP_V3_FACTORY
+        });
     }
 }

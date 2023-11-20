@@ -25,7 +25,7 @@ struct RouterParameters {
     address v2Factory;
     address v2Implementation;
     address v3Factory;
-    bytes32 poolInitCodeHash;
+    address clImplementation;
 }
 
 struct Route {
@@ -94,8 +94,8 @@ contract RouterImmutables {
     /// @dev The address of UniswapV3Factory
     address internal immutable UNISWAP_V3_FACTORY;
 
-    /// @dev The UniswapV3Pool initcodehash
-    bytes32 internal immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
+    /// @dev The address of the UniswapV3 Pool implementation
+    address internal immutable UNISWAP_V3_IMPLEMENTATION;
 
     enum Spenders {
         OSConduit,
@@ -122,6 +122,6 @@ contract RouterImmutables {
         UNISWAP_V2_FACTORY = params.v2Factory;
         UNISWAP_V2_IMPLEMENTATION = params.v2Implementation;
         UNISWAP_V3_FACTORY = params.v3Factory;
-        UNISWAP_V3_POOL_INIT_CODE_HASH = params.poolInitCodeHash;
+        UNISWAP_V3_IMPLEMENTATION = params.clImplementation;
     }
 }

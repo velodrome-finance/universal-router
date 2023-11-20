@@ -1,7 +1,5 @@
 # Universal Router
 
-Please read the [Contributions](https://github.com/Uniswap/universal-router#contributions) section before submitting a Pull Request.
-
 To see the commit of the smart contracts that was used in the latest deployment, see branch `deployed-commit`. To see the addresses of this latest deployment on each network, see folder `deploy-addresses`.
 
 ## High-Level Overview
@@ -20,7 +18,8 @@ Transactions are encoded using a string of commands, allowing users to have maxi
 
 ## Contract Overview
 
-The Universal Router codebase consists of the `UniversalRouter` contract, and all of its dependencies. The purpose of the `UniversalRouter` is to allow users to unify Uniswap ERC20 swaps (on V2 and V3) with NFT purchases across 8 marketplaces, in a single transaction.
+The Universal Router codebase consists of the `UniversalRouter` contract, and all of its dependencies. The purpose of the `UniversalRouter` is to allow users to unify swaps on both Velodrome V2 and CL with NFT purchases across 8 marketplaces, in a single transaction. This repository is lightly modified from the 
+Uniswap `UniversalRouter` repository to be compatible with V2 and CL pools.
 
 `UniversalRouter` integrates with [Permit2](https://github.com/Uniswap/permit2), to enable users to have more safety, flexibility, and control over their ERC20 token approvals.
 
@@ -151,10 +150,10 @@ Developer documentation to give a detailed explanation of the inputs for every c
 
 ### To Compile and Run Tests
 
-1. Create `.env` file with api key
+1. Create `.env` file with a complete rpc url
 
 ```
-INFURA_API_KEY='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+RPC_URL=''
 ```
 
 2. Run yarn commands to compile and test
@@ -181,30 +180,6 @@ forge install
 forge build
 forge test
 ```
-## Integrating
-
-1. Install the latest version of `@uniswap/universal-router` package.
-2. Add git submodules for contracts that aren't a node package. Make sure there's an empty `.gitmodules` file. Then run:
-    ```bash
-      git submodule add https://github.com/transmissions11/solmate
-      git submodule add https://github.com/Uniswap/permit2
-    ```
-3. You should now be able to import contracts from universal-router and compile.
-
-## Contributions
-Before you submit your PR, run all of the following and commit the changes:
-```bash
-# make sure all tests pass this will also update gas snapshots
-yarn test:all
-
-# lint code
-yarn prettier:fix
-```
-
-If you are only concerned with investigating gas diffs, you can run this command to only run gas tests
-```bash
-yarn test:gas
-```
 
 ### To Deploy
 
@@ -228,17 +203,4 @@ forge script --broadcast \
 script/deployParameters/Deploy<network>.s.sol:Deploy<network>
 --etherscan-api-key <ETHERSCAN-API-KEY> \
 --verify
-```
-
-#### To Deploy Permit2 Alongside UniversalRouter
-
-Fill out parameters in `scripts/deployParameters/<network>.json`
-
-```console
-forge script --broadcast \
---rpc-url <RPC-URL> \
---private-key <PRIVATE_KEY> \
---sig 'runAndDeployPermit2(string)' \
-script/deployParameters/DeployUniversalRouter.s.sol:DeployUniversalRouter \
-<pathToJSON>
 ```
