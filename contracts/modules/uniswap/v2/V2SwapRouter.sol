@@ -29,8 +29,9 @@ abstract contract V2SwapRouter is RouterImmutables, Permit2Payments {
                 (uint256 reserveInput, uint256 reserveOutput) =
                     input == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
                 uint256 amountInput = ERC20(input).balanceOf(pair) - reserveInput;
-                uint256 amountOutput =
-                    UniswapV2Library.getAmountOut(amountInput, reserveInput, reserveOutput, routes[i]);
+                uint256 amountOutput = UniswapV2Library.getAmountOut(
+                    UNISWAP_V2_FACTORY, pair, amountInput, reserveInput, reserveOutput, routes[i]
+                );
                 (uint256 amount0Out, uint256 amount1Out) =
                     input == token0 ? (uint256(0), amountOutput) : (amountOutput, uint256(0));
                 address nextPair;

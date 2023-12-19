@@ -10,8 +10,8 @@ contract V2MockMock is UniswapV2Test {
     MockERC20 mockB;
 
     function setUpTokens() internal override {
-        mockA = new MockERC20("Mock Token A", "MOCKA");
-        mockB = new MockERC20("Mock Token B", "MOCKB");
+        mockA = new MockERC20('Mock Token A', 'MOCKA');
+        mockB = new MockERC20('Mock Token B', 'MOCKB');
     }
 
     function token0() internal view override returns (address) {

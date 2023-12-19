@@ -2,6 +2,7 @@
 pragma solidity >=0.8.0;
 
 import {IPool} from 'contracts/interfaces/external/IPool.sol';
+import {IPoolFactory} from 'contracts/interfaces/external/IPoolFactory.sol';
 
 import {Route} from '../../../base/RouterImmutables.sol';
 import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
@@ -15,7 +16,7 @@ library UniswapV2Library {
     error StableExactOutputUnsupported();
 
     /// @notice Calculates the v2 address for a pair without making any external calls
-    /// @param factory The address of the v2 factory
+    /// @param factory The address of the v2 pool factory
     /// @param implementation The address of the implementation of the v2 pool
     /// @param tokenA One of the tokens in the pair
     /// @param tokenB The other token in the pair
@@ -31,7 +32,7 @@ library UniswapV2Library {
     }
 
     /// @notice Calculates the v2 address for a pair and the pair's token0
-    /// @param factory The address of the v2 factory
+    /// @param factory The address of the v2 pool factory
     /// @param implementation The address of the implementation of the v2 pool
     /// @param tokenA One of the tokens in the pair
     /// @param tokenB The other token in the pair
@@ -49,7 +50,7 @@ library UniswapV2Library {
     }
 
     /// @notice Calculates the v2 address for a pair assuming the input tokens are pre-sorted
-    /// @param factory The address of the v2 factory
+    /// @param factory The address of the v2 pool factory
     /// @param implementation The address of the implementation of the v2 pool
     /// @param token0 The pair's token0
     /// @param token1 The pair's token1
@@ -65,7 +66,7 @@ library UniswapV2Library {
     }
 
     /// @notice Calculates the v2 address for a pair and fetches the reserves for each token
-    /// @param factory The address of the v2 factory
+    /// @param factory The address of the v2 pool factory
     /// @param implementation The address of the implementation of the v2 pool
     /// @param tokenA One of the tokens in the pair
     /// @param tokenB The other token in the pair
@@ -85,19 +86,24 @@ library UniswapV2Library {
     }
 
     /// @notice Given an input asset amount returns the maximum output amount of the other asset
+    /// @param factory The address of the v2 pool factory
+    /// @param pair The pair to get amount in from
     /// @param amountIn The token input amount
     /// @param reserveIn The reserves available of the input token
     /// @param reserveOut The reserves available of the output token
     /// @param route Route to get amount out for
     /// @return amountOut The output amount of the output token
-    function getAmountOut(uint256 amountIn, uint256 reserveIn, uint256 reserveOut, Route memory route)
-        internal
-        view
-        returns (uint256 amountOut)
-    {
+    function getAmountOut(
+        address factory,
+        address pair,
+        uint256 amountIn,
+        uint256 reserveIn,
+        uint256 reserveOut,
+        Route memory route
+    ) internal view returns (uint256 amountOut) {
         if (reserveIn == 0 || reserveOut == 0) revert InvalidReserves();
         // adapted from _getAmountOut in Pool.sol
-        amountIn = amountIn - amountIn * 3 / 1000;
+        amountIn -= (amountIn * IPoolFactory(factory).getFee(pair, route.stable)) / 10_000;
         if (route.stable) {
             uint256 decimalsIn = 10 ** ERC20(route.from).decimals();
             uint256 decimalsOut = 10 ** ERC20(route.to).decimals();
@@ -113,26 +119,32 @@ library UniswapV2Library {
     }
 
     /// @notice Returns the input amount needed for a desired output amount in a single-hop trade
+    /// @param factory The address of the v2 pool factory
+    /// @param pair The pair to get amount in from
     /// @param amountOut The desired output amount
     /// @param reserveIn The reserves available of the input token
     /// @param reserveOut The reserves available of the output token
     /// @param route Route to get amount in for
     /// @return amountIn The input amount of the input token
-    function getAmountIn(uint256 amountOut, uint256 reserveIn, uint256 reserveOut, Route memory route)
-        internal
-        view
-        returns (uint256 amountIn)
-    {
+    function getAmountIn(
+        address factory,
+        address pair,
+        uint256 amountOut,
+        uint256 reserveIn,
+        uint256 reserveOut,
+        Route memory route
+    ) internal view returns (uint256 amountIn) {
         if (reserveIn == 0 || reserveOut == 0) revert InvalidReserves();
         if (!route.stable) {
-            amountIn = (amountOut * 1000 * reserveIn) / ((reserveOut - amountOut) * 997) + 1;
+            uint256 fee = IPoolFactory(factory).getFee(pair, route.stable);
+            amountIn = (amountOut * 10_000 * reserveIn) / ((reserveOut - amountOut) * (10_000 - fee)) + 1;
         } else {
             revert StableExactOutputUnsupported();
         }
     }
 
     /// @notice Returns the input amount needed for a desired output amount in a multi-hop trade
-    /// @param factory The address of the v2 factory
+    /// @param factory The address of the v2 pool factory
     /// @param implementation The address of the implementation of the v2 pool
     /// @param amountOut The desired output amount
     /// @param routes The routes of the multi-hop trade
@@ -151,7 +163,7 @@ library UniswapV2Library {
 
             (pair, reserveIn, reserveOut) =
                 pairAndReservesFor(factory, implementation, routes[i - 1].from, routes[i - 1].to, routes[i - 1].stable);
-            amount = getAmountIn(amount, reserveIn, reserveOut, routes[i - 1]);
+            amount = getAmountIn(factory, pair, amount, reserveIn, reserveOut, routes[i - 1]);
         }
     }
 

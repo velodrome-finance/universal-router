@@ -52,7 +52,7 @@ contract UniversalRouterTest is Test {
         });
         router = new UniversalRouter(params);
         testModule = new ExampleModule();
-        erc20 = new MockERC20("Test", "TEST");
+        erc20 = new MockERC20('Test', 'TEST');
         erc1155 = new MockERC1155();
         callbacks = new Callbacks();
     }

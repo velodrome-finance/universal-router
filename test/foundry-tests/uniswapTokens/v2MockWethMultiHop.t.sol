@@ -9,7 +9,7 @@ contract V2MockWeth is UniswapV2MultiHopTest {
     MockERC20 mock;
 
     function setUpTokens() internal override {
-        mock = new MockERC20("Mock", "MOCK");
+        mock = new MockERC20('Mock', 'MOCK');
     }
 
     function token0() internal pure override returns (address) {
