@@ -129,7 +129,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                     // 0x08 <= command < 0x10
                 } else {
                     if (command == Commands.V2_SWAP_EXACT_IN) {
-                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
+                        // equivalent: abi.decode(inputs, (address, uint256, uint256, Route[], bool))
                         address recipient;
                         uint256 amountIn;
                         uint256 amountOutMin;
@@ -140,7 +140,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                         address payer = payerIsUser ? lockedBy : address(this);
                         v2SwapExactInput(map(recipient), amountIn, amountOutMin, routes, payer);
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
-                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
+                        // equivalent: abi.decode(inputs, (address, uint256, uint256, Route[], bool))
                         address recipient;
                         uint256 amountOut;
                         uint256 amountInMax;
@@ -341,7 +341,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                 }
                 Payments.approveERC20(token, spender);
             } else {
-                // placeholder area for commands 0x22-0x3f
+                // placeholder area for commands 0x23-0x3f
                 revert InvalidCommandType(command);
             }
         }
