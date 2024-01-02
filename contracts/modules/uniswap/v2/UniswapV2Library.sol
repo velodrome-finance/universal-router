@@ -137,7 +137,8 @@ library UniswapV2Library {
         if (reserveIn == 0 || reserveOut == 0) revert InvalidReserves();
         if (!route.stable) {
             uint256 fee = IPoolFactory(factory).getFee(pair, route.stable);
-            amountIn = (amountOut * 10_000 * reserveIn) / ((reserveOut - amountOut) * (10_000 - fee)) + 1;
+            amountIn = (amountOut * reserveIn) / (reserveOut - amountOut);
+            amountIn = amountIn * 10_000 / (10_000 - fee) + 1;
         } else {
             revert StableExactOutputUnsupported();
         }
