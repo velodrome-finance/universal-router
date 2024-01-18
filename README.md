@@ -1,5 +1,7 @@
 # Universal Router
 
+The Uniswap Universal Router was adapted to work with the Velodrome ecosystem. This router allows a single swap to be routed through both Velodrome Finance V2 pools and Slipstream (CL) pools. 
+
 To see the commit of the smart contracts that was used in the latest deployment, see branch `deployed-commit`. To see the addresses of this latest deployment on each network, see folder `deploy-addresses`.
 
 ## High-Level Overview
@@ -133,6 +135,14 @@ The inputs for `V3_SWAP_EXACT_IN` is the encoding of 5 parameters:
 - `uint256` The minimum amount of output tokens the user wants
 - `bytes` The UniswapV3 path you want to trade along
 - `bool` A flag for whether the input funds should come from the caller (through Permit2) or whether the funds are already in the UniversalRouter
+
+Support for V2 pools has been added.  For `V2_SWAP_EXACT_IN` The following parameters are required:
+
+- `address` The recipient of the output of the trade
+- `uint256` The amount of input tokens for the trade
+- `amountOutMin` The minimum amount of output tokens the user wants
+- `Route[]` The route struct representing the V2 pool (address from, address to, bool stable)
+- `bool` A flag for whether the input funds should come from the caller
 
 Whereas in contrast `CRYPTOPUNKS` has just 3 parameters encoded:
 
