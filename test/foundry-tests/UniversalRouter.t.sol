@@ -12,6 +12,7 @@ import {Callbacks} from '../../contracts/base/Callbacks.sol';
 import {ExampleModule} from '../../contracts/test/ExampleModule.sol';
 import {RouterParameters} from '../../contracts/base/RouterImmutables.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
+import {Permit2Payments} from 'contracts/modules/Permit2Payments.sol';
 import 'permit2/src/interfaces/IAllowanceTransfer.sol';
 
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
@@ -58,6 +59,13 @@ contract UniversalRouterTest is Test {
     }
 
     event ExampleModuleEvent(string message);
+
+    function testCannotCallSTF(address caller) public {
+        vm.assume(caller != address(router));
+        vm.prank(caller);
+        vm.expectRevert(Permit2Payments.NotUniversalRouter.selector);
+        router.stf(address(0), address(0), address(0), 0);
+    }
 
     function testCallModule() public {
         uint256 bytecodeSize;

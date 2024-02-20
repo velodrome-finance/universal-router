@@ -14,7 +14,10 @@ coverage.json
 typechain
 typechain-types
 
-#Hardhat files
+# Hardhat files
 cache
 cache_hardhat
 artifacts
+
+# Foundry
+deployments
