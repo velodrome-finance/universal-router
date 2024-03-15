@@ -14,6 +14,9 @@ abstract contract DeployUniversalRouter is Script {
     RouterParameters internal params;
     address internal unsupported;
 
+    uint256 public deployPrivateKey = vm.envUint('PRIVATE_KEY_DEPLOY');
+    address public deployerAddress = vm.rememberKey(deployPrivateKey);
+
     address constant UNSUPPORTED_PROTOCOL = address(0);
     bytes32 constant BYTES32_ZERO = bytes32(0);
 
@@ -21,7 +24,7 @@ abstract contract DeployUniversalRouter is Script {
     function setUp() public virtual;
 
     function run() external returns (UniversalRouter router) {
-        vm.startBroadcast();
+        vm.startBroadcast(deployerAddress);
 
         // deploy permit2 if it isnt yet deployed
         if (params.permit2 == address(0)) {
