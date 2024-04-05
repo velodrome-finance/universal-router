@@ -90,6 +90,7 @@ interface INonfungiblePositionManager {
         uint256 amount1Min;
         address recipient;
         uint256 deadline;
+        uint160 sqrtPriceX96;
     }
 
     /// @notice Creates a new position wrapped in a NFT

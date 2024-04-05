@@ -17,9 +17,9 @@ contract UniswapV3NoPermit2Test is Test {
     address constant RECIPIENT = address(10);
     uint256 constant AMOUNT = 1 ether;
     uint256 constant BALANCE = 100000 ether;
-    ICLFactory constant CL_FACTORY = ICLFactory(0x2A2ABCF01B5e9bb3F47f9A0E3173cEBeC603912f);
-    INonfungiblePositionManager constant NFT = INonfungiblePositionManager(0x9630dd7607d5a9beAC9eb9473b9878a77b82d1e3);
-    address constant CL_POOL_IMPLEMENTATION = address(0x002082F4b42F9448b5738516d3A338095CE04924);
+    ICLFactory constant CL_FACTORY = ICLFactory(0x548118C7E0B865C2CfA94D15EC86B666468ac758);
+    INonfungiblePositionManager constant NFT = INonfungiblePositionManager(0xbB5DFE1380333CEE4c2EeBd7202c80dE2256AdF4);
+    address constant CL_POOL_IMPLEMENTATION = address(0xE0A596c403E854FFb9C828aB4f07eEae04A05D37);
     ERC20 constant WETH = ERC20(0x4200000000000000000000000000000000000006);
     ERC20 constant OP = ERC20(0x4200000000000000000000000000000000000042);
     ERC20 constant USDC = ERC20(0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85);
@@ -32,7 +32,7 @@ contract UniswapV3NoPermit2Test is Test {
     address public pool2; // second hop
 
     function setUp() public virtual {
-        vm.createSelectFork(vm.envString('RPC_URL'), 111000000);
+        vm.createSelectFork(vm.envString('RPC_URL'), 118300000);
 
         RouterParameters memory params = RouterParameters({
             permit2: address(PERMIT2),
@@ -194,15 +194,16 @@ contract UniswapV3NoPermit2Test is Test {
             amount1Desired: amountB,
             amount0Min: 0,
             amount1Min: 0,
-            deadline: block.timestamp
+            deadline: block.timestamp,
+            sqrtPriceX96: 0
         });
         NFT.mint(params);
     }
 
     function labelContracts() internal {
         vm.label(address(router), 'UniversalRouter');
-        vm.label(RECIPIENT, 'recipient');
-        vm.label(address(CL_FACTORY), 'CL Pool CL_FACTORY');
+        vm.label(RECIPIENT, 'Recipient');
+        vm.label(address(CL_FACTORY), 'CL Pool Factory');
         vm.label(CL_POOL_IMPLEMENTATION, 'CL Pool Implementation');
         vm.label(address(NFT), 'Position Manager');
         vm.label(address(WETH), 'WETH');
