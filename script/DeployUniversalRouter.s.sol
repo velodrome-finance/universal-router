@@ -12,6 +12,8 @@ bytes32 constant SALT = bytes32(uint256(0x00000000000000000000000000000000000000
 
 abstract contract DeployUniversalRouter is Script {
     RouterParameters internal params;
+    UniversalRouter public router;
+
     address internal unsupported;
 
     uint256 public deployPrivateKey = vm.envUint('PRIVATE_KEY_DEPLOY');
@@ -23,7 +25,7 @@ abstract contract DeployUniversalRouter is Script {
     // set values for params and unsupported
     function setUp() public virtual;
 
-    function run() external returns (UniversalRouter router) {
+    function run() external {
         vm.startBroadcast(deployerAddress);
 
         // deploy permit2 if it isnt yet deployed
@@ -62,11 +64,16 @@ abstract contract DeployUniversalRouter is Script {
             clImplementation: params.clImplementation
         });
 
+        deploy();
+
         logParams();
 
-        router = new UniversalRouter(params);
         console2.log('Universal Router Deployed:', address(router));
         vm.stopBroadcast();
+    }
+
+    function deploy() internal virtual {
+        router = new UniversalRouter(params);
     }
 
     function logParams() internal view {
