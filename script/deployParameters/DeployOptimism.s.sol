@@ -24,9 +24,9 @@ contract DeployOptimism is DeployUniversalRouter {
             looksRareRewardsDistributor: UNSUPPORTED_PROTOCOL,
             looksRareToken: UNSUPPORTED_PROTOCOL,
             v2Factory: 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a,
-            v3Factory: 0x548118C7E0B865C2CfA94D15EC86B666468ac758,
+            v3Factory: 0xCc0bDDB707055e04e497aB22a59c2aF4391cd12F,
             v2Implementation: 0x95885Af5492195F0754bE71AD1545Fe81364E531,
-            clImplementation: 0xE0A596c403E854FFb9C828aB4f07eEae04A05D37
+            clImplementation: 0xc28aD28853A547556780BEBF7847628501A3bCbb
         });
 
         unsupported = 0x40d51104Da22E3e77b683894E7e3E12e8FC61E65;
