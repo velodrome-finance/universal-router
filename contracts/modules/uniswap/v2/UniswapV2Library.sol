@@ -210,8 +210,8 @@ library UniswapV2Library {
                         // We found the correct answer. Return y
                         return y;
                     }
-                    if (_k(x0, y + 1) > xy) {
-                        // If k(x0, y + 1) > xy, then we are close to the correct answer.
+                    if (_f(x0, y + 1) > xy) {
+                        // If _f(x0, y + 1) > xy, then we are close to the correct answer.
                         // There's no closer answer than y + 1
                         return y + 1;
                     }
