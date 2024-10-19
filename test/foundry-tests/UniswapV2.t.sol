@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.15;
 
+import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
+import '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
 import 'forge-std/Test.sol';
+
 import {Permit2} from 'permit2/src/Permit2.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {IPoolFactory} from 'contracts/interfaces/external/IPoolFactory.sol';
@@ -11,8 +14,6 @@ import {Payments} from '../../contracts/modules/Payments.sol';
 import {Constants} from '../../contracts/libraries/Constants.sol';
 import {Commands} from '../../contracts/libraries/Commands.sol';
 import {RouterParameters, Route} from '../../contracts/base/RouterImmutables.sol';
-import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
-import '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
 
 abstract contract UniswapV2Test is Test {
     address constant RECIPIENT = address(10);
@@ -23,6 +24,8 @@ abstract contract UniswapV2Test is Test {
     ERC20 constant WETH9 = ERC20(0x4200000000000000000000000000000000000006);
     Permit2 constant PERMIT2 = Permit2(0x000000000022D473030F116dDEE9F6B43aC78BA3);
     address constant FROM = address(1234);
+
+    event UniversalRouterSwap(address indexed sender, address indexed recipient);
 
     UniversalRouter public router;
     address public pair;
@@ -80,6 +83,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertEq(ERC20(token0()).balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
@@ -92,6 +97,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertEq(ERC20(token1()).balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
@@ -105,6 +112,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, false);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
     }
@@ -117,6 +126,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, 0, routes, false);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
     }
@@ -128,6 +139,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertLt(ERC20(token0()).balanceOf(FROM), BALANCE);
         assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + AMOUNT);
@@ -140,6 +153,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertLt(ERC20(token1()).balanceOf(FROM), BALANCE);
         assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + AMOUNT);
@@ -153,6 +168,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, false);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + AMOUNT);
     }
@@ -165,6 +182,8 @@ abstract contract UniswapV2Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, type(uint256).max, routes, false);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + AMOUNT);
     }

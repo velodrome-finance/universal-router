@@ -27,6 +27,8 @@ contract UniswapV3Test is Test {
     address constant FROM = address(1234);
     int24 constant TICK_SPACING = 200;
 
+    event UniversalRouterSwap(address indexed sender, address indexed recipient);
+
     UniversalRouter public router;
     address public pool; // first hop
     address public pool2; // second hop
@@ -79,6 +81,8 @@ contract UniswapV3Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, amountOutMin, path, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertEq(OP.balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(WETH.balanceOf(FROM), BALANCE);
@@ -91,6 +95,8 @@ contract UniswapV3Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, amountOutMin, path, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertEq(WETH.balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(OP.balanceOf(FROM), BALANCE);
@@ -106,6 +112,8 @@ contract UniswapV3Test is Test {
         inputs[1] = abi.encode(FROM, 0);
         uint256 ethBalanceBefore = FROM.balance;
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, address(router));
         router.execute(commands, inputs);
 
         uint256 ethBalanceAfter = FROM.balance;
@@ -120,6 +128,8 @@ contract UniswapV3Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, amountOutMin, path, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertEq(OP.balanceOf(FROM), BALANCE - AMOUNT);
         assertEq(WETH.balanceOf(FROM), BALANCE);
@@ -134,6 +144,8 @@ contract UniswapV3Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, amountInMax, path, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertLt(ERC20(address(OP)).balanceOf(FROM), BALANCE);
         assertEq(ERC20(address(WETH)).balanceOf(FROM), BALANCE + AMOUNT);
@@ -146,6 +158,8 @@ contract UniswapV3Test is Test {
         bytes[] memory inputs = new bytes[](1);
         inputs[0] = abi.encode(Constants.MSG_SENDER, AMOUNT, amountInMax, path, true);
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, Constants.MSG_SENDER);
         router.execute(commands, inputs);
         assertLt(ERC20(address(WETH)).balanceOf(FROM), BALANCE);
         assertEq(ERC20(address(OP)).balanceOf(FROM), BALANCE + AMOUNT);
@@ -161,6 +175,8 @@ contract UniswapV3Test is Test {
         inputs[1] = abi.encode(FROM, 0);
         uint256 ethBalanceBefore = FROM.balance;
 
+        vm.expectEmit(address(router));
+        emit UniversalRouterSwap(FROM, address(router));
         router.execute(commands, inputs);
 
         uint256 ethBalanceAfter = FROM.balance;

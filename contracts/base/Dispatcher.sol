@@ -26,6 +26,8 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
     error InvalidOwnerERC1155();
     error BalanceTooLow();
 
+    event UniversalRouterSwap(address indexed sender, address indexed recipient);
+
     /// @notice Decodes and executes the given command with the given inputs
     /// @param commandType The command type to execute
     /// @param inputs The inputs to execute the command with
@@ -57,6 +59,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? lockedBy : address(this);
                         v3SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer);
+                        emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V3_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
                         address recipient;
@@ -73,6 +76,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? lockedBy : address(this);
                         v3SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer);
+                        emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_TRANSFER_FROM) {
                         // equivalent: abi.decode(inputs, (address, address, uint160))
                         address token;
@@ -139,6 +143,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                             abi.decode(inputs, (address, uint256, uint256, Route[], bool));
                         address payer = payerIsUser ? lockedBy : address(this);
                         v2SwapExactInput(map(recipient), amountIn, amountOutMin, routes, payer);
+                        emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, Route[], bool))
                         address recipient;
@@ -150,6 +155,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, Callbacks,
                             abi.decode(inputs, (address, uint256, uint256, Route[], bool));
                         address payer = payerIsUser ? lockedBy : address(this);
                         v2SwapExactOutput(map(recipient), amountOut, amountInMax, routes, payer);
+                        emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_PERMIT) {
                         // equivalent: abi.decode(inputs, (IAllowanceTransfer.PermitSingle, bytes))
                         IAllowanceTransfer.PermitSingle calldata permitSingle;
