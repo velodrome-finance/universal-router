@@ -7,10 +7,18 @@ import {RouterParameters} from 'contracts/base/RouterImmutables.sol';
 import {UnsupportedProtocol} from 'contracts/deploy/UnsupportedProtocol.sol';
 import {UniversalRouter} from 'contracts/UniversalRouter.sol';
 import {Permit2} from 'permit2/src/Permit2.sol';
+import {ICreateX} from 'contracts/interfaces/external/ICreateX.sol';
+import {CreateXLibrary} from 'contracts/libraries/CreateXLibrary.sol';
 
 bytes32 constant SALT = bytes32(uint256(0x00000000000000000000000000000000000000005eb67581652632000a6cbedf));
 
+bytes11 constant UNIVERSAL_ROUTER_ENTROPY = 0x0000000000000000000060;
+
 abstract contract DeployUniversalRouter is Script {
+    using CreateXLibrary for bytes11;
+
+    error InvalidAddress(address expected, address output);
+
     RouterParameters internal params;
     UniversalRouter public router;
 
@@ -21,6 +29,8 @@ abstract contract DeployUniversalRouter is Script {
 
     address constant UNSUPPORTED_PROTOCOL = address(0);
     bytes32 constant BYTES32_ZERO = bytes32(0);
+
+    ICreateX public cx = ICreateX(0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed);
 
     // set values for params and unsupported
     function setUp() public virtual;
@@ -73,7 +83,16 @@ abstract contract DeployUniversalRouter is Script {
     }
 
     function deploy() internal virtual {
-        router = new UniversalRouter(params);
+        router = UniversalRouter(
+            payable(
+                cx.deployCreate3({
+                    salt: UNIVERSAL_ROUTER_ENTROPY.calculateSalt({_deployer: deployerAddress}),
+                    initCode: abi.encodePacked(type(UniversalRouter).creationCode, abi.encode(params))
+                })
+            )
+        );
+
+        checkAddress({_entropy: UNIVERSAL_ROUTER_ENTROPY, _output: address(router)});
     }
 
     function logParams() internal view {
@@ -99,5 +118,31 @@ abstract contract DeployUniversalRouter is Script {
 
     function mapUnsupported(address protocol) internal view returns (address) {
         return protocol == address(0) ? unsupported : protocol;
+    }
+
+    /// @dev Check if the computed address matches the address produced by the deployment
+    function checkAddress(bytes11 _entropy, address _output) internal view {
+        address computedAddress = _entropy.computeCreate3Address({_deployer: deployerAddress});
+        if (computedAddress != _output) {
+            revert InvalidAddress(computedAddress, _output);
+        }
+    }
+
+    function verifyCreate3() internal view {
+        /// if not run locally
+        if (block.chainid != 31337) {
+            uint256 size;
+            address contractAddress = address(cx);
+            assembly {
+                size := extcodesize(contractAddress)
+            }
+
+            bytes memory bytecode = new bytes(size);
+            assembly {
+                extcodecopy(contractAddress, add(bytecode, 32), 0, size)
+            }
+
+            assert(keccak256(bytecode) == bytes32(0xbd8a7ea8cfca7b4e5f5041d7d4b17bc317c5ce42cfbc42066a00cf26b43eb53f));
+        }
     }
 }

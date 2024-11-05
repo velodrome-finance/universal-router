@@ -7,6 +7,16 @@ solc_version = '0.8.17'
 optimizer_runs = 1_000_000
 fs_permissions = [{ access = "read", path = "./script/deployParameters/"}]
 
+# @see {@link https://github.com/foundry-rs/foundry/issues/4060}
+auto_detect_remappings = true
+bytecode_hash = "none"
+cbor_metadata = false
+sparse_mode = false
+
+[profile.default.optimizer_details]
+constantOptimizer = true
+yul = true
+
 [fmt]
 line_length = 120
 quote_style = 'single'

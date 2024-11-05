@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.15;
 
-import {DeployUniversalRouter} from '../DeployUniversalRouter.s.sol';
+import '../DeployUniversalRouter.s.sol';
 import {RouterParameters} from 'contracts/base/RouterImmutables.sol';
 import {ModeUniversalRouter} from 'contracts/extensions/ModeUniversalRouter.sol';
 
 contract DeployMode is DeployUniversalRouter {
+    using CreateXLibrary for bytes11;
+
     struct ModeRouterParameters {
         address sfs;
         uint256 tokenId;
@@ -44,6 +46,22 @@ contract DeployMode is DeployUniversalRouter {
     }
 
     function deploy() internal override {
-        router = new ModeUniversalRouter({params: params, sfs: modeParameters.sfs, tokenId: modeParameters.tokenId});
+        router = ModeUniversalRouter(
+            payable(
+                cx.deployCreate3({
+                    salt: UNIVERSAL_ROUTER_ENTROPY.calculateSalt({_deployer: deployerAddress}),
+                    initCode: abi.encodePacked(
+                        type(ModeUniversalRouter).creationCode,
+                        abi.encode(
+                            params, // params
+                            modeParameters.sfs, // sfs
+                            modeParameters.tokenId // tokenId
+                        )
+                    )
+                })
+            )
+        );
+
+        checkAddress({_entropy: UNIVERSAL_ROUTER_ENTROPY, _output: address(router)});
     }
 }
