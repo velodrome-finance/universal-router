@@ -18,25 +18,28 @@ abstract contract DeployUniversalRouter is Script {
     using CreateXLibrary for bytes11;
 
     error InvalidAddress(address expected, address output);
+    error InvalidOutputFilename();
 
     RouterParameters internal params;
     UniversalRouter public router;
 
     address internal unsupported;
 
-    uint256 public deployPrivateKey = vm.envUint('PRIVATE_KEY_DEPLOY');
-    address public deployerAddress = vm.rememberKey(deployPrivateKey);
+    address public deployer = 0x4994DacdB9C57A811aFfbF878D92E00EF2E5C4C2;
 
     address constant UNSUPPORTED_PROTOCOL = address(0);
     bytes32 constant BYTES32_ZERO = bytes32(0);
 
     ICreateX public cx = ICreateX(0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed);
 
+    bool public isTest = false;
+    string public outputFilename = '';
+
     // set values for params and unsupported
     function setUp() public virtual;
 
     function run() external {
-        vm.startBroadcast(deployerAddress);
+        vm.startBroadcast(deployer);
 
         // deploy permit2 if it isnt yet deployed
         if (params.permit2 == address(0)) {
@@ -86,7 +89,7 @@ abstract contract DeployUniversalRouter is Script {
         router = UniversalRouter(
             payable(
                 cx.deployCreate3({
-                    salt: UNIVERSAL_ROUTER_ENTROPY.calculateSalt({_deployer: deployerAddress}),
+                    salt: UNIVERSAL_ROUTER_ENTROPY.calculateSalt({_deployer: deployer}),
                     initCode: abi.encodePacked(type(UniversalRouter).creationCode, abi.encode(params))
                 })
             )
@@ -96,6 +99,7 @@ abstract contract DeployUniversalRouter is Script {
     }
 
     function logParams() internal view {
+        if (isTest) return;
         console2.log('permit2:', params.permit2);
         console2.log('weth9:', params.weth9);
         console2.log('seaportV1_5:', params.seaportV1_5);
@@ -114,6 +118,8 @@ abstract contract DeployUniversalRouter is Script {
         console2.log('looksRareToken:', params.looksRareToken);
         console2.log('v2Factory:', params.v2Factory);
         console2.log('v3Factory:', params.v3Factory);
+        console2.log('UniversalRouter:', address(router));
+        console2.log('UnsupportedProtocol:', unsupported);
     }
 
     function mapUnsupported(address protocol) internal view returns (address) {
@@ -122,7 +128,7 @@ abstract contract DeployUniversalRouter is Script {
 
     /// @dev Check if the computed address matches the address produced by the deployment
     function checkAddress(bytes11 _entropy, address _output) internal view {
-        address computedAddress = _entropy.computeCreate3Address({_deployer: deployerAddress});
+        address computedAddress = _entropy.computeCreate3Address({_deployer: deployer});
         if (computedAddress != _output) {
             revert InvalidAddress(computedAddress, _output);
         }
@@ -144,5 +150,16 @@ abstract contract DeployUniversalRouter is Script {
 
             assert(keccak256(bytecode) == bytes32(0xbd8a7ea8cfca7b4e5f5041d7d4b17bc317c5ce42cfbc42066a00cf26b43eb53f));
         }
+    }
+
+    function logOutput() internal {
+        if (isTest) return;
+        string memory root = vm.projectRoot();
+        string memory path = string(abi.encodePacked(root, '/deployment-addresses/', outputFilename));
+        if (bytes(outputFilename).length == 0) revert InvalidOutputFilename();
+        /// @dev This might overwrite an existing output file
+        vm.writeJson(vm.serializeAddress('', 'Permit2', params.permit2), path);
+        vm.writeJson(vm.serializeAddress('', 'UniversalRouter', address(router)), path);
+        vm.writeJson(vm.serializeAddress('', 'UnsupportedProtocol', unsupported), path);
     }
 }

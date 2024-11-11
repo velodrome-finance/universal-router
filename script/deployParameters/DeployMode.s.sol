@@ -33,15 +33,16 @@ contract DeployMode is DeployUniversalRouter {
             routerRewardsDistributor: UNSUPPORTED_PROTOCOL,
             looksRareRewardsDistributor: UNSUPPORTED_PROTOCOL,
             looksRareToken: UNSUPPORTED_PROTOCOL,
-            v2Factory: 0x629157747eE3a635F9EA1ED37fD0DC7187d45478,
-            v3Factory: address(0),
-            v2Implementation: 0xDF49FF386344d3b687F56c02D0b1784b19013E25,
-            clImplementation: address(0)
+            v2Factory: 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0,
+            v3Factory: 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F,
+            v2Implementation: 0x10499d88Bd32AF443Fc936F67DE32bE1c8Bb374C,
+            clImplementation: 0x321f7Dfb9B2eA9131B8C17691CF6e01E5c149cA8
         });
         // tokenId needs to be set, to the token id for router
-        modeParameters = ModeRouterParameters({sfs: 0x8680CEaBcb9b56913c519c069Add6Bc3494B7020, tokenId: 0});
+        modeParameters = ModeRouterParameters({sfs: 0x8680CEaBcb9b56913c519c069Add6Bc3494B7020, tokenId: 590});
 
         unsupported = 0x0D6953a74f9e50478e325B14053985eE8D548EdE;
+        outputFilename = 'mode.json';
         require(modeParameters.tokenId != 0);
     }
 
@@ -49,7 +50,7 @@ contract DeployMode is DeployUniversalRouter {
         router = ModeUniversalRouter(
             payable(
                 cx.deployCreate3({
-                    salt: UNIVERSAL_ROUTER_ENTROPY.calculateSalt({_deployer: deployerAddress}),
+                    salt: UNIVERSAL_ROUTER_ENTROPY.calculateSalt({_deployer: deployer}),
                     initCode: abi.encodePacked(
                         type(ModeUniversalRouter).creationCode,
                         abi.encode(

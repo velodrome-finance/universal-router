@@ -30,5 +30,6 @@ contract DeployOptimism is DeployUniversalRouter {
         });
 
         unsupported = 0x40d51104Da22E3e77b683894E7e3E12e8FC61E65;
+        outputFilename = 'optimism.json';
     }
 }
