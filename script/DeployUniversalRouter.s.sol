@@ -156,7 +156,7 @@ abstract contract DeployUniversalRouter is Script {
         if (isTest) return;
         string memory root = vm.projectRoot();
         string memory path = string(abi.encodePacked(root, '/deployment-addresses/', outputFilename));
-        if (bytes(outputFilename).length == 0) revert InvalidOutputFilename();
+        if (keccak256(bytes(outputFilename)) == keccak256(bytes(''))) revert InvalidOutputFilename();
         /// @dev This might overwrite an existing output file
         vm.writeJson(vm.serializeAddress('', 'Permit2', params.permit2), path);
         vm.writeJson(vm.serializeAddress('', 'UniversalRouter', address(router)), path);
