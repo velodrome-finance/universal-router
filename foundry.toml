@@ -28,14 +28,11 @@ optimizerSteps = ''
 runs = 5000
 
 [rpc_endpoints]
-optimism_goerli = "${OPTIMISM_GOERLI_RPC_URL}"
-
+lisk = "${LISK_RPC_URL}"
 mode = "${MODE_RPC_URL}"
 optimism = "${OPTIMISM_RPC_URL}"
 
 [etherscan]
-optimism_goerli = { key = "${OPTIMISM_GOERLI_ETHERSCAN_API_KEY}", url = "${OPTIMISM_GOERLI_ETHERSCAN_VERIFIER_URL}" }
-
 mode = { key = "${MODE_ETHERSCAN_API_KEY}", url = "${MODE_ETHERSCAN_VERIFIER_URL}" }
 optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "${OPTIMISM_ETHERSCAN_VERIFIER_URL}" }
 
