@@ -80,6 +80,7 @@ abstract contract DeployUniversalRouter is Script {
         deploy();
 
         logParams();
+        logOutput();
 
         console2.log('Universal Router Deployed:', address(router));
         vm.stopBroadcast();
