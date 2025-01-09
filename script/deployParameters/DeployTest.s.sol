@@ -33,7 +33,7 @@ contract DeployTest is DeployUniversalRouter, TestConstants {
         });
 
         unsupported = address(0);
-        isTest = false;
+        isTest = true;
     }
 
     function setUp() public override {}
