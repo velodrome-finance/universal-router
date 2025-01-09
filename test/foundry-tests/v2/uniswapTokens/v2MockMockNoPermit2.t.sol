@@ -2,10 +2,10 @@
 pragma solidity ^0.8.15;
 
 import 'forge-std/Test.sol';
-import {MockERC20} from '../mock/MockERC20.sol';
-import {UniswapV2MultiHopTest} from '../UniswapV2MultiHop.t.sol';
+import {MockERC20} from '../../mock/MockERC20.sol';
+import {UniswapV2NoPermit2Test} from '../UniswapV2NoPermit2.t.sol';
 
-contract V2MockMock is UniswapV2MultiHopTest {
+contract V2MockMockNoPermit2 is UniswapV2NoPermit2Test {
     MockERC20 mockA;
     MockERC20 mockB;
 
@@ -22,11 +22,7 @@ contract V2MockMock is UniswapV2MultiHopTest {
         return address(mockB);
     }
 
-    function stable0() internal pure override returns (bool) {
-        return false;
-    }
-
-    function stable1() internal pure override returns (bool) {
+    function stable() internal pure override returns (bool) {
         return false;
     }
 

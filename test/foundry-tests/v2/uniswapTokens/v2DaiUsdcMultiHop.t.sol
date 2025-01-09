@@ -5,27 +5,26 @@ import 'forge-std/Test.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {UniswapV2MultiHopTest} from '../UniswapV2MultiHop.t.sol';
 
-contract V2WethVeloMultiHop is UniswapV2MultiHopTest {
-    ERC20 constant VELO = ERC20(0x3c8B650257cFb5f272f799F5e2b4e65093a11a05);
-
+contract V2DaiUsdcMultiHop is UniswapV2MultiHopTest {
     function token0() internal pure override returns (address) {
-        return address(VELO);
+        return address(DAI);
     }
 
     function token1() internal pure override returns (address) {
-        return address(WETH9);
+        return address(USDC);
     }
 
     function stable0() internal pure override returns (bool) {
-        return false;
+        return true;
     }
 
     function stable1() internal pure override returns (bool) {
-        return false;
+        return true;
     }
 
     function labelContracts() internal override {
         super.labelContracts();
-        vm.label(address(VELO), 'Velo');
+        vm.label(address(DAI), 'DAI');
+        vm.label(address(USDC), 'USDC');
     }
 }

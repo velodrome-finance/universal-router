@@ -2,26 +2,26 @@
 pragma solidity ^0.8.15;
 
 import 'forge-std/Test.sol';
-import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
-import {Payments} from '../../contracts/modules/Payments.sol';
-import {Constants} from '../../contracts/libraries/Constants.sol';
-import {Commands} from '../../contracts/libraries/Commands.sol';
-import {MockERC20} from './mock/MockERC20.sol';
-import {MockERC1155} from './mock/MockERC1155.sol';
-import {Callbacks} from '../../contracts/base/Callbacks.sol';
-import {ExampleModule} from '../../contracts/test/ExampleModule.sol';
-import {RouterParameters} from '../../contracts/base/RouterImmutables.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
-import {Permit2Payments} from 'contracts/modules/Permit2Payments.sol';
 import 'permit2/src/interfaces/IAllowanceTransfer.sol';
-
 import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
 
-contract UniversalRouterTest is Test {
-    address constant RECIPIENT = address(10);
-    uint256 constant AMOUNT = 10 ** 18;
+import {MockERC20} from '../mock/MockERC20.sol';
+import {MockERC1155} from '../mock/MockERC1155.sol';
 
+import {Callbacks} from 'contracts/base/Callbacks.sol';
+import {Payments} from 'contracts/modules/Payments.sol';
+import {UniversalRouter} from 'contracts/UniversalRouter.sol';
+import {ExampleModule} from 'contracts/test/ExampleModule.sol';
+import {RouterParameters} from 'contracts/base/RouterImmutables.sol';
+import {Permit2Payments} from 'contracts/modules/Permit2Payments.sol';
+import {Constants} from 'contracts/libraries/Constants.sol';
+import {Commands} from 'contracts/libraries/Commands.sol';
+
+import {TestConstants} from '../utils/TestConstants.t.sol';
+
+contract UniversalRouterTest is Test, TestConstants {
     UniversalRouter router;
     ExampleModule testModule;
     MockERC20 erc20;
@@ -164,7 +164,7 @@ contract UniversalRouterTest is Test {
         router.execute(commands, inputs);
     }
 
-    function testSupportsInterface() public {
+    function testSupportsInterface() public view {
         bool supportsERC1155 = callbacks.supportsInterface(type(IERC1155Receiver).interfaceId);
         bool supportsERC721 = callbacks.supportsInterface(type(IERC721Receiver).interfaceId);
         bool supportsERC165 = callbacks.supportsInterface(type(IERC165).interfaceId);

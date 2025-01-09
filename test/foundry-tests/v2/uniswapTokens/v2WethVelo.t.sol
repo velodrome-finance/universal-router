@@ -2,22 +2,16 @@
 pragma solidity ^0.8.15;
 
 import 'forge-std/Test.sol';
-import {MockERC20} from '../mock/MockERC20.sol';
+import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {UniswapV2Test} from '../UniswapV2.t.sol';
 
-contract V2MockWeth is UniswapV2Test {
-    MockERC20 mock;
-
-    function setUpTokens() internal override {
-        mock = new MockERC20('Mock', 'MOCK');
-    }
-
+contract V2WethVelo is UniswapV2Test {
     function token0() internal pure override returns (address) {
-        return address(WETH9);
+        return address(VELO);
     }
 
-    function token1() internal view override returns (address) {
-        return address(mock);
+    function token1() internal pure override returns (address) {
+        return address(WETH);
     }
 
     function stable() internal pure override returns (bool) {
@@ -26,6 +20,6 @@ contract V2MockWeth is UniswapV2Test {
 
     function labelContracts() internal override {
         super.labelContracts();
-        vm.label(address(mock), 'Mock');
+        vm.label(address(VELO), 'Velo');
     }
 }

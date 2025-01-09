@@ -2,8 +2,8 @@
 pragma solidity ^0.8.15;
 
 import 'forge-std/Test.sol';
-import {MockERC20} from '../mock/MockERC20.sol';
 import {UniswapV2Test} from '../UniswapV2.t.sol';
+import {MockERC20} from '../../mock/MockERC20.sol';
 
 contract V2MockMock is UniswapV2Test {
     MockERC20 mockA;
