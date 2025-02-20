@@ -4,7 +4,8 @@ pragma solidity ^0.8.15;
 import {DeployUniversalRouter} from '../DeployUniversalRouter.s.sol';
 import {RouterParameters} from 'contracts/base/RouterImmutables.sol';
 
-contract DeployLisk is DeployUniversalRouter {
+/// @title Deployment template for superchain use only
+contract DeployTemplate is DeployUniversalRouter {
     function setUp() public override {
         params = RouterParameters({
             permit2: address(0),
@@ -30,5 +31,6 @@ contract DeployLisk is DeployUniversalRouter {
         });
 
         unsupported = address(0);
+        outputFilename = 'template.json';
     }
 }
