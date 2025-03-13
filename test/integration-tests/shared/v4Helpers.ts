@@ -26,13 +26,13 @@ export const USDC_WETH = {
   tickUpper: USDC_WETH_TICK_UPPER,
 }
 
-const DAI_USDC_PRICE = BigNumber.from('79227835492130174795940')
-const DAI_USDC_TICK_LOWER = -276330
-const DAI_USDC_TICK_UPPER = -276320
+const DAI_USDC_PRICE = BigNumber.from('79229016577667039811315')
+const DAI_USDC_TICK_LOWER = 276320
+const DAI_USDC_TICK_UPPER = 276330
 export const DAI_USDC = {
   poolKey: {
-    currency0: DAI.address,
-    currency1: USDC.address,
+    currency0: USDC.address,
+    currency1: DAI.address,
     fee: FeeAmount.LOWEST,
     tickSpacing: 10,
     hooks: ZERO_ADDRESS,

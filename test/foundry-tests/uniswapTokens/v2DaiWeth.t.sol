@@ -6,7 +6,7 @@ import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {UniswapV2Test} from '../UniswapV2.t.sol';
 
 contract V2DaiWeth is UniswapV2Test {
-    ERC20 constant DAI = ERC20(0x6B175474E89094C44Da98b954EedeAC495271d0F);
+    ERC20 constant DAI = ERC20(0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1);
 
     function token0() internal pure override returns (address) {
         return address(WETH9);

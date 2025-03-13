@@ -2,7 +2,7 @@ import type { Contract } from '@ethersproject/contracts'
 import { UniversalRouter } from '../../../typechain'
 import { abi as TOKEN_ABI } from '../../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
 import { resetFork, DAI, WETH } from '../shared/mainnetForkHelpers'
-import { ALICE_ADDRESS, DEADLINE, ETH_ADDRESS, ONE_PERCENT_BIPS } from '../shared/constants'
+import { ALICE_ADDRESS, DEADLINE, ETH_ADDRESS, ONE_PERCENT_BIPS, WETH_HOLDER, DAI_HOLDER } from '../shared/constants'
 import { expandTo18DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import hre from 'hardhat'
@@ -28,12 +28,21 @@ describe('Payments Gas Tests', () => {
       method: 'hardhat_impersonateAccount',
       params: [ALICE_ADDRESS],
     })
+    await hre.network.provider.request({
+      method: 'hardhat_setBalance',
+      params: [DAI_HOLDER, '0xf00000000000000'],
+    })
     alice = await ethers.getSigner(ALICE_ADDRESS)
     bob = (await ethers.getSigners())[1]
     daiContract = new ethers.Contract(DAI.address, TOKEN_ABI, alice)
     wethContract = new ethers.Contract(WETH.address, new ethers.utils.Interface(WETH_ABI.abi), alice)
     router = (await deployUniversalRouter(alice.address)).connect(alice) as UniversalRouter
     planner = new RoutePlanner()
+    // seed alice with tokens
+    const daiHolder = await ethers.getImpersonatedSigner(DAI_HOLDER)
+    const wethHolder = await ethers.getImpersonatedSigner(WETH_HOLDER)
+    await daiContract.connect(daiHolder).transfer(alice.address, expandTo18DecimalsBN(100000))
+    await wethContract.connect(wethHolder).transfer(alice.address, expandTo18DecimalsBN(100))
   })
 
   describe('Individual Command Tests', () => {

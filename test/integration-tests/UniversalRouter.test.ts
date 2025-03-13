@@ -14,6 +14,7 @@ import {
   MAX_UINT160,
   MAX_UINT,
   ETH_ADDRESS,
+  DAI_HOLDER,
 } from './shared/constants'
 import { resetFork, WETH, DAI, PERMIT2 } from './shared/mainnetForkHelpers'
 import { CommandType, RoutePlanner } from './shared/planner'
@@ -27,6 +28,7 @@ const routerInterface = new ethers.utils.Interface(ROUTER_ABI)
 
 describe('UniversalRouter', () => {
   let alice: SignerWithAddress
+  let daiHolder: SignerWithAddress
   let router: UniversalRouter
   let permit2: IPermit2
   let daiContract: ERC20
@@ -40,12 +42,20 @@ describe('UniversalRouter', () => {
       method: 'hardhat_impersonateAccount',
       params: [ALICE_ADDRESS],
     })
+    await hre.network.provider.request({
+      method: 'hardhat_setBalance',
+      params: [DAI_HOLDER, '0xf00000000000000'],
+    })
 
     daiContract = new ethers.Contract(DAI.address, TOKEN_ABI, alice) as ERC20
     wethContract = new ethers.Contract(WETH.address, WETH_ABI, alice) as IWETH9
     pair_DAI_WETH = await makePair(alice, DAI, WETH)
     permit2 = PERMIT2.connect(alice) as IPermit2
     router = (await deployUniversalRouter(alice.address)).connect(alice) as UniversalRouter
+
+    // seed alice with dai
+    daiHolder = await ethers.getImpersonatedSigner(DAI_HOLDER)
+    await daiContract.connect(daiHolder).transfer(alice.address, expandTo18DecimalsBN(100000))
   })
 
   describe('#execute', () => {

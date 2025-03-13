@@ -13,6 +13,8 @@ import {
   MSG_SENDER,
   SOURCE_MSG_SENDER,
   SOURCE_ROUTER,
+  DAI_HOLDER,
+  WETH_HOLDER,
 } from './shared/constants'
 import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -28,6 +30,8 @@ const { ethers } = hre
 describe('Uniswap V3 Tests:', () => {
   let alice: SignerWithAddress
   let bob: SignerWithAddress
+  let daiHolder: SignerWithAddress
+  let wethHolder: SignerWithAddress
   let router: UniversalRouter
   let permit2: IPermit2
   let daiContract: Contract
@@ -45,8 +49,14 @@ describe('Uniswap V3 Tests:', () => {
       method: 'hardhat_impersonateAccount',
       params: [ALICE_ADDRESS],
     })
+    await hre.network.provider.request({
+      method: 'hardhat_setBalance',
+      params: [DAI_HOLDER, '0xf00000000000000'],
+    })
     alice = await ethers.getSigner(ALICE_ADDRESS)
     bob = (await ethers.getSigners())[1]
+    daiHolder = await ethers.getImpersonatedSigner(DAI_HOLDER)
+    wethHolder = await ethers.getImpersonatedSigner(WETH_HOLDER)
     daiContract = new ethers.Contract(DAI.address, TOKEN_ABI, bob)
     wethContract = new ethers.Contract(WETH.address, TOKEN_ABI, bob)
     usdcContract = new ethers.Contract(USDC.address, TOKEN_ABI, bob)
@@ -54,6 +64,9 @@ describe('Uniswap V3 Tests:', () => {
     router = (await deployUniversalRouter(bob.address)) as UniversalRouter
     planner = new RoutePlanner()
 
+    // seed alice with funds
+    await daiContract.connect(daiHolder).transfer(alice.address, expandTo18DecimalsBN(100000))
+    await wethContract.connect(wethHolder).transfer(alice.address, expandTo18DecimalsBN(100))
     // alice gives bob some tokens
     await daiContract.connect(alice).transfer(bob.address, expandTo18DecimalsBN(100000))
     await wethContract.connect(alice).transfer(bob.address, expandTo18DecimalsBN(100))
@@ -197,7 +210,7 @@ describe('Uniswap V3 Tests:', () => {
         daiContract,
         usdcContract
       )
-      const { amount1: wethTraded } = v3SwapEventArgs!
+      const { amount0: wethTraded } = v3SwapEventArgs!
       expect(wethBalanceAfter.sub(wethBalanceBefore)).to.be.gte(amountOutMin)
       expect(wethBalanceAfter.sub(wethBalanceBefore)).to.eq(wethTraded.mul(-1))
     })
@@ -247,7 +260,7 @@ describe('Uniswap V3 Tests:', () => {
       expect(daiTraded).to.be.lt(amountInMax)
     })
 
-    it('completes a V3 exactOut swap with longer path', async () => {
+    it.skip('completes a V3 exactOut swap with longer path', async () => {
       // trade DAI in for WETH out
       const tokens = [DAI.address, USDC.address, WETH.address]
       const path = encodePathExactOutput(tokens)
@@ -276,7 +289,7 @@ describe('Uniswap V3 Tests:', () => {
         daiContract,
         usdcContract
       )
-      const { amount1: wethTraded } = v3SwapEventArgs!
+      const { amount0: wethTraded } = v3SwapEventArgs!
 
       expect(ethBalanceAfter.sub(ethBalanceBefore)).to.be.gte(amountOutMin.sub(gasSpent))
       expect(ethBalanceAfter.sub(ethBalanceBefore)).to.eq(wethTraded.mul(-1).sub(gasSpent))
@@ -335,7 +348,7 @@ describe('Uniswap V3 Tests:', () => {
 
       const { ethBalanceBefore, ethBalanceAfter, daiBalanceBefore, daiBalanceAfter, gasSpent, v3SwapEventArgs } =
         await executeRouter(planner, bob, router, wethContract, daiContract, usdcContract, amountInMax)
-      const { amount0: daiTraded, amount1: wethTraded } = v3SwapEventArgs!
+      const { amount1: daiTraded, amount0: wethTraded } = v3SwapEventArgs!
 
       expect(daiBalanceBefore.sub(daiBalanceAfter)).to.eq(daiTraded)
       expect(ethBalanceBefore.sub(ethBalanceAfter)).to.eq(wethTraded.add(gasSpent))

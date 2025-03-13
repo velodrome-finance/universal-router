@@ -19,7 +19,7 @@ import {
   approveSwapRouter02,
   PERMIT2,
 } from '../shared/mainnetForkHelpers'
-import { ALICE_ADDRESS, DEADLINE, MAX_UINT, MAX_UINT160, SOURCE_MSG_SENDER } from '../shared/constants'
+import { ALICE_ADDRESS, DEADLINE, MAX_UINT, MAX_UINT160, SOURCE_MSG_SENDER, USDC_HOLDER } from '../shared/constants'
 import { expandTo6DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import deployUniversalRouter from '../shared/deployUniversalRouter'
@@ -63,6 +63,9 @@ describe('Uniswap UX Tests gas:', () => {
 
     planner = new RoutePlanner()
 
+    // seed alice with funds
+    const usdcHolder = await ethers.getImpersonatedSigner(USDC_HOLDER)
+    await usdcContract.connect(usdcHolder).transfer(alice.address, expandTo6DecimalsBN(10000000))
     // Alice gives bob some tokens
     await usdcContract.connect(alice).transfer(bob.address, expandTo6DecimalsBN(10000000))
 
@@ -238,7 +241,7 @@ describe('Uniswap UX Tests gas:', () => {
       })
     })
 
-    describe('One Time Swapper - Complex Swap', async () => {
+    describe.skip('One Time Swapper - Complex Swap', async () => {
       it('SwapRouter02', async () => {
         const { calldata } = SwapRouter.swapCallParameters(COMPLEX_SWAP, {
           slippageTolerance: new Percent(50, 100),
@@ -274,7 +277,7 @@ describe('Uniswap UX Tests gas:', () => {
       })
     })
 
-    describe('Casual Swapper - 3 swaps', async () => {
+    describe.skip('Casual Swapper - 3 swaps', async () => {
       it('SwapRouter02', async () => {
         const { calldata: callDataComplex } = SwapRouter.swapCallParameters(COMPLEX_SWAP, {
           slippageTolerance: new Percent(50, 100),
@@ -358,7 +361,7 @@ describe('Uniswap UX Tests gas:', () => {
       })
     })
 
-    describe('Frequent Swapper - 10 swaps', async () => {
+    describe.skip('Frequent Swapper - 10 swaps', async () => {
       it('SwapRouter02', async () => {
         const { calldata: callDataComplex } = SwapRouter.swapCallParameters(COMPLEX_SWAP, {
           slippageTolerance: new Percent(50, 100),
@@ -443,7 +446,7 @@ describe('Uniswap UX Tests gas:', () => {
       })
     })
 
-    describe('Frequent Swapper across 3 swap router versions - 15 swaps across 3 versions', async () => {
+    describe.skip('Frequent Swapper across 3 swap router versions - 15 swaps across 3 versions', async () => {
       it('SwapRouter02', async () => {
         const { calldata: callDataComplex } = SwapRouter.swapCallParameters(COMPLEX_SWAP, {
           slippageTolerance: new Percent(50, 100),

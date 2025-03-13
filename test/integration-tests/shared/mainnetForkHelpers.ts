@@ -3,7 +3,7 @@ import { abi as PERMIT2_ABI } from '../../../artifacts/permit2/src/interfaces/IP
 import { abi as INonfungiblePositionManager_ABI } from '../../../artifacts/@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol/INonfungiblePositionManager.json'
 import { PERMIT2_ADDRESS, V3_NFT_POSITION_MANAGER_MAINNET } from './constants'
 import { abi as V2_PAIR_ABI } from '../../../artifacts/@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol/IUniswapV2Pair.json'
-import { Currency, Token, WETH9 } from '@uniswap/sdk-core'
+import { Currency, Token } from '@uniswap/sdk-core'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { BigNumber, constants } from 'ethers'
@@ -12,13 +12,15 @@ import { MethodParameters } from '@uniswap/v3-sdk'
 import { Pair } from '@uniswap/v2-sdk'
 const { ethers } = hre
 
-export const WETH = WETH9[1]
-export const DAI = new Token(1, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'DAI', 'Dai Stablecoin')
-export const USDC = new Token(1, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD//C')
-export const USDT = new Token(1, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD')
-export const GALA = new Token(1, '0x15D4c048F83bd7e37d49eA4C83a07267Ec4203dA', 8, 'GALA', 'Gala')
+export const WETH = new Token(1, '0x4200000000000000000000000000000000000006', 18, 'WETH', 'Wrapped Ether')
+export const DAI = new Token(1, '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1', 18, 'DAI', 'Dai Stablecoin')
+export const USDC = new Token(1, '0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85', 6, 'USDC', 'USD//C')
+export const USDT = new Token(1, '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58', 6, 'USDT', 'Tether USD')
+export const VELO = new Token(1, '0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db', 18, 'VELO', 'Velo')
 export const SWAP_ROUTER_V2 = '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45'
-export const V2_FACTORY = 0x5c69bee701ef814a2b6a3edd4b1652cb9cc5aa6f
+export const V2_FACTORY = '0x0c3c1c532F1e39EdF36BE9Fe0bE1410313E074Bf'
+export const V2_FACTORY_ABI =
+  '[{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"getPair","outputs":[{"internalType":"address","name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"}]'
 
 export const approveSwapRouter02 = async (
   alice: SignerWithAddress,
@@ -44,7 +46,8 @@ type Reserves = {
 }
 
 export const getV2PoolReserves = async (alice: SignerWithAddress, tokenA: Token, tokenB: Token): Promise<Reserves> => {
-  const contractAddress = Pair.getAddress(tokenA, tokenB)
+  const poolFactory = new ethers.Contract(V2_FACTORY, V2_FACTORY_ABI, alice)
+  const contractAddress = await poolFactory.getPair(tokenA.address, tokenB.address)
   const contract = new ethers.Contract(contractAddress, V2_PAIR_ABI, alice)
 
   const { reserve0, reserve1 } = await contract.getReserves()
@@ -96,8 +99,8 @@ export const resetFork = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-          blockNumber: 20010000,
+          jsonRpcUrl: `${process.env.FORK_URL}`,
+          blockNumber: 133000000,
         },
       },
     ],

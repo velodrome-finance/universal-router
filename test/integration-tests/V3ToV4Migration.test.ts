@@ -13,6 +13,8 @@ import {
   OPEN_DELTA,
   SOURCE_ROUTER,
   CONTRACT_BALANCE,
+  WETH_HOLDER,
+  DAI_HOLDER,
 } from './shared/constants'
 import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -42,6 +44,8 @@ describe('V3 to V4 Migration Tests:', () => {
   let alice: SignerWithAddress
   let bob: SignerWithAddress
   let eve: SignerWithAddress
+  let daiHolder: SignerWithAddress
+  let wethHolder: SignerWithAddress
   let router: UniversalRouter
   let daiContract: Contract
   let wethContract: Contract
@@ -60,9 +64,15 @@ describe('V3 to V4 Migration Tests:', () => {
       method: 'hardhat_impersonateAccount',
       params: [ALICE_ADDRESS],
     })
+    await hre.network.provider.request({
+      method: 'hardhat_setBalance',
+      params: [DAI_HOLDER, '0xf00000000000000'],
+    })
     alice = await ethers.getSigner(ALICE_ADDRESS)
     bob = (await ethers.getSigners())[1]
     eve = (await ethers.getSigners())[2]
+    daiHolder = await ethers.getImpersonatedSigner(DAI_HOLDER)
+    wethHolder = await ethers.getImpersonatedSigner(WETH_HOLDER)
     daiContract = new ethers.Contract(DAI.address, TOKEN_ABI, bob)
     wethContract = new ethers.Contract(WETH.address, TOKEN_ABI, bob)
     usdcContract = new ethers.Contract(USDC.address, TOKEN_ABI, bob)
@@ -74,6 +84,9 @@ describe('V3 to V4 Migration Tests:', () => {
     planner = new RoutePlanner()
     v4Planner = new V4Planner()
 
+    // seed alice with tokens
+    await daiContract.connect(daiHolder).transfer(alice.address, expandTo18DecimalsBN(100000))
+    await wethContract.connect(wethHolder).transfer(alice.address, expandTo18DecimalsBN(100))
     // alice gives bob some tokens
     await daiContract.connect(alice).transfer(bob.address, expandTo18DecimalsBN(100000))
     await wethContract.connect(alice).transfer(bob.address, expandTo18DecimalsBN(100))
@@ -95,7 +108,7 @@ describe('V3 to V4 Migration Tests:', () => {
         token1: WETH.address,
         fee: FeeAmount.LOW,
         tickLower: 0,
-        tickUpper: 194980,
+        tickUpper: 199690,
         amount0Desired: expandTo6DecimalsBN(2500),
         amount1Desired: expandTo18DecimalsBN(1),
         amount0Min: 0,
@@ -1321,7 +1334,7 @@ describe('V3 to V4 Migration Tests:', () => {
         token1: WETH.address,
         fee: FeeAmount.LOW,
         tickLower: 0,
-        tickUpper: 194980,
+        tickUpper: 199690,
         amount0Desired: expandTo6DecimalsBN(2500),
         amount1Desired: expandTo18DecimalsBN(1),
         amount0Min: 0,
@@ -1536,7 +1549,7 @@ describe('V3 to V4 Migration Tests:', () => {
         token1: WETH.address,
         fee: FeeAmount.LOW,
         tickLower: 0,
-        tickUpper: 194980,
+        tickUpper: 199690,
         amount0Desired: expandTo6DecimalsBN(2500),
         amount1Desired: expandTo18DecimalsBN(1),
         amount0Min: 0,
