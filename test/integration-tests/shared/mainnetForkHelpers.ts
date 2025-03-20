@@ -2,14 +2,13 @@ import { ERC20, ERC20__factory, IPermit2, INonfungiblePositionManager } from '..
 import { abi as PERMIT2_ABI } from '../../../artifacts/permit2/src/interfaces/IPermit2.sol/IPermit2.json'
 import { abi as INonfungiblePositionManager_ABI } from '../../../artifacts/@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol/INonfungiblePositionManager.json'
 import { PERMIT2_ADDRESS, V3_NFT_POSITION_MANAGER_MAINNET } from './constants'
-import { abi as V2_PAIR_ABI } from '../../../artifacts/@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol/IUniswapV2Pair.json'
+import { abi as V2_PAIR_ABI } from '../../../artifacts/contracts/interfaces/external/IPool.sol/IPool.json'
 import { Currency, Token } from '@uniswap/sdk-core'
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { BigNumber, constants } from 'ethers'
 import hre from 'hardhat'
 import { MethodParameters } from '@uniswap/v3-sdk'
-import { Pair } from '@uniswap/v2-sdk'
 const { ethers } = hre
 
 export const WETH = new Token(1, '0x4200000000000000000000000000000000000006', 18, 'WETH', 'Wrapped Ether')
@@ -41,8 +40,8 @@ export const approveSwapRouter02 = async (
 }
 
 type Reserves = {
-  reserve0: BigNumber
-  reserve1: BigNumber
+  _reserve0: BigNumber
+  _reserve1: BigNumber
 }
 
 export const getV2PoolReserves = async (alice: SignerWithAddress, tokenA: Token, tokenB: Token): Promise<Reserves> => {
@@ -50,8 +49,8 @@ export const getV2PoolReserves = async (alice: SignerWithAddress, tokenA: Token,
   const contractAddress = await poolFactory.getPair(tokenA.address, tokenB.address)
   const contract = new ethers.Contract(contractAddress, V2_PAIR_ABI, alice)
 
-  const { reserve0, reserve1 } = await contract.getReserves()
-  return { reserve0, reserve1 }
+  const { _reserve0, _reserve1 } = await contract.getReserves()
+  return { _reserve0, _reserve1 }
 }
 
 export const approveAndExecuteSwapRouter02 = async (

@@ -48,8 +48,8 @@ export const pool_WETH_USDT = makePool(USDT, WETH, liquidity)
 // v2
 export const makePair = async (alice: SignerWithAddress, token0: Token, token1: Token) => {
   const reserves = await getV2PoolReserves(alice, token0, token1)
-  let reserve0: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(token0, JSBI.BigInt(reserves.reserve0))
-  let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(token1, JSBI.BigInt(reserves.reserve1))
+  let reserve0: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(token0, JSBI.BigInt(reserves._reserve0))
+  let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(token1, JSBI.BigInt(reserves._reserve1))
 
   return new Pair(reserve0, reserve1)
 }

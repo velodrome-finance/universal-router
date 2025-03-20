@@ -3,9 +3,17 @@ pragma solidity ^0.8.24;
 
 struct UniswapParameters {
     address v2Factory;
+    address veloV2Factory;
     address v3Factory;
     bytes32 pairInitCodeHash;
+    address veloV2Implementation;
     bytes32 poolInitCodeHash;
+}
+
+struct Route {
+    address from;
+    address to;
+    bool stable;
 }
 
 contract UniswapImmutables {
@@ -18,6 +26,12 @@ contract UniswapImmutables {
     /// @notice The address of UniswapV3Factory
     address internal immutable UNISWAP_V3_FACTORY;
 
+    /// @notice The address of VelodromeV2Factory
+    address internal immutable VELODROME_V2_FACTORY;
+
+    /// @dev The address of the VelodromeV2 Pool implementation
+    address internal immutable VELODROME_V2_IMPLEMENTATION;
+
     /// @notice The UniswapV3Pool initcodehash
     bytes32 internal immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
 
@@ -26,5 +40,7 @@ contract UniswapImmutables {
         UNISWAP_V2_PAIR_INIT_CODE_HASH = params.pairInitCodeHash;
         UNISWAP_V3_FACTORY = params.v3Factory;
         UNISWAP_V3_POOL_INIT_CODE_HASH = params.poolInitCodeHash;
+        VELODROME_V2_FACTORY = params.veloV2Factory;
+        VELODROME_V2_IMPLEMENTATION = params.veloV2Implementation;
     }
 }

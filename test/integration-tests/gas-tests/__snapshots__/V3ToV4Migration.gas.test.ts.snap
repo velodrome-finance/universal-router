@@ -3,55 +3,55 @@
 exports[`V3 to V4 Migration Gas Tests V3 Commands burn gas: erc721permit + decreaseLiquidity + collect + burn 1`] = `
 Object {
   "calldataByteLength": 1092,
-  "gasUsed": 265181,
+  "gasUsed": 265196,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V3 Commands collect gas: erc721permit + decreaseLiquidity + collect 1`] = `
 Object {
   "calldataByteLength": 964,
-  "gasUsed": 225309,
+  "gasUsed": 225324,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V3 Commands decrease liquidity gas: erc721permit + decreaseLiquidity 1`] = `
 Object {
   "calldataByteLength": 740,
-  "gasUsed": 203754,
+  "gasUsed": 203765,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V3 Commands erc721permit gas: erc721permit 1`] = `
 Object {
   "calldataByteLength": 484,
-  "gasUsed": 66250,
+  "gasUsed": 66257,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V4 Commands initialize pool gas: initialize a pool 1`] = `
 Object {
   "calldataByteLength": 452,
-  "gasUsed": 58917,
+  "gasUsed": 58921,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V4 Commands mint gas: migrate and mint 1`] = `
 Object {
   "calldataByteLength": 2500,
-  "gasUsed": 602614,
+  "gasUsed": 602630,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V4 Commands mint gas: migrate weth position into eth position with forwarding 1`] = `
 Object {
   "calldataByteLength": 2788,
-  "gasUsed": 582138,
+  "gasUsed": 582184,
 }
 `;
 
 exports[`V3 to V4 Migration Gas Tests V4 Commands mint gas: mint 1`] = `
 Object {
   "calldataByteLength": 1604,
-  "gasUsed": 458331,
+  "gasUsed": 458332,
 }
 `;

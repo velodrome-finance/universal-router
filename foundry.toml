@@ -6,8 +6,11 @@ via_ir = true
 solc_version = '0.8.26'
 evm_version = "cancun"
 
-optimizer_runs = 44444444
-fs_permissions = [{ access = "read", path = "./script/deployParameters/"}]
+optimizer_runs = 10000 
+fs_permissions = [
+    { access = "read", path = "./script/deployParameters/"},
+    { access = "read-write", path = "./deployment-addresses/"}
+]
 
 additional_compiler_profiles = [
   { name = "manager", via_ir = true, optimizer_runs = 30000 },
@@ -17,6 +20,10 @@ compilation_restrictions = [
   { paths = "lib/v4-periphery/src/PositionManager.sol", optimizer_runs = 30000 },
 ]
 
+[profile.default.optimizer_details]
+constantOptimizer = true
+yul = true
+
 [fmt]
 line_length = 120
 quote_style = 'single'
@@ -24,10 +31,30 @@ quote_style = 'single'
 [profile.lite.optimizer_details.yulDetails]
 optimizerSteps = ''
 
+[fuzz]
+runs = 5000
+
 [rpc_endpoints]
-sepolia = "https://rpc.sepolia.org"
-unichain_sepolia = "https://sepolia.unichain.org"
-base_sepolia = "https://sepolia.base.org"
-op_sepolia = "https://sepolia.optimism.io"
+lisk = "${LISK_RPC_URL}"
+mode = "${MODE_RPC_URL}"
+optimism = "${OPTIMISM_RPC_URL}"
+fraxtal = "${FRAXTAL_RPC_URL}"
+metal = "${METAL_RPC_URL}"
+superseed = "${SUPERSEED_RPC_URL}"
+ink = "${INK_RPC_URL}"
+soneium = "${SONEIUM_RPC_URL}"
+swell = "${SWELL_RPC_URL}"
+unichain = "${UNICHAIN_RPC_URL}"
+
+[etherscan]
+mode = { key = "${MODE_ETHERSCAN_API_KEY}", url = "${MODE_ETHERSCAN_VERIFIER_URL}" }
+optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "${OPTIMISM_ETHERSCAN_VERIFIER_URL}" }
+fraxtal = { key = "${FRAXTAL_ETHERSCAN_API_KEY}", url = "${FRAXTAL_ETHERSCAN_VERIFIER_URL}" }
+metal = { key = "NA", url = "${METAL_ETHERSCAN_VERIFIER_URL}" }
+superseed = { key = "NA", url = "${SUPERSEED_ETHERSCAN_VERIFIER_URL}" }
+ink = { key = "NA", url = "${INK_ETHERSCAN_VERIFIER_URL}" }
+soneium = { key = "NA", url = "${SONEIUM_ETHERSCAN_VERIFIER_URL}" }
+swell = { key = "NA", url = "${SWELL_ETHERSCAN_VERIFIER_URL}" }
+unichain = { key = "NA", url = "${UNICHAIN_ETHERSCAN_VERIFIER_URL}" }
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

@@ -10,6 +10,7 @@ import {MockERC20} from './mock/MockERC20.sol';
 import {ExampleModule} from '../../contracts/test/ExampleModule.sol';
 import {RouterParameters} from '../../contracts/types/RouterParameters.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
+import {Permit2Payments} from '../../contracts/modules/Permit2Payments.sol';
 import 'permit2/src/interfaces/IAllowanceTransfer.sol';
 import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
@@ -31,7 +32,9 @@ contract UniversalRouterTest is Test {
             poolInitCodeHash: bytes32(0),
             v4PoolManager: address(0),
             v3NFTPositionManager: address(0),
-            v4PositionManager: address(0)
+            v4PositionManager: address(0),
+            veloV2Factory: address(0),
+            veloV2Implementation: address(0)
         });
         router = new UniversalRouter(params);
         testModule = new ExampleModule();
@@ -39,6 +42,13 @@ contract UniversalRouterTest is Test {
     }
 
     event ExampleModuleEvent(string message);
+
+    function testCannotCallSTF(address caller) public {
+        vm.assume(caller != address(router));
+        vm.prank(caller);
+        vm.expectRevert(Permit2Payments.NotUniversalRouter.selector);
+        router.stf(address(0), address(0), address(0), 0);
+    }
 
     function testCallModule() public {
         uint256 bytecodeSize;

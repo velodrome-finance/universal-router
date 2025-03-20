@@ -10,6 +10,8 @@ import {
   V3_NFT_POSITION_MANAGER_MAINNET,
   V4_POSITION_DESCRIPTOR_ADDRESS,
   WETH,
+  VELO_V2_FACTORY,
+  VELO_V2_IMPLEMENTATION,
 } from './constants'
 import { deployV4PoolManager, deployV4PositionManager } from './v4Helpers'
 
@@ -39,6 +41,8 @@ export async function deployRouter(
     v4PositionManager: (
       await deployV4PositionManager(poolManager, PERMIT2_ADDRESS, V4_POSITION_DESCRIPTOR_ADDRESS, WETH)
     ).address,
+    veloV2Factory: VELO_V2_FACTORY,
+    veloV2Implementation: VELO_V2_IMPLEMENTATION,
   }
 
   const routerFactory = await ethers.getContractFactory('UniversalRouter')

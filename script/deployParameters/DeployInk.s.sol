@@ -15,7 +15,9 @@ contract DeployInk is DeployUniversalRouter {
             poolInitCodeHash: 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54,
             v4PoolManager: 0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32,
             v3NFTPositionManager: 0xC0836E5B058BBE22ae2266e1AC488A1A0fD8DCE8,
-            v4PositionManager: 0x1b35d13a2E2528f192637F14B05f0Dc0e7dEB566
+            v4PositionManager: 0x1b35d13a2E2528f192637F14B05f0Dc0e7dEB566,
+            veloV2Factory: 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0,
+            veloV2Implementation: 0x10499d88Bd32AF443Fc936F67DE32bE1c8Bb374C
         });
     }
 }

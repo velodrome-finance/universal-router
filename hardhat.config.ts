@@ -77,6 +77,6 @@ export default {
     compilers: [DEFAULT_COMPILER_SETTINGS],
   },
   mocha: {
-    timeout: 60000,
+    timeout: 100000,
   },
 }

@@ -14,7 +14,14 @@ import {MigratorImmutables, MigratorParameters} from './modules/MigratorImmutabl
 contract UniversalRouter is IUniversalRouter, Dispatcher {
     constructor(RouterParameters memory params)
         UniswapImmutables(
-            UniswapParameters(params.v2Factory, params.v3Factory, params.pairInitCodeHash, params.poolInitCodeHash)
+            UniswapParameters(
+                params.v2Factory,
+                params.veloV2Factory,
+                params.v3Factory,
+                params.pairInitCodeHash,
+                params.veloV2Implementation,
+                params.poolInitCodeHash
+            )
         )
         V4SwapRouter(params.v4PoolManager)
         PaymentsImmutables(PaymentsParameters(params.permit2, params.weth9))
