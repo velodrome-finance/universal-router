@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: recursive
 
-    # Must Insall node modules for forge to reference in remappings
+      # Must install node modules for forge to reference in remappings
       - uses: actions/setup-node@v4
         with:
           node-version: 18.x
@@ -42,7 +42,7 @@ jobs:
             yarn-
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-    # End of node module support
+      # End of node module support
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -61,3 +61,4 @@ jobs:
         id: test
         env:
           FORK_URL: ${{ secrets.FORK_URL }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}

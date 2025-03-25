@@ -5,3 +5,5 @@ forge-std/=lib/forge-std/src/
 @uniswap/v2-core/=node_modules/@uniswap/v2-core/
 @uniswap/v3-periphery/=lib/v3-periphery/
 @uniswap/v4-periphery/=lib/v4-periphery/
+@hyperlane/=node_modules/@hyperlane-xyz/
+@openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/

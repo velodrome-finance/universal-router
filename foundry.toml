@@ -5,11 +5,20 @@ libs = ['lib']
 via_ir = true
 solc_version = '0.8.26'
 evm_version = "cancun"
+remappings = [
+  "node_modules/@hyperlane-xyz/:@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
+  "@openzeppelin/contracts/=lib/v4-periphery/lib/v4-core/lib/openzeppelin-contracts/contracts/",
+]
 
-optimizer_runs = 10000 
+[profile.hardhat] # we have to use 4.9.6 here because of hyperlane
+remappings = [
+  "@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
+]
+
+optimizer_runs = 10000
 fs_permissions = [
-    { access = "read", path = "./script/deployParameters/"},
-    { access = "read-write", path = "./deployment-addresses/"}
+  { access = "read", path = "./script/deployParameters/" },
+  { access = "read-write", path = "./deployment-addresses/" },
 ]
 
 additional_compiler_profiles = [
@@ -35,6 +44,7 @@ optimizerSteps = ''
 runs = 5000
 
 [rpc_endpoints]
+base = "${BASE_RPC_URL}"
 lisk = "${LISK_RPC_URL}"
 mode = "${MODE_RPC_URL}"
 optimism = "${OPTIMISM_RPC_URL}"
