@@ -17,6 +17,7 @@ import {
   OPEN_DELTA,
   SOURCE_MSG_SENDER,
   SOURCE_ROUTER,
+  V3_FLAG,
   DAI_HOLDER,
   WETH_HOLDER,
   USDC_HOLDER,
@@ -138,6 +139,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         v3AmountOutMin,
         encodePathExactInput(v3Tokens),
         SOURCE_MSG_SENDER,
+        V3_FLAG,
       ])
       // amountIn of 0 because the USDC is already in the pair
       planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, v2AmountOutMin, v2Tokens, SOURCE_MSG_SENDER])
@@ -174,6 +176,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         v3AmountOutMin,
         encodePathExactInput(v3Tokens),
         SOURCE_ROUTER,
+        V3_FLAG,
       ])
 
       const { wethBalanceBefore, wethBalanceAfter, v3SwapEventArgs } = await executeRouter(
@@ -457,6 +460,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         minAmountOut1WETH,
         encodePathExactInput(route1),
         SOURCE_ROUTER,
+        V3_FLAG,
       ])
       // 3) trade route2 and return tokens to bob
       planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
@@ -465,6 +469,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         minAmountOut1USDC.add(minAmountOut2USDC),
         encodePathExactInput(route2),
         SOURCE_ROUTER,
+        V3_FLAG,
       ])
 
       const { usdcBalanceBefore, usdcBalanceAfter } = await executeRouter(
@@ -493,6 +498,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         0,
         encodePathExactInput(tokens),
         SOURCE_MSG_SENDER,
+        V3_FLAG,
       ])
       // aggregate slippage check
       planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, minAmountOut])
@@ -526,6 +532,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         0,
         encodePathExactInput(tokens),
         SOURCE_MSG_SENDER,
+        V3_FLAG,
       ])
       // aggregate slippage check
       planner.addCommand(CommandType.SWEEP, [USDC.address, MSG_SENDER, 0.0005 * 10 ** 6])
@@ -557,6 +564,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         0,
         encodePathExactInput(tokens),
         SOURCE_MSG_SENDER,
+        V3_FLAG,
       ])
       // aggregate slippage check
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -597,6 +605,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
         maxAmountIn,
         path,
         SOURCE_MSG_SENDER,
+        V3_FLAG,
       ])
       // aggregate slippage check
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, fullAmountOut])
@@ -697,6 +706,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           0,
           encodePathExactInput(planOneTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
         // aggregate slippage check
         subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -715,6 +725,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           wethMinAmountOut2,
           encodePathExactInput(planTwoTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
 
         // add the second subplan to the main planner
@@ -753,6 +764,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           0,
           encodePathExactInput(planOneTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
         // aggregate slippage check
         subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -771,6 +783,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           wethMinAmountOut2,
           encodePathExactInput(planTwoTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
 
         // add the second subplan to the main planner
@@ -812,6 +825,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           0,
           encodePathExactInput(planOneTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
         // aggregate slippage check
         subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -831,6 +845,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           wethMinAmountOut2,
           encodePathExactInput(planTwoTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
 
         // add the second subplan to the main planner
@@ -869,6 +884,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           0,
           encodePathExactInput(planOneTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
         // aggregate slippage check
         subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -888,6 +904,7 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
           wethMinAmountOut2,
           encodePathExactInput(planTwoTokens),
           SOURCE_MSG_SENDER,
+          V3_FLAG,
         ])
 
         // add the second subplan to the main planner

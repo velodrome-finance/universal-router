@@ -16,8 +16,10 @@ contract DeployMode is DeployUniversalRouter {
             v4PoolManager: address(0),
             v3NFTPositionManager: address(0),
             v4PositionManager: address(0),
-            veloV2Factory: 0x629157747eE3a635F9EA1ED37fD0DC7187d45478,
-            veloV2Implementation: 0xDF49FF386344d3b687F56c02D0b1784b19013E25
+            veloV2Factory: 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0,
+            veloCLFactory: 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F,
+            veloV2Implementation: 0x10499d88Bd32AF443Fc936F67DE32bE1c8Bb374C,
+            veloCLInitCodeHash: 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5
         });
 
         unsupported = 0x0D6953a74f9e50478e325B14053985eE8D548EdE;

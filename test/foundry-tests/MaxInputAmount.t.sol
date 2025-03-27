@@ -21,7 +21,7 @@ contract MaxInputAmountTest is Test {
         assertEq(MaxInputAmount.get(), 0);
     }
 
-    function test_maxAmtInSlot() public {
+    function test_maxAmtInSlot() public pure {
         bytes32 expectedSlot = bytes32(uint256(keccak256('MaxAmountIn')) - 1);
         assertEq(expectedSlot, MaxInputAmount.MAX_AMOUNT_IN_SLOT);
     }

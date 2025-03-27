@@ -6,14 +6,12 @@ import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {VelodromeV2NoPermit2Test} from '../VelodromeV2NoPermit2.t.sol';
 
 contract V2WethVelo is VelodromeV2NoPermit2Test {
-    ERC20 constant VELO = ERC20(0x3c8B650257cFb5f272f799F5e2b4e65093a11a05);
-
     function token0() internal pure override returns (address) {
         return address(VELO);
     }
 
     function token1() internal pure override returns (address) {
-        return address(WETH9);
+        return address(WETH);
     }
 
     function stable() internal pure override returns (bool) {

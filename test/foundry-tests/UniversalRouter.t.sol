@@ -6,14 +6,15 @@ import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
 import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
-import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
-import {Payments} from '../../contracts/modules/Payments.sol';
-import {Constants} from '../../contracts/libraries/Constants.sol';
-import {Commands} from '../../contracts/libraries/Commands.sol';
+import {Payments} from 'contracts/modules/Payments.sol';
+import {Permit2Payments} from 'contracts/modules/Permit2Payments.sol';
+import {RouterParameters} from 'contracts/types/RouterParameters.sol';
+import {ExampleModule} from 'contracts/test/ExampleModule.sol';
+import {UniversalRouter} from 'contracts/UniversalRouter.sol';
+import {Constants} from 'contracts/libraries/Constants.sol';
+import {Commands} from 'contracts/libraries/Commands.sol';
+
 import {MockERC20} from './mock/MockERC20.sol';
-import {ExampleModule} from '../../contracts/test/ExampleModule.sol';
-import {RouterParameters} from '../../contracts/types/RouterParameters.sol';
-import {Permit2Payments} from '../../contracts/modules/Permit2Payments.sol';
 
 contract UniversalRouterTest is Test {
     address constant RECIPIENT = address(1234);
@@ -35,7 +36,9 @@ contract UniversalRouterTest is Test {
             v3NFTPositionManager: address(0),
             v4PositionManager: address(0),
             veloV2Factory: address(0),
-            veloV2Implementation: address(0)
+            veloCLFactory: address(0),
+            veloV2Implementation: address(0),
+            veloCLInitCodeHash: bytes32(0)
         });
         router = new UniversalRouter(params);
         testModule = new ExampleModule();

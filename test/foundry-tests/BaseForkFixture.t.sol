@@ -9,6 +9,7 @@ import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
 import {CreateXLibrary} from '../../contracts/libraries/CreateXLibrary.sol';
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
+import {CreateX} from '../foundry-tests/mock/CreateX.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRoot, RouterParameters} from '../foundry-tests/utils/TestDeployRoot.sol';
 import {
@@ -18,7 +19,7 @@ import {
     IUniswapV2Factory,
     IPoolFactory,
     VelodromeTimeLibrary
-} from '../foundry-tests/utils/TestConstants.sol';
+} from '../foundry-tests/utils/TestConstants.t.sol';
 
 abstract contract BaseForkFixture is Test, TestConstants {
     UniversalRouter public router;
@@ -77,7 +78,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     function setUpPreCommon() public virtual {
         vm.startPrank(users.owner);
-        rootId = vm.createSelectFork({urlOrAlias: vm.envString('FORK_URL'), blockNumber: rootForkBlockNumber});
+        rootId = vm.createSelectFork({urlOrAlias: 'optimism', blockNumber: rootForkBlockNumber});
         rootStartTime = block.timestamp;
         vm.warp({newTimestamp: rootStartTime});
 
@@ -107,16 +108,18 @@ abstract contract BaseForkFixture is Test, TestConstants {
         // deploy router
         params = RouterParameters({
             permit2: address(PERMIT2),
-            weth9: address(WETH9),
+            weth9: address(WETH),
             v2Factory: address(UNI_V2_FACTORY),
-            v3Factory: address(0),
-            pairInitCodeHash: bytes32(0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f),
-            poolInitCodeHash: bytes32(0),
+            v3Factory: address(V3_FACTORY),
+            pairInitCodeHash: bytes32(V2_INIT_CODE_HASH),
+            poolInitCodeHash: bytes32(V3_INIT_CODE_HASH),
             v4PoolManager: address(0),
             v3NFTPositionManager: address(0),
             v4PositionManager: address(0),
             veloV2Factory: address(VELO_V2_FACTORY),
-            veloV2Implementation: VELO_V2_POOL_IMPLEMENTATION
+            veloCLFactory: address(CL_FACTORY),
+            veloV2Implementation: VELO_V2_POOL_IMPLEMENTATION,
+            veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH
         });
 
         deployRoot = new TestDeployRoot(params);
@@ -132,6 +135,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
             vm.label({account: address(rootOpenUSDT), newLabel: 'Root OpenUSDT'});
         }
 
+        vm.label({account: address(router), newLabel: 'UniversalRouter'});
         vm.label({account: address(rootMailbox), newLabel: 'Root Mailbox'});
         vm.label({account: address(rootIsm), newLabel: 'Root ISM'});
     }

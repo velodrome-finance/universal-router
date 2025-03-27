@@ -29,7 +29,7 @@ export default {
       allowUnlimitedContractSize: false,
       chainId: 1,
       forking: {
-        url: `${process.env.FORK_URL}`,
+        url: `${process.env.OPTIMISM_RPC_URL}`,
         blockNumber: 133000000,
       },
     },

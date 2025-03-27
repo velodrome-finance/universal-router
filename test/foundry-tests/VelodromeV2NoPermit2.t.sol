@@ -164,7 +164,7 @@ abstract contract VelodromeV2NoPermit2Test is BaseForkFixture {
         vm.label(RECIPIENT, 'recipient');
         vm.label(address(VELO_V2_FACTORY), 'V2 Pool Factory');
         vm.label(VELO_V2_POOL_IMPLEMENTATION, 'V2 Pool Implementation');
-        vm.label(address(WETH9), 'WETH');
+        vm.label(address(WETH), 'WETH');
         vm.label(FROM, 'from');
         vm.label(pair, string.concat(ERC20(token0()).symbol(), '-', string.concat(ERC20(token1()).symbol()), 'Pool'));
     }

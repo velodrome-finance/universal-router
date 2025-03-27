@@ -33,6 +33,7 @@ import {
   ONE_PERCENT_BIPS,
   SOURCE_MSG_SENDER,
   SOURCE_ROUTER,
+  V3_FLAG,
   WETH_HOLDER,
   DAI_HOLDER,
 } from '../shared/constants'
@@ -535,6 +536,7 @@ describe('Uniswap Gas Tests', () => {
             amountOutMin,
             path,
             sourceOfTokens,
+            V3_FLAG,
           ])
         }
       }
@@ -586,6 +588,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -603,6 +606,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -620,6 +624,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -647,6 +652,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, amountOut])
 
@@ -674,7 +680,14 @@ describe('Uniswap Gas Tests', () => {
           const path = encodePathExactOutput(tokens)
 
           planner.addCommand(CommandType.WRAP_ETH, [ADDRESS_THIS, amountInMax])
-          planner.addCommand(CommandType.V3_SWAP_EXACT_OUT, [MSG_SENDER, amountOut, amountInMax, path, SOURCE_ROUTER])
+          planner.addCommand(CommandType.V3_SWAP_EXACT_OUT, [
+            MSG_SENDER,
+            amountOut,
+            amountInMax,
+            path,
+            SOURCE_ROUTER,
+            V3_FLAG,
+          ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 
           const { commands, inputs } = planner
@@ -710,6 +723,7 @@ describe('Uniswap Gas Tests', () => {
             v3AmountOutMin,
             encodePathExactInput(v3Tokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // the tokens are already int he v2 pair, so amountIn is 0
           planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, v2AmountOutMin, v2Tokens, SOURCE_MSG_SENDER])
@@ -738,6 +752,7 @@ describe('Uniswap Gas Tests', () => {
             v3AmountOutMin,
             encodePathExactInput(v3Tokens),
             SOURCE_ROUTER,
+            V3_FLAG,
           ])
 
           const { commands, inputs } = planner
@@ -900,6 +915,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(tokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -922,6 +938,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(tokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -944,6 +961,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(tokens),
             SOURCE_ROUTER,
+            V3_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.SWEEP, [USDC.address, MSG_SENDER, 0.0005 * 10 ** 6])
@@ -964,6 +982,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(tokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -993,6 +1012,7 @@ describe('Uniswap Gas Tests', () => {
             maxAmountIn,
             path,
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, fullAmountOut])
@@ -1033,6 +1053,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1051,6 +1072,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
 
           // add the second subplan to the main planner
@@ -1080,6 +1102,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1098,6 +1121,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
 
           // add the second subplan to the main planner
@@ -1127,6 +1151,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1146,6 +1171,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
 
           // add the second subplan to the main planner
@@ -1174,6 +1200,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1193,6 +1220,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
+            V3_FLAG,
           ])
 
           // add the second subplan to the main planner

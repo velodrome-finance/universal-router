@@ -13,7 +13,7 @@ contract V2MockWeth is UniswapV2MultiHopTest {
     }
 
     function token0() internal pure override returns (address) {
-        return address(WETH9);
+        return address(WETH);
     }
 
     function token1() internal view override returns (address) {

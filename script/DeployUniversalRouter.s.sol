@@ -62,7 +62,9 @@ abstract contract DeployUniversalRouter is Script {
             v3NFTPositionManager: mapUnsupported(params.v3NFTPositionManager),
             v4PositionManager: mapUnsupported(params.v4PositionManager),
             veloV2Factory: mapUnsupported(params.veloV2Factory),
-            veloV2Implementation: mapUnsupported(params.veloV2Implementation)
+            veloCLFactory: mapUnsupported(params.veloCLFactory),
+            veloV2Implementation: mapUnsupported(params.veloV2Implementation),
+            veloCLInitCodeHash: params.veloCLInitCodeHash
         });
 
         deploy();

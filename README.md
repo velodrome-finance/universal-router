@@ -2,8 +2,6 @@
 
 The Uniswap Universal Router was adapted to work with the Velodrome ecosystem. This router allows a single swap to be routed through both Velodrome Finance pools and Uniswap pools.
 
-Please read the [Contributions](https://github.com/Uniswap/universal-router#contributions) section before submitting a Pull Request.
-
 To see the commit of the smart contracts that was used in the latest deployment, see branch `deployed-commit`. To see the addresses of this latest deployment on each network, see folder `deploy-addresses`.
 
 ## High-Level Overview
@@ -98,7 +96,7 @@ Each command is a `bytes1` containing the following 8 bits:
 
 Note that some of the commands in the middle of the series are unused. These gaps allowed us to create gas-efficiencies when selecting which command to execute.
 
-#### How the input bytes are structures
+#### How the input bytes are structured
 
 Each input bytes string is merely the abi encoding of a set of parameters. Depending on the command chosen, the input bytes string will be different. For example:
 
@@ -109,6 +107,7 @@ The inputs for `V3_SWAP_EXACT_IN` is the encoding of 5 parameters:
 - `uint256` The minimum amount of output tokens the user wants
 - `bytes` The UniswapV3 path you want to trade along
 - `bool` A flag for whether the input funds should come from the caller (through Permit2) or whether the funds are already in the UniversalRouter
+- `bool` A flag for whether the swap should be executed using UniV3 or Slipstream pools
 
 Whereas in contrast `CRYPTOPUNKS` has just 3 parameters encoded:
 
@@ -133,10 +132,10 @@ Clone the repository with:
 git clone --recurse-submodules https://github.com/Uniswap/universal-router.git
 ```
 
-2. Create `.env` file with api key
+2. Create `.env` file with a complete fork url.
 
 ```
-INFURA_API_KEY='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+OPTIMISM_RPC_URL=''
 ```
 
 3. Run yarn commands to compile and test

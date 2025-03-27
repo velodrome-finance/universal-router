@@ -98,7 +98,7 @@ export const resetFork = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: `${process.env.FORK_URL}`,
+          jsonRpcUrl: `${process.env.OPTIMISM_RPC_URL}`,
           blockNumber: 133000000,
         },
       },

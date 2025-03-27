@@ -9,6 +9,7 @@ import {Payments} from '../modules/Payments.sol';
 import {PaymentsImmutables} from '../modules/PaymentsImmutables.sol';
 import {V3ToV4Migrator} from '../modules/V3ToV4Migrator.sol';
 import {Route} from '../modules/uniswap/UniswapImmutables.sol';
+import {TransientSlot} from '../libraries/TransientSlot.sol';
 import {Commands} from '../libraries/Commands.sol';
 import {Lock} from './Lock.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
@@ -23,6 +24,7 @@ import {IPoolManager} from '@uniswap/v4-core/src/interfaces/IPoolManager.sol';
 abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRouter, V3ToV4Migrator, Lock {
     using BytesLib for bytes;
     using CalldataDecoder for bytes;
+    using TransientSlot for *;
 
     error InvalidCommandType(uint256 commandType);
     error BalanceTooLow();
@@ -59,38 +61,58 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                 // 0x00 <= command < 0x08
                 if (command < Commands.V2_SWAP_EXACT_IN) {
                     if (command == Commands.V3_SWAP_EXACT_IN) {
-                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
+                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
                         address recipient;
                         uint256 amountIn;
                         uint256 amountOutMin;
                         bool payerIsUser;
+                        bool isV3;
                         assembly {
                             recipient := calldataload(inputs.offset)
                             amountIn := calldataload(add(inputs.offset, 0x20))
                             amountOutMin := calldataload(add(inputs.offset, 0x40))
                             // 0x60 offset is the path, decoded below
                             payerIsUser := calldataload(add(inputs.offset, 0x80))
+                            isV3 := calldataload(add(inputs.offset, 0xA0))
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        v3SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer);
+                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(true);
+                        v3SwapExactInput({
+                            recipient: map(recipient),
+                            amountIn: amountIn,
+                            amountOutMinimum: amountOutMin,
+                            path: path,
+                            payer: payer
+                        });
+                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V3_SWAP_EXACT_OUT) {
-                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
+                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
                         address recipient;
                         uint256 amountOut;
                         uint256 amountInMax;
                         bool payerIsUser;
+                        bool isV3;
                         assembly {
                             recipient := calldataload(inputs.offset)
                             amountOut := calldataload(add(inputs.offset, 0x20))
                             amountInMax := calldataload(add(inputs.offset, 0x40))
                             // 0x60 offset is the path, decoded below
                             payerIsUser := calldataload(add(inputs.offset, 0x80))
+                            isV3 := calldataload(add(inputs.offset, 0xA0))
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        v3SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer);
+                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(true);
+                        v3SwapExactOutput({
+                            recipient: map(recipient),
+                            amountOut: amountOut,
+                            amountInMaximum: amountInMax,
+                            path: path,
+                            payer: payer
+                        });
+                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_TRANSFER_FROM) {
                         // equivalent: abi.decode(inputs, (address, address, uint160))

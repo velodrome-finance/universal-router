@@ -19,7 +19,15 @@ import {
   approveSwapRouter02,
   PERMIT2,
 } from '../shared/mainnetForkHelpers'
-import { ALICE_ADDRESS, DEADLINE, MAX_UINT, MAX_UINT160, SOURCE_MSG_SENDER, USDC_HOLDER } from '../shared/constants'
+import {
+  ALICE_ADDRESS,
+  DEADLINE,
+  MAX_UINT,
+  MAX_UINT160,
+  SOURCE_MSG_SENDER,
+  USDC_HOLDER,
+  V3_FLAG,
+} from '../shared/constants'
 import { expandTo6DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import deployUniversalRouter from '../shared/deployUniversalRouter'
@@ -174,7 +182,7 @@ describe('Uniswap UX Tests gas:', () => {
         planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [bob.address, amountIn, 0, pathAddresses, SOURCE_MSG_SENDER])
       } else if (swap.route.protocol == 'V3') {
         let path = encodePathExactInput(route)
-        planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [bob.address, amountIn, 0, path, SOURCE_MSG_SENDER])
+        planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [bob.address, amountIn, 0, path, SOURCE_MSG_SENDER, V3_FLAG])
       } else {
         console.log('invalid protocol')
       }

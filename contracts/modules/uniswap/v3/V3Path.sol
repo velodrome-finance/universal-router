@@ -18,7 +18,8 @@ library V3Path {
     /// @notice Decodes the first pool in path
     /// @param path The bytes encoded swap path
     /// @return tokenA The first token of the given pool
-    /// @return fee The fee level of the pool
+    /// @return poolParam The parameter of the pool
+    /// @dev `poolParam` is `tickSpacing` in Slipstream pools and `fee` in UniV3 pools.
     /// @return tokenB The second token of the given pool
     function decodeFirstPool(bytes calldata path) internal pure returns (address, uint24, address) {
         return path.toPool();

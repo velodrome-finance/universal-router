@@ -26,14 +26,14 @@ library BytesLib {
     /// @dev length and overflow checks must be carried out before calling
     /// @param _bytes The input bytes string to slice
     /// @return token0 The address at byte 0
-    /// @return fee The uint24 starting at byte 20
+    /// @return poolParam The uint24 value starting at byte 20
     /// @return token1 The address at byte 23
-    function toPool(bytes calldata _bytes) internal pure returns (address token0, uint24 fee, address token1) {
+    function toPool(bytes calldata _bytes) internal pure returns (address token0, uint24 poolParam, address token1) {
         if (_bytes.length < Constants.V3_POP_OFFSET) revert SliceOutOfBounds();
         assembly {
             let firstWord := calldataload(_bytes.offset)
             token0 := shr(96, firstWord)
-            fee := and(shr(72, firstWord), 0xffffff)
+            poolParam := and(shr(72, firstWord), 0xffffff)
             token1 := shr(96, calldataload(add(_bytes.offset, 23)))
         }
     }

@@ -3,9 +3,9 @@ pragma solidity ^0.8.24;
 
 import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
 import {SafeCast160} from 'permit2/src/libraries/SafeCast160.sol';
-import {Payments} from './Payments.sol';
 import {SafeTransferLib} from 'solmate/src/utils/SafeTransferLib.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
+import {Payments} from './Payments.sol';
 
 /// @title Payments through Permit2
 /// @notice Performs interactions with Permit2 to transfer tokens

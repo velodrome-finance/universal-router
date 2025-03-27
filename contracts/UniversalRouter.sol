@@ -16,11 +16,13 @@ contract UniversalRouter is IUniversalRouter, Dispatcher {
         UniswapImmutables(
             UniswapParameters(
                 params.v2Factory,
-                params.veloV2Factory,
                 params.v3Factory,
                 params.pairInitCodeHash,
+                params.poolInitCodeHash,
+                params.veloV2Factory,
+                params.veloCLFactory,
                 params.veloV2Implementation,
-                params.poolInitCodeHash
+                params.veloCLInitCodeHash
             )
         )
         V4SwapRouter(params.v4PoolManager)
