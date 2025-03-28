@@ -20,8 +20,6 @@ abstract contract VelodromeV2MultiHopTest is BaseForkFixture {
     address public secondPair;
 
     function setUp() public virtual override {
-        rootForkBlockNumber = 111000000;
-
         super.setUp();
 
         setUpTokens();

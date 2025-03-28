@@ -25,8 +25,6 @@ abstract contract VelodromeV2NoPermit2Test is BaseForkFixture {
     }
 
     function setUp() public virtual override {
-        rootForkBlockNumber = 111000000;
-
         super.setUp();
 
         setUpTokens();

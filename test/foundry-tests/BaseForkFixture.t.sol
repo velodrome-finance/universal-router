@@ -9,7 +9,6 @@ import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
 import {CreateXLibrary} from '../../contracts/libraries/CreateXLibrary.sol';
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
-import {CreateX} from '../foundry-tests/mock/CreateX.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRoot, RouterParameters} from '../foundry-tests/utils/TestDeployRoot.sol';
 import {
@@ -102,9 +101,6 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.selectFork({forkId: rootId});
         deployRootDependencies();
 
-        // VeloV2 tests use block number 111000000 which doesn't have createX (deployed at 113736815)
-        if (address(CreateXLibrary.CREATEX).code.length == 0) deployCreateX();
-
         // deploy router
         params = RouterParameters({
             permit2: address(PERMIT2),
@@ -167,11 +163,6 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.selectFork({forkId: leafId});
         leafMailbox.addRemoteMailbox({_domain: rootDomain, _mailbox: rootMailbox});
         leafMailbox.setDomainForkId({_domain: rootDomain, _forkId: rootId});
-    }
-
-    function deployCreateX() internal {
-        // identical to CreateX, with versions changed
-        deployCodeTo('out/CreateX.sol/CreateX.json', address(CreateXLibrary.CREATEX));
     }
 
     function createUsers() internal {
