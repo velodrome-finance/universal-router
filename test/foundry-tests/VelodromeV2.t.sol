@@ -41,6 +41,23 @@ abstract contract VelodromeV2Test is BaseForkFixture {
         labelContracts();
     }
 
+    function testInitCodeHash() public pure {
+        /// @dev Optimism initCodeHash
+        address poolImplementation = 0x95885Af5492195F0754bE71AD1545Fe81364E531;
+        bytes32 initCodeHash = _getInitCodeHash({_implementation: poolImplementation});
+        assertEq(initCodeHash, 0xc0629f1c7daa09624e54d4f711ba99922a844907cce02997176399e4cc7e8fcf);
+
+        /// @dev Superchain initCodeHash
+        poolImplementation = 0x10499d88Bd32AF443Fc936F67DE32bE1c8Bb374C;
+        initCodeHash = _getInitCodeHash({_implementation: poolImplementation});
+        assertEq(initCodeHash, 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d);
+
+        /// @dev Base initCodeHash
+        poolImplementation = 0xA4e46b4f701c62e14DF11B48dCe76A7d793CD6d7;
+        initCodeHash = _getInitCodeHash({_implementation: poolImplementation});
+        assertEq(initCodeHash, 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c);
+    }
+
     function testExactInput0For1() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.POOL_SWAP_EXACT_IN)));
         Route[] memory routes = new Route[](1);

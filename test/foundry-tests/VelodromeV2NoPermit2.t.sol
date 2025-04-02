@@ -3,16 +3,9 @@ pragma solidity ^0.8.15;
 
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {ActionConstants} from '@uniswap/v4-periphery/src/libraries/ActionConstants.sol';
-import {IERC721Receiver} from '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
-import {IERC1155Receiver} from '@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol';
-import {IPermit2} from 'permit2/src/interfaces/IPermit2.sol';
 
-import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
-import {Payments} from '../../contracts/modules/Payments.sol';
 import {Commands} from '../../contracts/libraries/Commands.sol';
-import {RouterParameters} from '../../contracts/types/RouterParameters.sol';
 import {Route} from '../../contracts/modules/uniswap/UniswapImmutables.sol';
-import {IPoolFactory} from '../../contracts/interfaces/external/IPoolFactory.sol';
 import {IPool} from '../../contracts/interfaces/external/IPool.sol';
 
 import {BaseForkFixture} from './BaseForkFixture.t.sol';

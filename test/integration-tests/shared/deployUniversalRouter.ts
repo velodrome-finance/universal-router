@@ -11,7 +11,7 @@ import {
   V4_POSITION_DESCRIPTOR_ADDRESS,
   VELO_V2_FACTORY_MAINNET,
   VELO_CL_FACTORY_MAINNET,
-  VELO_V2_IMPLEMENTATION_MAINNET,
+  VELO_V2_INIT_CODE_HASH_MAINNET,
   VELO_CL_INIT_CODE_HASH_MAINNET,
   WETH,
 } from './constants'
@@ -45,7 +45,7 @@ export async function deployRouter(
     ).address,
     veloV2Factory: VELO_V2_FACTORY_MAINNET,
     veloCLFactory: VELO_CL_FACTORY_MAINNET,
-    veloV2Implementation: VELO_V2_IMPLEMENTATION_MAINNET,
+    veloV2InitCodeHash: VELO_V2_INIT_CODE_HASH_MAINNET,
     veloCLInitCodeHash: VELO_CL_INIT_CODE_HASH_MAINNET,
   }
 

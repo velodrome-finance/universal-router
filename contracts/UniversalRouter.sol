@@ -21,7 +21,7 @@ contract UniversalRouter is IUniversalRouter, Dispatcher {
                 params.poolInitCodeHash,
                 params.veloV2Factory,
                 params.veloCLFactory,
-                params.veloV2Implementation,
+                params.veloV2InitCodeHash,
                 params.veloCLInitCodeHash
             )
         )

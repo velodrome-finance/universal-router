@@ -8,7 +8,7 @@ struct UniswapParameters {
     bytes32 poolInitCodeHash;
     address veloV2Factory;
     address veloCLFactory;
-    address veloV2Implementation;
+    bytes32 veloV2InitCodeHash;
     bytes32 veloCLInitCodeHash;
 }
 
@@ -34,8 +34,8 @@ contract UniswapImmutables {
     /// @notice The address of Velodrome V2 PoolFactory
     address internal immutable VELODROME_V2_FACTORY;
 
-    /// @dev The address of the VelodromeV2 Pool implementation
-    address internal immutable VELODROME_V2_IMPLEMENTATION;
+    /// @notice The VelodromeV2 Pool initcodehash
+    bytes32 internal immutable VELODROME_V2_INIT_CODE_HASH;
 
     /// @notice The address of Velodrome CL PoolFactory
     address internal immutable VELODROME_CL_FACTORY;
@@ -49,7 +49,7 @@ contract UniswapImmutables {
         UNISWAP_V3_FACTORY = params.v3Factory;
         UNISWAP_V3_POOL_INIT_CODE_HASH = params.poolInitCodeHash;
         VELODROME_V2_FACTORY = params.veloV2Factory;
-        VELODROME_V2_IMPLEMENTATION = params.veloV2Implementation;
+        VELODROME_V2_INIT_CODE_HASH = params.veloV2InitCodeHash;
         VELODROME_CL_FACTORY = params.veloCLFactory;
         VELODROME_CL_POOL_INIT_CODE_HASH = params.veloCLInitCodeHash;
     }

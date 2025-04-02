@@ -63,7 +63,7 @@ abstract contract DeployUniversalRouter is Script {
             v4PositionManager: mapUnsupported(params.v4PositionManager),
             veloV2Factory: mapUnsupported(params.veloV2Factory),
             veloCLFactory: mapUnsupported(params.veloCLFactory),
-            veloV2Implementation: mapUnsupported(params.veloV2Implementation),
+            veloV2InitCodeHash: params.veloV2InitCodeHash,
             veloCLInitCodeHash: params.veloCLInitCodeHash
         });
 
@@ -99,7 +99,6 @@ abstract contract DeployUniversalRouter is Script {
         console2.log('v3NFTPositionManager:', params.v3NFTPositionManager);
         console2.log('v4PositionManager:', params.v4PositionManager);
         console2.log('veloV2Factory:', params.veloV2Factory);
-        console2.log('veloV2Implementation:', params.veloV2Implementation);
     }
 
     function mapUnsupported(address protocol) internal view returns (address) {

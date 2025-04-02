@@ -138,13 +138,4 @@ contract SlipstreamTest is BaseSlipstreamFixture {
         assertLt(OP.balanceOf(FROM), BALANCE - AMOUNT);
         assertEq(ethBalanceAfter - ethBalanceBefore, AMOUNT);
     }
-
-    /// @dev Helper to get the InitCodeHash from the `_implementation` address
-    function _getInitCodeHash(address _implementation) internal pure returns (bytes32) {
-        return keccak256(
-            abi.encodePacked(
-                hex'3d602d80600a3d3981f3363d3d373d3d3d363d73', _implementation, hex'5af43d82803e903d91602b57fd5bf3'
-            )
-        );
-    }
 }

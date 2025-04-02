@@ -114,7 +114,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
             v4PositionManager: address(0),
             veloV2Factory: address(VELO_V2_FACTORY),
             veloCLFactory: address(CL_FACTORY),
-            veloV2Implementation: VELO_V2_POOL_IMPLEMENTATION,
+            veloV2InitCodeHash: VELO_V2_INIT_CODE_HASH,
             veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH
         });
 
@@ -209,5 +209,14 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.warp({newTimestamp: leafStartTime});
         vm.selectFork({forkId: fork});
         _;
+    }
+
+    /// @dev Helper to get the InitCodeHash from the `_implementation` address
+    function _getInitCodeHash(address _implementation) internal pure returns (bytes32) {
+        return keccak256(
+            abi.encodePacked(
+                hex'3d602d80600a3d3981f3363d3d373d3d3d363d73', _implementation, hex'5af43d82803e903d91602b57fd5bf3'
+            )
+        );
     }
 }

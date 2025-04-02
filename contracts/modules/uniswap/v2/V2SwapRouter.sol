@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
-import {IPool} from '../../../interfaces/external/IPool.sol';
-import {UniswapV2Library} from './UniswapV2Library.sol';
-import {UniswapImmutables, Route} from '../UniswapImmutables.sol';
-import {Permit2Payments} from '../../Permit2Payments.sol';
-import {Constants} from '../../../libraries/Constants.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
+
+import {UniswapImmutables, Route} from '../UniswapImmutables.sol';
+import {IPool} from '../../../interfaces/external/IPool.sol';
+import {Permit2Payments} from '../../Permit2Payments.sol';
+
+import {Constants} from '../../../libraries/Constants.sol';
+import {UniswapV2Library} from './UniswapV2Library.sol';
 
 /// @title Router for Uniswap v2 Trades
 abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
@@ -34,7 +36,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                 address nextPair;
                 (nextPair, token0) = i < penultimatePairIndex
                     ? UniswapV2Library.pairAndToken0For(
-                        UNISWAP_V2_FACTORY, UNISWAP_V2_PAIR_INIT_CODE_HASH, output, path[i + 2]
+                        UNISWAP_V2_FACTORY, UNISWAP_V2_PAIR_INIT_CODE_HASH, output, path[i + 2], false
                     )
                     : (recipient, address(0));
                 IPool(pair).swap(amount0Out, amount1Out, nextPair, new bytes(0));
@@ -67,7 +69,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                 (nextPair, token0) = i < finalPairIndex
                     ? UniswapV2Library.pairAndToken0For(
                         VELODROME_V2_FACTORY,
-                        VELODROME_V2_IMPLEMENTATION,
+                        VELODROME_V2_INIT_CODE_HASH,
                         routes[i + 1].from,
                         routes[i + 1].to,
                         routes[i + 1].stable
@@ -93,7 +95,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
         address payer
     ) internal {
         address firstPair =
-            UniswapV2Library.pairFor(UNISWAP_V2_FACTORY, UNISWAP_V2_PAIR_INIT_CODE_HASH, path[0], path[1]);
+            UniswapV2Library.pairFor(UNISWAP_V2_FACTORY, UNISWAP_V2_PAIR_INIT_CODE_HASH, path[0], path[1], false);
         if (
             amountIn != Constants.ALREADY_PAID // amountIn of 0 to signal that the pair already has the tokens
         ) {
@@ -123,7 +125,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
         address payer
     ) internal {
         address firstPair = UniswapV2Library.pairFor(
-            VELODROME_V2_FACTORY, VELODROME_V2_IMPLEMENTATION, routes[0].from, routes[0].to, routes[0].stable
+            VELODROME_V2_FACTORY, VELODROME_V2_INIT_CODE_HASH, routes[0].from, routes[0].to, routes[0].stable
         );
         if (
             amountIn != Constants.ALREADY_PAID // amountIn of 0 to signal that the pair already has the tokens
@@ -175,7 +177,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
         address payer
     ) internal {
         (uint256 amountIn, address firstPair) =
-            UniswapV2Library.getAmountInMultihop(VELODROME_V2_FACTORY, VELODROME_V2_IMPLEMENTATION, amountOut, routes);
+            UniswapV2Library.getAmountInMultihop(VELODROME_V2_FACTORY, VELODROME_V2_INIT_CODE_HASH, amountOut, routes);
         if (amountIn > amountInMaximum) revert V2TooMuchRequested();
 
         payOrPermit2Transfer(routes[0].from, payer, firstPair, amountIn);

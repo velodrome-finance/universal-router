@@ -17,6 +17,6 @@ struct RouterParameters {
     // Velodrome swapping parameters
     address veloV2Factory;
     address veloCLFactory;
-    address veloV2Implementation;
+    bytes32 veloV2InitCodeHash;
     bytes32 veloCLInitCodeHash;
 }

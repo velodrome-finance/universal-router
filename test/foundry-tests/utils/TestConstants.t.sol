@@ -36,6 +36,13 @@ abstract contract TestConstants {
     address public constant UNI_V2_FACTORY_ADDRESS = 0x0c3c1c532F1e39EdF36BE9Fe0bE1410313E074Bf;
     address public constant VELO_V2_FACTORY_ADDRESS = 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a;
     address public constant VELO_V2_POOL_IMPLEMENTATION = 0x95885Af5492195F0754bE71AD1545Fe81364E531;
+    bytes32 public constant VELO_V2_INIT_CODE_HASH = keccak256(
+        abi.encodePacked(
+            hex'3d602d80600a3d3981f3363d3d373d3d3d363d73',
+            VELO_V2_POOL_IMPLEMENTATION,
+            hex'5af43d82803e903d91602b57fd5bf3'
+        )
+    );
 
     /// TEST PARAMS ///
     address constant RECIPIENT = address(10);

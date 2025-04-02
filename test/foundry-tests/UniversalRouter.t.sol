@@ -2,9 +2,6 @@
 pragma solidity ^0.8.15;
 
 import 'forge-std/Test.sol';
-import {ERC20} from 'solmate/src/tokens/ERC20.sol';
-import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
-import {IERC165} from '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 
 import {Payments} from 'contracts/modules/Payments.sol';
 import {Permit2Payments} from 'contracts/modules/Permit2Payments.sol';
@@ -37,7 +34,7 @@ contract UniversalRouterTest is Test {
             v4PositionManager: address(0),
             veloV2Factory: address(0),
             veloCLFactory: address(0),
-            veloV2Implementation: address(0),
+            veloV2InitCodeHash: bytes32(0),
             veloCLInitCodeHash: bytes32(0)
         });
         router = new UniversalRouter(params);

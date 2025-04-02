@@ -9,7 +9,7 @@ import {Payments} from '../modules/Payments.sol';
 import {PaymentsImmutables} from '../modules/PaymentsImmutables.sol';
 import {V3ToV4Migrator} from '../modules/V3ToV4Migrator.sol';
 import {Route} from '../modules/uniswap/UniswapImmutables.sol';
-import {TransientSlot} from '../libraries/TransientSlot.sol';
+import {UniswapFlag} from '../libraries/UniswapFlag.sol';
 import {Commands} from '../libraries/Commands.sol';
 import {Lock} from './Lock.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
@@ -24,7 +24,6 @@ import {IPoolManager} from '@uniswap/v4-core/src/interfaces/IPoolManager.sol';
 abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRouter, V3ToV4Migrator, Lock {
     using BytesLib for bytes;
     using CalldataDecoder for bytes;
-    using TransientSlot for *;
 
     error InvalidCommandType(uint256 commandType);
     error BalanceTooLow();
@@ -77,7 +76,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(true);
+                        if (isV3) UniswapFlag.set(true);
                         v3SwapExactInput({
                             recipient: map(recipient),
                             amountIn: amountIn,
@@ -85,7 +84,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                             path: path,
                             payer: payer
                         });
-                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(false);
+                        if (isV3) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V3_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
@@ -104,7 +103,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(true);
+                        if (isV3) UniswapFlag.set(true);
                         v3SwapExactOutput({
                             recipient: map(recipient),
                             amountOut: amountOut,
@@ -112,7 +111,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                             path: path,
                             payer: payer
                         });
-                        if (isV3) V3_FLAG_STORAGE.asBoolean().tstore(false);
+                        if (isV3) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_TRANSFER_FROM) {
                         // equivalent: abi.decode(inputs, (address, address, uint160))
@@ -195,7 +194,9 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         address[] calldata path = inputs.toAddressArray(3);
                         address payer = payerIsUser ? msgSender() : address(this);
+                        UniswapFlag.set(true);
                         v2SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer);
+                        UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
@@ -212,7 +213,9 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         address[] calldata path = inputs.toAddressArray(3);
                         address payer = payerIsUser ? msgSender() : address(this);
+                        UniswapFlag.set(true);
                         v2SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer);
+                        UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_PERMIT) {
                         // equivalent: abi.decode(inputs, (IAllowanceTransfer.PermitSingle, bytes))

@@ -5,7 +5,6 @@ import {IUniswapV3SwapCallback} from '@uniswap/v3-core/contracts/interfaces/call
 import {ActionConstants} from '@uniswap/v4-periphery/src/libraries/ActionConstants.sol';
 import {CalldataDecoder} from '@uniswap/v4-periphery/src/libraries/CalldataDecoder.sol';
 import {SafeCast} from '@uniswap/v3-core/contracts/libraries/SafeCast.sol';
-import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 
 import {ICLPool} from '../../../interfaces/external/ICLPool.sol';
@@ -13,7 +12,7 @@ import {UniswapImmutables} from '../UniswapImmutables.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
 
 import {MaxInputAmount} from '../../../libraries/MaxInputAmount.sol';
-import {TransientSlot} from '../../../libraries/TransientSlot.sol';
+import {UniswapFlag} from '../../../libraries/UniswapFlag.sol';
 import {BytesLib} from './BytesLib.sol';
 import {V3Path} from './V3Path.sol';
 
@@ -23,7 +22,6 @@ abstract contract V3SwapRouter is UniswapImmutables, Permit2Payments, IUniswapV3
     using BytesLib for bytes;
     using CalldataDecoder for bytes;
     using SafeCast for uint256;
-    using TransientSlot for *;
 
     error V3InvalidSwap();
     error V3TooLittleReceived();
@@ -36,9 +34,6 @@ abstract contract V3SwapRouter is UniswapImmutables, Permit2Payments, IUniswapV3
 
     /// @dev The maximum value that can be returned from #getSqrtRatioAtTick. Equivalent to getSqrtRatioAtTick(MAX_TICK)
     uint160 internal constant MAX_SQRT_RATIO = 1461446703485210103287273052203988822378723970342;
-
-    // keccak256(abi.encode(uint256(keccak256("dispatcher.storage.isV3")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 internal constant V3_FLAG_STORAGE = 0x288fb9729b839f05567f39bb1953c12f9b9cf856a4245eef1060d59bcf723e00;
 
     function uniswapV3SwapCallback(int256 amount0Delta, int256 amount1Delta, bytes calldata data) external {
         if (amount0Delta <= 0 && amount1Delta <= 0) revert V3InvalidSwap(); // swaps entirely within 0-liquidity regions are not supported
@@ -172,7 +167,7 @@ abstract contract V3SwapRouter is UniswapImmutables, Permit2Payments, IUniswapV3
     function computePoolAddress(address tokenA, address tokenB, uint24 poolParam) private view returns (address pool) {
         if (tokenA > tokenB) (tokenA, tokenB) = (tokenB, tokenA);
 
-        bool isV3 = V3_FLAG_STORAGE.asBoolean().tload();
+        bool isV3 = UniswapFlag.get();
 
         (address factory, bytes32 initCodeHash) = isV3
             ? (UNISWAP_V3_FACTORY, UNISWAP_V3_POOL_INIT_CODE_HASH)
