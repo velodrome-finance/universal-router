@@ -1,0 +1,8 @@
+TransferFromTest
+├── When safe transfer from succeeds
+│   └── It should transfer tokens from the payer to the recipient via erc20 transfer
+└── When safe transfer from fails
+    ├── When permit2 transfer from fails
+    │   └── It should revert
+    └── When permit2 transfer from succeeds
+        └── It should transfer tokens from the payer to the recipient via permit2

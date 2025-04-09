@@ -2,12 +2,18 @@
 pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
+import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
 import {IXERC20} from '@hyperlane/core/contracts/token/interfaces/IXERC20.sol';
 import {HypXERC20} from '@hyperlane/core/contracts/token/extensions/HypXERC20.sol';
 import {TestIsm} from '@hyperlane/core/contracts/test/TestIsm.sol';
-import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
+
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
+import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
+
 import {CreateXLibrary} from '../../contracts/libraries/CreateXLibrary.sol';
+import {Constants} from '../../contracts/libraries/Constants.sol';
+import {Commands} from '../../contracts/libraries/Commands.sol';
+
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRoot, RouterParameters} from '../foundry-tests/utils/TestDeployRoot.sol';
@@ -63,6 +69,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     // common variables
     Users internal users;
+    IWETH9 public weth;
 
     function setUp() public virtual {
         createUsers();
@@ -79,10 +86,12 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.startPrank(users.owner);
         rootId = vm.createSelectFork({urlOrAlias: 'optimism', blockNumber: rootForkBlockNumber});
         rootStartTime = block.timestamp;
+        weth = IWETH9(WETH9_ADDRESS);
         vm.warp({newTimestamp: rootStartTime});
 
         leafId = vm.createSelectFork({urlOrAlias: 'base', blockNumber: leafForkBlockNumber});
         leafStartTime = rootStartTime;
+        weth = IWETH9(WETH9_ADDRESS);
         vm.warp({newTimestamp: leafStartTime});
 
         vm.stopPrank();
