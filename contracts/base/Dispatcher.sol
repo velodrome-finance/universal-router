@@ -14,7 +14,6 @@ import {V4SwapRouter} from '../modules/uniswap/v4/V4SwapRouter.sol';
 import {BytesLib} from '../modules/uniswap/v3/BytesLib.sol';
 import {Payments} from '../modules/Payments.sol';
 import {PaymentsImmutables} from '../modules/PaymentsImmutables.sol';
-import {V3ToV4Migrator} from '../modules/V3ToV4Migrator.sol';
 import {BridgeRouter} from '../modules/bridge/BridgeRouter.sol';
 import {UniswapFlag} from '../libraries/UniswapFlag.sol';
 import {Commands} from '../libraries/Commands.sol';
@@ -22,15 +21,7 @@ import {Lock} from './Lock.sol';
 
 /// @title Decodes and Executes Commands
 /// @notice Called by the UniversalRouter contract to efficiently decode and execute a singular command
-abstract contract Dispatcher is
-    Payments,
-    V2SwapRouter,
-    V3SwapRouter,
-    V4SwapRouter,
-    V3ToV4Migrator,
-    BridgeRouter,
-    Lock
-{
+abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRouter, BridgeRouter, Lock {
     using BytesLib for bytes;
     using CalldataDecoder for bytes;
 
@@ -310,12 +301,6 @@ abstract contract Dispatcher is
                     // pass the calldata provided to V4SwapRouter._executeActions (defined in BaseActionsRouter)
                     _executeActions(inputs);
                     // This contract MUST be approved to spend the token since its going to be doing the call on the position manager
-                } else if (command == Commands.V3_POSITION_MANAGER_PERMIT) {
-                    _checkV3PermitCall(inputs);
-                    (success, output) = address(V3_POSITION_MANAGER).call(inputs);
-                } else if (command == Commands.V3_POSITION_MANAGER_CALL) {
-                    _checkV3PositionManagerCall(inputs, msgSender());
-                    (success, output) = address(V3_POSITION_MANAGER).call(inputs);
                 } else if (command == Commands.V4_INITIALIZE_POOL) {
                     PoolKey calldata poolKey;
                     uint160 sqrtPriceX96;
@@ -325,10 +310,6 @@ abstract contract Dispatcher is
                     }
                     (success, output) =
                         address(poolManager).call(abi.encodeCall(IPoolManager.initialize, (poolKey, sqrtPriceX96)));
-                } else if (command == Commands.V4_POSITION_MANAGER_CALL) {
-                    // should only call modifyLiquidities() to mint
-                    _checkV4PositionManagerCall(inputs);
-                    (success, output) = address(V4_POSITION_MANAGER).call{value: address(this).balance}(inputs);
                 } else if (command == Commands.BRIDGE_TOKEN) {
                     // equivalent: abi.decode(inputs, (uint8, address, address, address, uint256, uint32, bool))
                     uint8 bridgeType;
@@ -368,7 +349,7 @@ abstract contract Dispatcher is
                         domain: domain
                     });
                 } else {
-                    // placeholder area for commands 0x16-0x20
+                    // placeholder area for commands 0x13-0x20
                     revert InvalidCommandType(command);
                 }
             }

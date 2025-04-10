@@ -30,8 +30,6 @@ contract UniversalRouterTest is Test {
             pairInitCodeHash: bytes32(0),
             poolInitCodeHash: bytes32(0),
             v4PoolManager: address(0),
-            v3NFTPositionManager: address(0),
-            v4PositionManager: address(0),
             veloV2Factory: address(0),
             veloCLFactory: address(0),
             veloV2InitCodeHash: bytes32(0),

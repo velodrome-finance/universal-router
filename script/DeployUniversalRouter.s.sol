@@ -59,8 +59,6 @@ abstract contract DeployUniversalRouter is Script {
             pairInitCodeHash: params.pairInitCodeHash,
             poolInitCodeHash: params.poolInitCodeHash,
             v4PoolManager: mapUnsupported(params.v4PoolManager),
-            v3NFTPositionManager: mapUnsupported(params.v3NFTPositionManager),
-            v4PositionManager: mapUnsupported(params.v4PositionManager),
             veloV2Factory: mapUnsupported(params.veloV2Factory),
             veloCLFactory: mapUnsupported(params.veloCLFactory),
             veloV2InitCodeHash: params.veloV2InitCodeHash,
@@ -97,8 +95,6 @@ abstract contract DeployUniversalRouter is Script {
         console2.log('v2Factory:', params.v2Factory);
         console2.log('v3Factory:', params.v3Factory);
         console2.log('v4PoolManager:', params.v4PoolManager);
-        console2.log('v3NFTPositionManager:', params.v3NFTPositionManager);
-        console2.log('v4PositionManager:', params.v4PositionManager);
         console2.log('veloV2Factory:', params.veloV2Factory);
     }
 

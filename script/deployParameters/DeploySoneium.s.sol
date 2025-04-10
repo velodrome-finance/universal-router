@@ -14,8 +14,6 @@ contract DeploySoneium is DeployUniversalRouter {
             pairInitCodeHash: BYTES32_ZERO,
             poolInitCodeHash: BYTES32_ZERO,
             v4PoolManager: 0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32,
-            v3NFTPositionManager: 0x8702463e73f74d0b6765aBceb314Ef07aCb92650,
-            v4PositionManager: 0x1b35d13a2E2528f192637F14B05f0Dc0e7dEB566,
             veloV2Factory: 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0,
             veloCLFactory: 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F,
             veloV2InitCodeHash: 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d,

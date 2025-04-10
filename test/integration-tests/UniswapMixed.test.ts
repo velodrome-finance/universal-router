@@ -21,6 +21,8 @@ import {
   DAI_HOLDER,
   WETH_HOLDER,
   USDC_HOLDER,
+  PERMIT2_ADDRESS,
+  V4_POSITION_DESCRIPTOR_ADDRESS,
 } from './shared/constants'
 import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -35,6 +37,7 @@ import {
   addLiquidityToV4Pool,
   DAI_USDC,
   deployV4PoolManager,
+  deployV4PositionManager,
   encodeMultihopExactInPath,
   ETH_USDC,
   initializeV4Pool,
@@ -84,9 +87,15 @@ describe('Uniswap V2, V3, and V4 Tests:', () => {
     v4PoolManager = (await deployV4PoolManager(bob.address)).connect(bob) as PoolManager
     router = (await deployUniversalRouter(undefined, v4PoolManager.address)).connect(bob) as UniversalRouter
 
-    v4PositionManager = (await ethers.getContractAt('PositionManager', await router.V4_POSITION_MANAGER())).connect(
-      bob
-    ) as PositionManager
+    v4PositionManager = (
+      await deployV4PositionManager(
+        v4PoolManager.address,
+        PERMIT2_ADDRESS,
+        V4_POSITION_DESCRIPTOR_ADDRESS,
+        WETH.address
+      )
+    ).connect(bob) as PositionManager
+
     planner = new RoutePlanner()
     v4Planner = new V4Planner()
 

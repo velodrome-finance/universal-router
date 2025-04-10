@@ -33,12 +33,9 @@ library Commands {
 
     // Command Types where 0x10<=value<=0x20, executed in the third nested-if block
     uint256 constant V4_SWAP = 0x10;
-    uint256 constant V3_POSITION_MANAGER_PERMIT = 0x11;
-    uint256 constant V3_POSITION_MANAGER_CALL = 0x12;
-    uint256 constant V4_INITIALIZE_POOL = 0x13;
-    uint256 constant V4_POSITION_MANAGER_CALL = 0x14;
-    uint256 constant BRIDGE_TOKEN = 0x15;
-    // COMMAND_PLACEHOLDER = 0x16 -> 0x20
+    uint256 constant V4_INITIALIZE_POOL = 0x11;
+    uint256 constant BRIDGE_TOKEN = 0x12;
+    // COMMAND_PLACEHOLDER = 0x13 -> 0x20
 
     // Command Types where 0x21<=value<=0x3f
     uint256 constant EXECUTE_SUB_PLAN = 0x21;

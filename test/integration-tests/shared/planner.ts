@@ -23,10 +23,8 @@ export enum CommandType {
   BALANCE_CHECK_ERC20 = 0x0e,
 
   V4_SWAP = 0x10,
-  V3_POSITION_MANAGER_PERMIT = 0x11,
-  V3_POSITION_MANAGER_CALL = 0x12,
-  V4_INITIALIZE_POOL = 0x13,
-  V4_POSITION_MANAGER_CALL = 0x14,
+  V4_INITIALIZE_POOL = 0x11,
+  BRIDGE_TOKEN = 0x12,
 
   EXECUTE_SUB_PLAN = 0x21,
 }
@@ -74,11 +72,9 @@ const ABI_DEFINITION: { [key in CommandType]: string[] } = {
   [CommandType.PAY_PORTION]: ['address', 'address', 'uint256'],
   [CommandType.BALANCE_CHECK_ERC20]: ['address', 'address', 'uint256'],
 
+  // V4 Actions
   [CommandType.V4_SWAP]: ['bytes', 'bytes[]'],
-  [CommandType.V3_POSITION_MANAGER_PERMIT]: ['bytes'],
-  [CommandType.V3_POSITION_MANAGER_CALL]: ['bytes'],
   [CommandType.V4_INITIALIZE_POOL]: [POOL_KEY_STRUCT, 'uint160'],
-  [CommandType.V4_POSITION_MANAGER_CALL]: ['bytes'],
 }
 
 export class RoutePlanner {
@@ -114,14 +110,6 @@ export type RouterCommand = {
 }
 
 export function createCommand(type: CommandType, parameters: any[]): RouterCommand {
-  if (
-    type === CommandType.V3_POSITION_MANAGER_CALL ||
-    type === CommandType.V3_POSITION_MANAGER_PERMIT ||
-    type === CommandType.V4_POSITION_MANAGER_CALL
-  ) {
-    return { type, encodedInput: parameters[0] }
-  } else {
-    const encodedInput = defaultAbiCoder.encode(ABI_DEFINITION[type], parameters)
-    return { type, encodedInput }
-  }
+  const encodedInput = defaultAbiCoder.encode(ABI_DEFINITION[type], parameters)
+  return { type, encodedInput }
 }

@@ -14,8 +14,6 @@ contract DeployUnichain is DeployUniversalRouter {
             pairInitCodeHash: 0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f,
             poolInitCodeHash: 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54,
             v4PoolManager: 0x1F98400000000000000000000000000000000004,
-            v3NFTPositionManager: 0x943e6e07a7E8E791dAFC44083e54041D743C46E9,
-            v4PositionManager: 0x4529A01c7A0410167c5740C487A8DE60232617bf,
             veloV2Factory: 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0,
             veloCLFactory: 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F,
             veloV2InitCodeHash: 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d,

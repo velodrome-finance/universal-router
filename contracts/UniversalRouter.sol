@@ -10,7 +10,6 @@ import {V4SwapRouter} from './modules/uniswap/v4/V4SwapRouter.sol';
 import {BridgeRouter} from './modules/bridge/BridgeRouter.sol';
 import {Commands} from './libraries/Commands.sol';
 import {IUniversalRouter} from './interfaces/IUniversalRouter.sol';
-import {MigratorImmutables, MigratorParameters} from './modules/MigratorImmutables.sol';
 
 contract UniversalRouter is IUniversalRouter, Dispatcher {
     constructor(RouterParameters memory params)
@@ -28,7 +27,6 @@ contract UniversalRouter is IUniversalRouter, Dispatcher {
         )
         V4SwapRouter(params.v4PoolManager)
         PaymentsImmutables(PaymentsParameters(params.permit2, params.weth9))
-        MigratorImmutables(MigratorParameters(params.v3NFTPositionManager, params.v4PositionManager))
         BridgeRouter(params.rootHLMessageModule)
     {}
 

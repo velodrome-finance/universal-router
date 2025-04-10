@@ -14,8 +14,6 @@ contract DeployBase is DeployUniversalRouter {
             pairInitCodeHash: 0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f,
             poolInitCodeHash: 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54,
             v4PoolManager: 0x498581fF718922c3f8e6A244956aF099B2652b2b,
-            v3NFTPositionManager: 0x03a520b32C04BF3bEEf7BEb72E919cf822Ed34f1,
-            v4PositionManager: 0x7C5f5A4bBd8fD63184577525326123B519429bDc,
             veloV2Factory: 0x420DD381b31aEf6683db6B902084cB0FFECe40Da,
             veloCLFactory: 0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A,
             veloV2InitCodeHash: 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c,
