@@ -26,7 +26,7 @@ import {
   MAX_UINT160,
   SOURCE_MSG_SENDER,
   USDC_HOLDER,
-  V3_FLAG,
+  UNISWAP_FLAG,
 } from '../shared/constants'
 import { expandTo6DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
@@ -179,10 +179,24 @@ describe('Uniswap UX Tests gas:', () => {
 
       if (swap.route.protocol == 'V2') {
         let pathAddresses = routeToAddresses(route)
-        planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [bob.address, amountIn, 0, pathAddresses, SOURCE_MSG_SENDER])
+        planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+          bob.address,
+          amountIn,
+          0,
+          pathAddresses,
+          SOURCE_MSG_SENDER,
+          UNISWAP_FLAG,
+        ])
       } else if (swap.route.protocol == 'V3') {
         let path = encodePathExactInput(route)
-        planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [bob.address, amountIn, 0, path, SOURCE_MSG_SENDER, V3_FLAG])
+        planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
+          bob.address,
+          amountIn,
+          0,
+          path,
+          SOURCE_MSG_SENDER,
+          UNISWAP_FLAG,
+        ])
       } else {
         console.log('invalid protocol')
       }

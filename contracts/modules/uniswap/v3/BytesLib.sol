@@ -62,17 +62,6 @@ library BytesLib {
         if (_bytes.length < length + relativeOffset) revert SliceOutOfBounds();
     }
 
-    /// @notice Decode the `_arg`-th element in `_bytes` as `address[]`
-    /// @param _bytes The input bytes string to extract an address array from
-    /// @param _arg The index of the argument to extract
-    function toAddressArray(bytes calldata _bytes, uint256 _arg) internal pure returns (address[] calldata res) {
-        (uint256 length, uint256 offset) = toLengthOffset(_bytes, _arg);
-        assembly {
-            res.length := length
-            res.offset := offset
-        }
-    }
-
     /// @notice Equivalent to abi.decode(bytes, bytes[])
     /// @param _bytes The input bytes string to extract an parameters from
     function decodeCommandsAndInputs(bytes calldata _bytes) internal pure returns (bytes calldata, bytes[] calldata) {

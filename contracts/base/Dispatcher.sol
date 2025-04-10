@@ -8,7 +8,6 @@ import {BytesLib} from '../modules/uniswap/v3/BytesLib.sol';
 import {Payments} from '../modules/Payments.sol';
 import {PaymentsImmutables} from '../modules/PaymentsImmutables.sol';
 import {V3ToV4Migrator} from '../modules/V3ToV4Migrator.sol';
-import {Route} from '../modules/uniswap/UniswapImmutables.sol';
 import {UniswapFlag} from '../libraries/UniswapFlag.sol';
 import {Commands} from '../libraries/Commands.sol';
 import {Lock} from './Lock.sol';
@@ -65,18 +64,18 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         uint256 amountIn;
                         uint256 amountOutMin;
                         bool payerIsUser;
-                        bool isV3;
+                        bool isUni;
                         assembly {
                             recipient := calldataload(inputs.offset)
                             amountIn := calldataload(add(inputs.offset, 0x20))
                             amountOutMin := calldataload(add(inputs.offset, 0x40))
                             // 0x60 offset is the path, decoded below
                             payerIsUser := calldataload(add(inputs.offset, 0x80))
-                            isV3 := calldataload(add(inputs.offset, 0xA0))
+                            isUni := calldataload(add(inputs.offset, 0xA0))
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isV3) UniswapFlag.set(true);
+                        if (isUni) UniswapFlag.set(true);
                         v3SwapExactInput({
                             recipient: map(recipient),
                             amountIn: amountIn,
@@ -84,7 +83,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                             path: path,
                             payer: payer
                         });
-                        if (isV3) UniswapFlag.set(false);
+                        if (isUni) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V3_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
@@ -92,18 +91,18 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         uint256 amountOut;
                         uint256 amountInMax;
                         bool payerIsUser;
-                        bool isV3;
+                        bool isUni;
                         assembly {
                             recipient := calldataload(inputs.offset)
                             amountOut := calldataload(add(inputs.offset, 0x20))
                             amountInMax := calldataload(add(inputs.offset, 0x40))
                             // 0x60 offset is the path, decoded below
                             payerIsUser := calldataload(add(inputs.offset, 0x80))
-                            isV3 := calldataload(add(inputs.offset, 0xA0))
+                            isUni := calldataload(add(inputs.offset, 0xA0))
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isV3) UniswapFlag.set(true);
+                        if (isUni) UniswapFlag.set(true);
                         v3SwapExactOutput({
                             recipient: map(recipient),
                             amountOut: amountOut,
@@ -111,7 +110,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                             path: path,
                             payer: payer
                         });
-                        if (isV3) UniswapFlag.set(false);
+                        if (isUni) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_TRANSFER_FROM) {
                         // equivalent: abi.decode(inputs, (address, address, uint160))
@@ -193,42 +192,46 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                 } else {
                     // 0x08 <= command < 0x10
                     if (command == Commands.V2_SWAP_EXACT_IN) {
-                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
+                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
                         address recipient;
                         uint256 amountIn;
                         uint256 amountOutMin;
                         bool payerIsUser;
+                        bool isUni;
                         assembly {
                             recipient := calldataload(inputs.offset)
                             amountIn := calldataload(add(inputs.offset, 0x20))
                             amountOutMin := calldataload(add(inputs.offset, 0x40))
                             // 0x60 offset is the path, decoded below
                             payerIsUser := calldataload(add(inputs.offset, 0x80))
+                            isUni := calldataload(add(inputs.offset, 0xA0))
                         }
-                        address[] calldata path = inputs.toAddressArray(3);
+                        bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        UniswapFlag.set(true);
+                        if (isUni) UniswapFlag.set(true);
                         v2SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer);
-                        UniswapFlag.set(false);
+                        if (isUni) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
-                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool))
+                        // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
                         address recipient;
                         uint256 amountOut;
                         uint256 amountInMax;
                         bool payerIsUser;
+                        bool isUni;
                         assembly {
                             recipient := calldataload(inputs.offset)
                             amountOut := calldataload(add(inputs.offset, 0x20))
                             amountInMax := calldataload(add(inputs.offset, 0x40))
                             // 0x60 offset is the path, decoded below
                             payerIsUser := calldataload(add(inputs.offset, 0x80))
+                            isUni := calldataload(add(inputs.offset, 0xA0))
                         }
-                        address[] calldata path = inputs.toAddressArray(3);
+                        bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        UniswapFlag.set(true);
+                        if (isUni) UniswapFlag.set(true);
                         v2SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer);
-                        UniswapFlag.set(false);
+                        if (isUni) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                     } else if (command == Commands.PERMIT2_PERMIT) {
                         // equivalent: abi.decode(inputs, (IAllowanceTransfer.PermitSingle, bytes))
@@ -313,30 +316,8 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                     // should only call modifyLiquidities() to mint
                     _checkV4PositionManagerCall(inputs);
                     (success, output) = address(V4_POSITION_MANAGER).call{value: address(this).balance}(inputs);
-                } else if (command == Commands.POOL_SWAP_EXACT_IN) {
-                    address recipient;
-                    uint256 amountIn;
-                    uint256 amountOutMin;
-                    bool payerIsUser;
-                    Route[] memory routes;
-                    (recipient, amountIn, amountOutMin, routes, payerIsUser) =
-                        abi.decode(inputs, (address, uint256, uint256, Route[], bool));
-                    address payer = payerIsUser ? msgSender() : address(this);
-                    v2SwapExactInput(map(recipient), amountIn, amountOutMin, routes, payer);
-                    emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
-                } else if (command == Commands.POOL_SWAP_EXACT_OUT) {
-                    address recipient;
-                    uint256 amountOut;
-                    uint256 amountInMax;
-                    bool payerIsUser;
-                    Route[] memory routes;
-                    (recipient, amountOut, amountInMax, routes, payerIsUser) =
-                        abi.decode(inputs, (address, uint256, uint256, Route[], bool));
-                    address payer = payerIsUser ? msgSender() : address(this);
-                    v2SwapExactOutput(map(recipient), amountOut, amountInMax, routes, payer);
-                    emit UniversalRouterSwap({sender: msg.sender, recipient: recipient});
                 } else {
-                    // placeholder area for commands 0x17-0x20
+                    // placeholder area for commands 0x15-0x20
                     revert InvalidCommandType(command);
                 }
             }

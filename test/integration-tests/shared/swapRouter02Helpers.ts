@@ -81,6 +81,15 @@ export function encodePathExactOutput(tokens: string[]): string {
   return encodePath(tokens.slice().reverse())
 }
 
+export function encodePathV2(tokens: string[]): string {
+  let encoded = '0x'
+  for (let i = 0; i < tokens.length; i++) {
+    // 20 byte encoding of the address
+    encoded += tokens[i].slice(2)
+  }
+  return encoded.toLowerCase()
+}
+
 export function expandTo18Decimals(n: number): BigintIsh {
   return JSBI.BigInt(BigNumber.from(n).mul(BigNumber.from(10).pow(18)).toString())
 }

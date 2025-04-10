@@ -54,12 +54,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
     function testMultiHopExactInput0For1() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
         uint256 amount = 10 ** ERC20(token0()).decimals();
-        address[] memory path = new address[](3);
-        path[0] = token0();
-        path[1] = address(bUSDC);
-        path[2] = token1();
+        bytes memory path = abi.encodePacked(token0(), address(bUSDC), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, true, true);
 
         router.execute(commands, inputs);
         assertEq(ERC20(token0()).balanceOf(FROM), BALANCE - amount);
@@ -69,12 +66,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
     function testMultiHopExactInput1For0() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
         uint256 amount = 10 ** ERC20(token1()).decimals();
-        address[] memory path = new address[](3);
-        path[0] = token1();
-        path[1] = address(bUSDC);
-        path[2] = token0();
+        bytes memory path = abi.encodePacked(token1(), address(bUSDC), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, true, true);
 
         router.execute(commands, inputs);
         assertEq(ERC20(token1()).balanceOf(FROM), BALANCE - amount);
@@ -85,12 +79,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
         uint256 amount = 10 ** ERC20(token0()).decimals();
         deal(token0(), address(router), amount);
-        address[] memory path = new address[](3);
-        path[0] = token0();
-        path[1] = address(bUSDC);
-        path[2] = token1();
+        bytes memory path = abi.encodePacked(token0(), address(bUSDC), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, false, true);
 
         router.execute(commands, inputs);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
@@ -100,12 +91,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
         uint256 amount = 10 ** ERC20(token1()).decimals();
         deal(token1(), address(router), amount);
-        address[] memory path = new address[](3);
-        path[0] = token1();
-        path[1] = address(bUSDC);
-        path[2] = token0();
+        bytes memory path = abi.encodePacked(token1(), address(bUSDC), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, 0, path, false, true);
 
         router.execute(commands, inputs);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
@@ -114,12 +102,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
     function testMultiHopExactOutput0For1() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
         uint256 amount = 10 ** ERC20(token0()).decimals();
-        address[] memory path = new address[](3);
-        path[0] = token0();
-        path[1] = address(bUSDC);
-        path[2] = token1();
+        bytes memory path = abi.encodePacked(token0(), address(bUSDC), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, true, true);
 
         router.execute(commands, inputs);
         assertLt(ERC20(token0()).balanceOf(FROM), BALANCE);
@@ -129,12 +114,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
     function testMultiHopExactOutput1For0() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
         uint256 amount = 10 ** ERC20(token1()).decimals();
-        address[] memory path = new address[](3);
-        path[0] = token1();
-        path[1] = address(bUSDC);
-        path[2] = token0();
+        bytes memory path = abi.encodePacked(token1(), address(bUSDC), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, true, true);
 
         router.execute(commands, inputs);
         assertLt(ERC20(token1()).balanceOf(FROM), BALANCE);
@@ -145,12 +127,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
         uint256 amount = 10 ** ERC20(token0()).decimals();
         deal(token0(), address(router), BALANCE);
-        address[] memory path = new address[](3);
-        path[0] = token0();
-        path[1] = address(bUSDC);
-        path[2] = token1();
+        bytes memory path = abi.encodePacked(token0(), address(bUSDC), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, false, true);
 
         router.execute(commands, inputs);
         assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + amount);
@@ -160,12 +139,9 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
         uint256 amount = 10 ** ERC20(token1()).decimals();
         deal(token1(), address(router), BALANCE);
-        address[] memory path = new address[](3);
-        path[0] = token1();
-        path[1] = address(bUSDC);
-        path[2] = token0();
+        bytes memory path = abi.encodePacked(token1(), address(bUSDC), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, amount, type(uint256).max, path, false, true);
 
         router.execute(commands, inputs);
         assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + amount);

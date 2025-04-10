@@ -15,7 +15,9 @@ import {
   MAX_UINT,
   ETH_ADDRESS,
   DAI_HOLDER,
+  UNISWAP_FLAG,
 } from './shared/constants'
+import { encodePathV2 } from './shared/swapRouter02Helpers'
 import { resetFork, WETH, DAI, PERMIT2 } from './shared/mainnetForkHelpers'
 import { CommandType, RoutePlanner } from './shared/planner'
 import { makePair } from './shared/swapRouter02Helpers'
@@ -75,8 +77,9 @@ describe('UniversalRouter', () => {
         alice.address,
         1,
         1,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       const invalidDeadline = 10
 

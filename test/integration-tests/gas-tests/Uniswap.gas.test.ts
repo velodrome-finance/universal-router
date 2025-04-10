@@ -16,6 +16,7 @@ import {
   pool_WETH_USDT,
   encodePathExactOutput,
   encodePathExactInput,
+  encodePathV2,
 } from '../shared/swapRouter02Helpers'
 import { BigNumber, BigNumberish } from 'ethers'
 import { IPermit2, UniversalRouter } from '../../../typechain'
@@ -33,7 +34,7 @@ import {
   ONE_PERCENT_BIPS,
   SOURCE_MSG_SENDER,
   SOURCE_ROUTER,
-  V3_FLAG,
+  UNISWAP_FLAG,
   WETH_HOLDER,
   DAI_HOLDER,
 } from '../shared/constants'
@@ -207,8 +208,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             amountIn,
             minAmountOut,
-            [DAI.address, WETH.address],
+            encodePathV2([DAI.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
           await snapshotGasCost(router['execute(bytes,bytes[],uint256)'](commands, inputs, DEADLINE))
@@ -219,8 +221,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             amountIn,
             minAmountOut,
-            [DAI.address, USDC.address, WETH.address],
+            encodePathV2([DAI.address, USDC.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -232,8 +235,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             amountIn,
             minAmountOut,
-            [DAI.address, USDC.address, WETH.address],
+            encodePathV2([DAI.address, USDC.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -245,8 +249,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             amountIn,
             minAmountOut,
-            [DAI.address, USDC.address, USDT.address, WETH.address],
+            encodePathV2([DAI.address, USDC.address, USDT.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -258,8 +263,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             amountIn,
             1,
-            [DAI.address, USDC.address, USDT.address, WETH.address],
+            encodePathV2([DAI.address, USDC.address, USDT.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -272,8 +278,9 @@ describe('Uniswap Gas Tests', () => {
             router.address,
             amountIn,
             1,
-            [DAI.address, WETH.address],
+            encodePathV2([DAI.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.PAY_PORTION, [WETH.address, alice.address, ONE_PERCENT_BIPS])
           planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, 1])
@@ -287,8 +294,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             expandTo18DecimalsBN(5),
             expandTo18DecimalsBN(100),
-            [WETH.address, DAI.address],
+            encodePathV2([WETH.address, DAI.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -300,8 +308,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             expandTo18DecimalsBN(5),
             expandTo18DecimalsBN(100),
-            [WETH.address, USDC.address, DAI.address],
+            encodePathV2([WETH.address, USDC.address, DAI.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -313,8 +322,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             expandTo18DecimalsBN(5),
             expandTo18DecimalsBN(100),
-            [WETH.address, USDT.address, USDC.address, DAI.address],
+            encodePathV2([WETH.address, USDT.address, USDC.address, DAI.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -328,8 +338,9 @@ describe('Uniswap Gas Tests', () => {
             router.address,
             amountIn,
             1,
-            [DAI.address, WETH.address],
+            encodePathV2([DAI.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 
@@ -343,8 +354,9 @@ describe('Uniswap Gas Tests', () => {
             router.address,
             amountOut,
             expandTo18DecimalsBN(10000),
-            [DAI.address, WETH.address],
+            encodePathV2([DAI.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, amountOut])
           planner.addCommand(CommandType.SWEEP, [DAI.address, MSG_SENDER, 0])
@@ -359,8 +371,9 @@ describe('Uniswap Gas Tests', () => {
             router.address,
             amountOut,
             expandTo18DecimalsBN(10000),
-            [DAI.address, WETH.address],
+            encodePathV2([DAI.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [ADDRESS_THIS, amountOut])
           planner.addCommand(CommandType.PAY_PORTION, [ETH_ADDRESS, MSG_SENDER, 50])
@@ -383,8 +396,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             0,
             minAmountOut,
-            [WETH.address, DAI.address],
+            encodePathV2([WETH.address, DAI.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
 
           const { commands, inputs } = planner
@@ -402,8 +416,9 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             amountOut,
             expandTo18DecimalsBN(1),
-            [WETH.address, DAI.address],
+            encodePathV2([WETH.address, DAI.address]),
             SOURCE_ROUTER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 
@@ -536,7 +551,7 @@ describe('Uniswap Gas Tests', () => {
             amountOutMin,
             path,
             sourceOfTokens,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
         }
       }
@@ -588,7 +603,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -606,7 +621,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -624,7 +639,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           const { commands, inputs } = planner
 
@@ -652,7 +667,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, amountOut])
 
@@ -686,7 +701,7 @@ describe('Uniswap Gas Tests', () => {
             amountInMax,
             path,
             SOURCE_ROUTER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 
@@ -723,10 +738,17 @@ describe('Uniswap Gas Tests', () => {
             v3AmountOutMin,
             encodePathExactInput(v3Tokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // the tokens are already int he v2 pair, so amountIn is 0
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, v2AmountOutMin, v2Tokens, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            MSG_SENDER,
+            0,
+            v2AmountOutMin,
+            encodePathV2(v2Tokens),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
 
           const { commands, inputs } = planner
           await snapshotGasCost(router['execute(bytes,bytes[],uint256)'](commands, inputs, DEADLINE))
@@ -743,8 +765,9 @@ describe('Uniswap Gas Tests', () => {
             router.address,
             v2AmountIn,
             v2AmountOutMin,
-            v2Tokens,
+            encodePathV2(v2Tokens),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
             MSG_SENDER,
@@ -752,7 +775,7 @@ describe('Uniswap Gas Tests', () => {
             v3AmountOutMin,
             encodePathExactInput(v3Tokens),
             SOURCE_ROUTER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
 
           const { commands, inputs } = planner
@@ -775,9 +798,23 @@ describe('Uniswap Gas Tests', () => {
           planner.addCommand(CommandType.PERMIT2_TRANSFER_FROM, [DAI.address, Pair.getAddress(DAI, USDT), v2AmountIn2])
 
           // 2) trade route1 and return tokens to bob
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, minAmountOut1, route1, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            MSG_SENDER,
+            0,
+            minAmountOut1,
+            encodePathV2(route1),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
           // 3) trade route2 and return tokens to bob
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, minAmountOut2, route2, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            MSG_SENDER,
+            0,
+            minAmountOut2,
+            encodePathV2(route2),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
 
           const { commands, inputs } = planner
           await snapshotGasCost(router['execute(bytes,bytes[],uint256)'](commands, inputs, DEADLINE))
@@ -810,9 +847,23 @@ describe('Uniswap Gas Tests', () => {
           planner.addCommand(CommandType.PERMIT2_TRANSFER_FROM_BATCH, [BATCH_TRANSFER])
 
           // 2) trade route1 and return tokens to bob
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, minAmountOut1, route1, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            MSG_SENDER,
+            0,
+            minAmountOut1,
+            encodePathV2(route1),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
           // 3) trade route2 and return tokens to bob
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [MSG_SENDER, 0, minAmountOut2, route2, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            MSG_SENDER,
+            0,
+            minAmountOut2,
+            encodePathV2(route2),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
 
           const { commands, inputs } = planner
           await snapshotGasCost(router['execute(bytes,bytes[],uint256)'](commands, inputs, DEADLINE))
@@ -832,16 +883,18 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             v2AmountIn1,
             minAmountOut1,
-            route1,
+            encodePathV2(route1),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           // 2) trade route2 and return tokens to bob
           planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
             MSG_SENDER,
             v2AmountIn2,
             minAmountOut2,
-            route2,
+            encodePathV2(route2),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
 
           const { commands, inputs } = planner
@@ -885,16 +938,18 @@ describe('Uniswap Gas Tests', () => {
             MSG_SENDER,
             v2AmountIn1,
             minAmountOut1,
-            route1,
+            encodePathV2(route1),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           // 3) trade route2 and return tokens to bob
           planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
             MSG_SENDER,
             v2AmountIn2,
             minAmountOut2,
-            route2,
+            encodePathV2(route2),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
 
           const { commands, inputs } = planner
@@ -907,7 +962,14 @@ describe('Uniswap Gas Tests', () => {
           const v3AmountIn: BigNumber = expandTo18DecimalsBN(3)
 
           // V2 trades DAI for USDC, sending the tokens back to the router for v3 trade
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [router.address, v2AmountIn, 0, tokens, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            router.address,
+            v2AmountIn,
+            0,
+            encodePathV2(tokens),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
           // V3 trades USDC for WETH, trading the whole balance, with a recipient of Alice
           planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
             router.address,
@@ -915,7 +977,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(tokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -930,7 +992,14 @@ describe('Uniswap Gas Tests', () => {
           const v3AmountIn: BigNumber = expandTo18DecimalsBN(3)
 
           // V2 trades DAI for USDC, sending the tokens back to the router for v3 trade
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [ADDRESS_THIS, v2AmountIn, 0, tokens, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            ADDRESS_THIS,
+            v2AmountIn,
+            0,
+            encodePathV2(tokens),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
           // V3 trades USDC for WETH, trading the whole balance, with a recipient of Alice
           planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
             router.address,
@@ -938,7 +1007,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(tokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -954,14 +1023,21 @@ describe('Uniswap Gas Tests', () => {
           const value = v2AmountIn.add(v3AmountIn)
 
           planner.addCommand(CommandType.WRAP_ETH, [ADDRESS_THIS, value])
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [router.address, v2AmountIn, 0, tokens, SOURCE_ROUTER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            router.address,
+            v2AmountIn,
+            0,
+            encodePathV2(tokens),
+            SOURCE_ROUTER,
+            UNISWAP_FLAG,
+          ])
           planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
             router.address,
             v3AmountIn,
             0,
             encodePathExactInput(tokens),
             SOURCE_ROUTER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.SWEEP, [USDC.address, MSG_SENDER, 0.0005 * 10 ** 6])
@@ -975,14 +1051,21 @@ describe('Uniswap Gas Tests', () => {
           const v2AmountIn: BigNumber = expandTo18DecimalsBN(20)
           const v3AmountIn: BigNumber = expandTo18DecimalsBN(30)
 
-          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [router.address, v2AmountIn, 0, tokens, SOURCE_MSG_SENDER])
+          planner.addCommand(CommandType.V2_SWAP_EXACT_IN, [
+            router.address,
+            v2AmountIn,
+            0,
+            encodePathV2(tokens),
+            SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
+          ])
           planner.addCommand(CommandType.V3_SWAP_EXACT_IN, [
             router.address,
             v3AmountIn,
             0,
             encodePathExactInput(tokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, expandTo18DecimalsBN(0.0005)])
@@ -1003,8 +1086,9 @@ describe('Uniswap Gas Tests', () => {
             router.address,
             v2AmountOut,
             maxAmountIn,
-            [DAI.address, WETH.address],
+            encodePathV2([DAI.address, WETH.address]),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           planner.addCommand(CommandType.V3_SWAP_EXACT_OUT, [
             router.address,
@@ -1012,7 +1096,7 @@ describe('Uniswap Gas Tests', () => {
             maxAmountIn,
             path,
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippate check
           planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, fullAmountOut])
@@ -1043,8 +1127,9 @@ describe('Uniswap Gas Tests', () => {
             ADDRESS_THIS,
             planOneV2AmountIn,
             0,
-            planOneTokens,
+            encodePathV2(planOneTokens),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           // V3 trades USDC for WETH, trading the whole balance, with a recipient of Alice
           subplan.addCommand(CommandType.V3_SWAP_EXACT_IN, [
@@ -1053,7 +1138,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1072,7 +1157,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
 
           // add the second subplan to the main planner
@@ -1092,8 +1177,9 @@ describe('Uniswap Gas Tests', () => {
             ADDRESS_THIS,
             planOneV2AmountIn,
             0,
-            planOneTokens,
+            encodePathV2(planOneTokens),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           // V3 trades USDC for WETH, trading the whole balance, with a recipient of Alice
           subplan.addCommand(CommandType.V3_SWAP_EXACT_IN, [
@@ -1102,7 +1188,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1121,7 +1207,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
 
           // add the second subplan to the main planner
@@ -1141,8 +1227,9 @@ describe('Uniswap Gas Tests', () => {
             ADDRESS_THIS,
             planOneV2AmountIn,
             0,
-            planOneTokens,
+            encodePathV2(planOneTokens),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           // V3 trades USDC for WETH, trading the whole balance, with a recipient of Alice
           subplan.addCommand(CommandType.V3_SWAP_EXACT_IN, [
@@ -1151,7 +1238,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1171,7 +1258,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
 
           // add the second subplan to the main planner
@@ -1190,8 +1277,9 @@ describe('Uniswap Gas Tests', () => {
             ADDRESS_THIS,
             planOneV2AmountIn,
             0,
-            planOneTokens,
+            encodePathV2(planOneTokens),
             SOURCE_MSG_SENDER,
+            UNISWAP_FLAG,
           ])
           // V3 trades USDC for WETH, trading the whole balance, with a recipient of Alice
           subplan.addCommand(CommandType.V3_SWAP_EXACT_IN, [
@@ -1200,7 +1288,7 @@ describe('Uniswap Gas Tests', () => {
             0,
             encodePathExactInput(planOneTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
           // aggregate slippage check
           subplan.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, planOneWethMinOut])
@@ -1220,7 +1308,7 @@ describe('Uniswap Gas Tests', () => {
             wethMinAmountOut2,
             encodePathExactInput(planTwoTokens),
             SOURCE_MSG_SENDER,
-            V3_FLAG,
+            UNISWAP_FLAG,
           ])
 
           // add the second subplan to the main planner

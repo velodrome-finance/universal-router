@@ -43,11 +43,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
 
     function testExactInput0For1() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
-        address[] memory path = new address[](2);
-        path[0] = token0();
-        path[1] = token1();
+        bytes memory path = abi.encodePacked(token0(), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, true, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -58,11 +56,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
 
     function testExactInput1For0() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
-        address[] memory path = new address[](2);
-        path[0] = token1();
-        path[1] = token0();
+        bytes memory path = abi.encodePacked(token1(), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, true, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -74,11 +70,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
     function testExactInput0For1FromRouter() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
         deal(token0(), address(router), AMOUNT);
-        address[] memory path = new address[](2);
-        path[0] = token0();
-        path[1] = token1();
+        bytes memory path = abi.encodePacked(token0(), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, false, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -89,11 +83,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
     function testExactInput1For0FromRouter() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
         deal(token1(), address(router), AMOUNT);
-        address[] memory path = new address[](2);
-        path[0] = token1();
-        path[1] = token0();
+        bytes memory path = abi.encodePacked(token1(), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, false, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -103,11 +95,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
 
     function testExactOutput0For1() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
-        address[] memory path = new address[](2);
-        path[0] = token0();
-        path[1] = token1();
+        bytes memory path = abi.encodePacked(token0(), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, true, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -118,11 +108,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
 
     function testExactOutput1For0() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
-        address[] memory path = new address[](2);
-        path[0] = token1();
-        path[1] = token0();
+        bytes memory path = abi.encodePacked(token1(), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, true);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, true, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -134,11 +122,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
     function testExactOutput0For1FromRouter() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
         deal(token0(), address(router), BALANCE);
-        address[] memory path = new address[](2);
-        path[0] = token0();
-        path[1] = token1();
+        bytes memory path = abi.encodePacked(token0(), token1());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, false, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
@@ -149,11 +135,9 @@ abstract contract UniswapV2Test is BaseForkFixture {
     function testExactOutput1For0FromRouter() public {
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
         deal(token1(), address(router), BALANCE);
-        address[] memory path = new address[](2);
-        path[0] = token1();
-        path[1] = token0();
+        bytes memory path = abi.encodePacked(token1(), token0());
         bytes[] memory inputs = new bytes[](1);
-        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, false);
+        inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, false, true);
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);

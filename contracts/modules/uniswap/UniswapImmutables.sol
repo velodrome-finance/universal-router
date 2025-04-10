@@ -12,12 +12,6 @@ struct UniswapParameters {
     bytes32 veloCLInitCodeHash;
 }
 
-struct Route {
-    address from;
-    address to;
-    bool stable;
-}
-
 contract UniswapImmutables {
     /// @notice The address of UniswapV2Factory
     address internal immutable UNISWAP_V2_FACTORY;

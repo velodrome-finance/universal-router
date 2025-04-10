@@ -16,9 +16,11 @@ import {
   ONE_PERCENT_BIPS,
   SOURCE_MSG_SENDER,
   SOURCE_ROUTER,
+  UNISWAP_FLAG,
   WETH_HOLDER,
   DAI_HOLDER,
 } from './shared/constants'
+import { encodePathV2 } from './shared/swapRouter02Helpers'
 import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import deployUniversalRouter from './shared/deployUniversalRouter'
@@ -144,8 +146,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         amountInDAI,
         minAmountOutWETH,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       const { wethBalanceBefore, wethBalanceAfter, daiBalanceAfter, daiBalanceBefore } = await executeRouter(
         planner,
@@ -182,8 +185,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         amountOutWETH,
         maxAmountInDAI,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       const { wethBalanceBefore, wethBalanceAfter, daiBalanceAfter, daiBalanceBefore } = await executeRouter(
         planner,
@@ -220,8 +224,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         BigNumber.from(MAX_UINT160).add(1),
         minAmountOutWETH,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
 
       const testCustomErrors = await (await ethers.getContractFactory('TestCustomErrors')).deploy()
@@ -238,8 +243,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         amountIn,
         minAmountOut,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       const { wethBalanceBefore, wethBalanceAfter } = await executeRouter(
         planner,
@@ -258,8 +264,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         amountOut,
         expandTo18DecimalsBN(10000),
-        [WETH.address, DAI.address],
+        encodePathV2([WETH.address, DAI.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, 0])
       const { daiBalanceBefore, daiBalanceAfter } = await executeRouter(
@@ -279,8 +286,9 @@ describe('Uniswap V2 Tests:', () => {
         ADDRESS_THIS,
         amountIn,
         1,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.PAY_PORTION, [WETH.address, alice.address, ONE_PERCENT_BIPS])
       planner.addCommand(CommandType.SWEEP, [WETH.address, MSG_SENDER, 1])
@@ -310,8 +318,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         amountIn,
         minAmountOut,
-        [DAI.address, USDC.address, WETH.address],
+        encodePathV2([DAI.address, USDC.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
 
       const { wethBalanceBefore, wethBalanceAfter } = await executeRouter(
@@ -332,8 +341,9 @@ describe('Uniswap V2 Tests:', () => {
         ADDRESS_THIS,
         amountIn,
         1,
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 
@@ -356,8 +366,9 @@ describe('Uniswap V2 Tests:', () => {
         ADDRESS_THIS,
         amountOut,
         expandTo18DecimalsBN(10000),
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, amountOut])
       planner.addCommand(CommandType.SWEEP, [DAI.address, MSG_SENDER, 0])
@@ -384,8 +395,9 @@ describe('Uniswap V2 Tests:', () => {
         ADDRESS_THIS,
         amountOut,
         expandTo18DecimalsBN(10000),
-        [DAI.address, WETH.address],
+        encodePathV2([DAI.address, WETH.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.UNWRAP_WETH, [ADDRESS_THIS, amountOut])
       planner.addCommand(CommandType.PAY_PORTION, [ETH_ADDRESS, alice.address, ONE_PERCENT_BIPS])
@@ -409,8 +421,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         0,
         minAmountOut,
-        [WETH.address, DAI.address],
+        encodePathV2([WETH.address, DAI.address]),
         SOURCE_MSG_SENDER,
+        UNISWAP_FLAG,
       ])
 
       const { daiBalanceBefore, daiBalanceAfter, v2SwapEventArgs } = await executeRouter(
@@ -437,8 +450,9 @@ describe('Uniswap V2 Tests:', () => {
         MSG_SENDER,
         amountOut,
         expandTo18DecimalsBN(1),
-        [WETH.address, DAI.address],
+        encodePathV2([WETH.address, DAI.address]),
         SOURCE_ROUTER,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 

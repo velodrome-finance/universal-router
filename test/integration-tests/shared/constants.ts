@@ -20,8 +20,8 @@ export const MSG_SENDER: string = '0x0000000000000000000000000000000000000001'
 export const ADDRESS_THIS: string = '0x0000000000000000000000000000000000000002'
 export const SOURCE_MSG_SENDER: boolean = true
 export const SOURCE_ROUTER: boolean = false
-export const SLIPSTREAM_FLAG: boolean = false
-export const V3_FLAG: boolean = true
+export const VELO_FLAG: boolean = false
+export const UNISWAP_FLAG: boolean = true
 
 // Constructor Params
 export const PERMIT2_ADDRESS = '0x000000000022D473030F116dDEE9F6B43aC78BA3'

@@ -13,7 +13,7 @@ import {
   MSG_SENDER,
   SOURCE_MSG_SENDER,
   SOURCE_ROUTER,
-  V3_FLAG,
+  UNISWAP_FLAG,
   DAI_HOLDER,
   WETH_HOLDER,
 } from './shared/constants'
@@ -99,7 +99,7 @@ describe('Uniswap V3 Tests:', () => {
         amountOutMin,
         path,
         tokenSource,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
     }
   }
@@ -142,7 +142,7 @@ describe('Uniswap V3 Tests:', () => {
         minAmountOutWETH,
         path,
         SOURCE_MSG_SENDER,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
       const { wethBalanceBefore, wethBalanceAfter, daiBalanceAfter, daiBalanceBefore } = await executeRouter(
         planner,
@@ -186,7 +186,7 @@ describe('Uniswap V3 Tests:', () => {
         maxAmountInDAI,
         path,
         SOURCE_MSG_SENDER,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
       const { wethBalanceBefore, wethBalanceAfter, daiBalanceAfter, daiBalanceBefore } = await executeRouter(
         planner,
@@ -255,7 +255,7 @@ describe('Uniswap V3 Tests:', () => {
         amountInMax,
         path,
         SOURCE_MSG_SENDER,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
 
       const { wethBalanceBefore, wethBalanceAfter, v3SwapEventArgs } = await executeRouter(
@@ -282,7 +282,7 @@ describe('Uniswap V3 Tests:', () => {
         amountInMax,
         path,
         SOURCE_MSG_SENDER,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
       const { commands, inputs } = planner
 
@@ -324,7 +324,7 @@ describe('Uniswap V3 Tests:', () => {
         amountInMax,
         path,
         SOURCE_MSG_SENDER,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, amountOut])
 
@@ -374,7 +374,7 @@ describe('Uniswap V3 Tests:', () => {
         amountInMax,
         path,
         SOURCE_ROUTER,
-        V3_FLAG,
+        UNISWAP_FLAG,
       ])
       planner.addCommand(CommandType.UNWRAP_WETH, [MSG_SENDER, 0])
 

@@ -27,8 +27,6 @@ export enum CommandType {
   V3_POSITION_MANAGER_CALL = 0x12,
   V4_INITIALIZE_POOL = 0x13,
   V4_POSITION_MANAGER_CALL = 0x14,
-  POOL_SWAP_EXACT_IN = 0x15,
-  POOL_SWAP_EXACT_OUT = 0x16,
 
   EXECUTE_SUB_PLAN = 0x21,
 }
@@ -65,8 +63,8 @@ const ABI_DEFINITION: { [key in CommandType]: string[] } = {
   // Uniswap Actions
   [CommandType.V3_SWAP_EXACT_IN]: ['address', 'uint256', 'uint256', 'bytes', 'bool', 'bool'],
   [CommandType.V3_SWAP_EXACT_OUT]: ['address', 'uint256', 'uint256', 'bytes', 'bool', 'bool'],
-  [CommandType.V2_SWAP_EXACT_IN]: ['address', 'uint256', 'uint256', 'address[]', 'bool'],
-  [CommandType.V2_SWAP_EXACT_OUT]: ['address', 'uint256', 'uint256', 'address[]', 'bool'],
+  [CommandType.V2_SWAP_EXACT_IN]: ['address', 'uint256', 'uint256', 'bytes', 'bool', 'bool'],
+  [CommandType.V2_SWAP_EXACT_OUT]: ['address', 'uint256', 'uint256', 'bytes', 'bool', 'bool'],
 
   // Token Actions and Checks
   [CommandType.WRAP_ETH]: ['address', 'uint256'],

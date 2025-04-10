@@ -13,6 +13,21 @@ library Constants {
     /// @dev The length of the bytes encoded address
     uint256 internal constant ADDR_SIZE = 20;
 
+    /// @dev The length of the bytes encoded bool
+    uint256 internal constant BOOL_SIZE = 1;
+
+    /// @dev The minimum length of an encoding that contains 2 or more tokens
+    uint256 internal constant V2_MULTIPLE_TOKENS_MIN_LENGTH = ADDR_SIZE * 2;
+
+    /// @dev The length of a bytes encoded route (token0, token1, stable)
+    uint256 internal constant VELO_ROUTE_SIZE = ADDR_SIZE * 2 + BOOL_SIZE;
+
+    /// @dev The length of a partial bytes encoded route (useful to remove route, calculate length)
+    uint256 internal constant VELO_PARTIAL_ROUTE_SIZE = BOOL_SIZE + ADDR_SIZE;
+
+    /// @dev The uniswap v2 swap fee
+    uint256 internal constant V2_FEE = 30;
+
     /// @dev The length of the bytes encoded fee
     uint256 internal constant V3_FEE_SIZE = 3;
 
