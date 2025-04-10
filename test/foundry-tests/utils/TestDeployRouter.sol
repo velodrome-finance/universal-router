@@ -3,7 +3,7 @@ pragma solidity ^0.8.15;
 
 import {DeployUniversalRouter, RouterParameters} from 'script/DeployUniversalRouter.s.sol';
 
-contract TestDeployRoot is DeployUniversalRouter {
+contract TestDeployRouter is DeployUniversalRouter {
     constructor(RouterParameters memory _params_) {
         params = _params_;
         isTest = true;

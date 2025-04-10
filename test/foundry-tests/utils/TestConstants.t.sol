@@ -29,7 +29,27 @@ abstract contract TestConstants {
 
     address public constant SUPERCHAIN_ERC20_BRIDGE = 0x4200000000000000000000000000000000000028;
 
+    // OPEN_USDT related
     address public constant OPEN_USDT_ADDRESS = 0x1217BfE6c773EEC6cc4A38b5Dc45B92292B6E189;
+
+    address public constant OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS = 0x7bD2676c85cca9Fa2203ebA324fb8792fbd520b8;
+    address public constant OPEN_USDT_BASE_BRIDGE_ADDRESS = 0x4F0654395d621De4d1101c0F98C1Dba73ca0a61f;
+
+    address public constant OPEN_USDT_OPTIMISM_MAILBOX_ADDRESS = 0xd4C1905BB1D26BC93DAC913e13CaCC278CdCC80D;
+    address public constant OPEN_USDT_BASE_MAILBOX_ADDRESS = 0xeA87ae93Fa0019a82A727bfd3eBd1cFCa8f64f1D;
+
+    address public constant OPEN_USDT_OPTIMISM_ISM_ADDRESS = 0x6d5dC676B03f5252c976EBa33d629fF15F03Be16;
+    address public constant OPEN_USDT_BASE_ISM_ADDRESS = 0x9C53d53B652Feb2014aC6719E1Cd42B5B24B4A28;
+
+    // XVELO related
+    address public constant VELO_ADDRESS = 0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db;
+    address public constant XVELO_ADDRESS = 0x7f9AdFbd38b669F03d1d11000Bc76b9AaEA28A81;
+    address public constant XVELO_TOKEN_BRIDGE_ADDRESS = 0x1A9d17828897d6289C6dff9DC9F5cc3bAEa17814;
+    address public constant XVELO_MODE_MAILBOX_ADDRESS = 0x2f2aFaE1139Ce54feFC03593FeE8AB2aDF4a85A7;
+    address public constant ROOT_HL_MESSAGE_MODULE_ADDRESS = 0x2BbA7515F7cF114B45186274981888D8C2fBA15E;
+    address public constant MODE_PERMIT2_ADDRESS = 0xbF055A2D7450b55c194c32e285deDb956416CAF3;
+
+    // common
     address public constant PERMIT2_ADDRESS = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
     address public constant WETH9_ADDRESS = 0x4200000000000000000000000000000000000006;
     address public constant bUSDC_ADDRESS = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
@@ -51,6 +71,7 @@ abstract contract TestConstants {
     address constant FROM = address(1234);
 
     IPermit2 constant PERMIT2 = IPermit2(PERMIT2_ADDRESS);
+    IPermit2 constant MODE_PERMIT2 = IPermit2(MODE_PERMIT2_ADDRESS);
     ERC20 constant bUSDC = ERC20(bUSDC_ADDRESS);
 
     // Uni specific

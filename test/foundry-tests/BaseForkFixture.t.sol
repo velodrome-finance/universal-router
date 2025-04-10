@@ -2,21 +2,28 @@
 pragma solidity ^0.8.24;
 
 import 'forge-std/Test.sol';
-import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
-import {IXERC20} from '@hyperlane/core/contracts/token/interfaces/IXERC20.sol';
+import {ActionConstants} from '@uniswap/v4-periphery/src/libraries/ActionConstants.sol';
+import {SafeCast} from '@openzeppelin/contracts/utils/math/SafeCast.sol';
+import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
+import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
 import {HypXERC20} from '@hyperlane/core/contracts/token/extensions/HypXERC20.sol';
 import {TestIsm} from '@hyperlane/core/contracts/test/TestIsm.sol';
+import {TestPostDispatchHook} from '@hyperlane/core/contracts/test/TestPostDispatchHook.sol';
+import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
+import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
 
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
 import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
-
 import {CreateXLibrary} from '../../contracts/libraries/CreateXLibrary.sol';
+import {ITokenBridge} from '../../contracts/interfaces/external/ITokenBridge.sol';
+import {IRootHLMessageModule} from '../../contracts/interfaces/external/IRootHLMessageModule.sol';
 import {Constants} from '../../contracts/libraries/Constants.sol';
 import {Commands} from '../../contracts/libraries/Commands.sol';
 
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
-import {TestDeployRoot, RouterParameters} from '../foundry-tests/utils/TestDeployRoot.sol';
+import {TestDeployRouter, RouterParameters} from '../foundry-tests/utils/TestDeployRouter.sol';
+import {IXERC20, MintLimits} from '../foundry-tests/mock/XERC20/IXERC20.sol';
 import {
     TestConstants,
     IPermit2,
@@ -27,9 +34,9 @@ import {
 } from '../foundry-tests/utils/TestConstants.t.sol';
 
 abstract contract BaseForkFixture is Test, TestConstants {
-    UniversalRouter public router;
+    using SafeCast for uint256;
 
-    TestDeployRoot public deployRoot;
+    TestDeployRouter public deployRouter;
     RouterParameters public params;
 
     // anything prefixed with root is deployed on the root chain
@@ -37,6 +44,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
     // in the context of velodrome superchain, the root chain will always be optimism (chainid=10)
     // leaf chains will be any chain that velodrome expands to
 
+    /// OPTIMISM ///
     // root variables
     uint32 public root = 10; // root chain id
     uint32 public rootDomain = 10; // root domain
@@ -44,14 +52,23 @@ abstract contract BaseForkFixture is Test, TestConstants {
     uint256 public rootStartTime; // root fork start time (set to start of epoch for simplicity)
     uint256 public rootForkBlockNumber = 133333333; // creation of oUSDT is at blk 132196375
 
+    // root router
+    UniversalRouter public router;
+
     // root contracts
     IXERC20 public rootOpenUSDT = IXERC20(OPEN_USDT_ADDRESS);
-    HypXERC20 public rootOpenUsdtTokenBridge;
+    HypXERC20 public rootOpenUsdtTokenBridge = HypXERC20(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS);
+
+    IXERC20 public rootXVelo = IXERC20(XVELO_ADDRESS);
+    ITokenBridge public rootXVeloTokenBridge = ITokenBridge(XVELO_TOKEN_BRIDGE_ADDRESS);
+
+    // @dev used for bridge tests
+    IRootHLMessageModule public rootHLMessageModule = IRootHLMessageModule(ROOT_HL_MESSAGE_MODULE_ADDRESS);
 
     // root-only mocks
     MultichainMockMailbox public rootMailbox;
-    TestIsm public rootIsm;
 
+    /// BASE ///
     // leaf variables
     uint32 public leaf = 8453; // leaf chain id
     uint32 public leafDomain = 8453; // leaf domain
@@ -59,13 +76,31 @@ abstract contract BaseForkFixture is Test, TestConstants {
     uint256 public leafStartTime; // leaf fork start time (set to start of epoch for simplicity)
     uint256 public leafForkBlockNumber = 27777777; // creation of oUSDT is at blk 26601142
 
+    // leaf router
+    UniversalRouter public leafRouter; // not initialized
+
     // leaf contracts
     IXERC20 public leafOpenUSDT = IXERC20(OPEN_USDT_ADDRESS);
-    HypXERC20 public leafOpenUsdtTokenBridge;
-
+    HypXERC20 public leafOpenUsdtTokenBridge = HypXERC20(OPEN_USDT_BASE_BRIDGE_ADDRESS);
     // leaf-only mocks
     MultichainMockMailbox public leafMailbox;
-    TestIsm public leafIsm;
+
+    /// MODE ///
+    // leaf variables
+    uint32 public leaf_2 = 34443; // leaf chain id
+    uint32 public leafDomain_2 = 1000034443; // leaf domain
+    uint256 public leafId_2; // leaf fork id (used by foundry)
+    uint256 public leafStartTime_2; // leaf fork start time (set to start of epoch for simplicity)
+    uint256 public leafForkBlockNumber_2 = 21111111;
+
+    // leaf router
+    UniversalRouter public leafRouter_2;
+
+    // leaf contracts
+    IXERC20 public leafXVelo = IXERC20(XVELO_ADDRESS);
+    ITokenBridge public leafXVeloTokenBridge = ITokenBridge(XVELO_TOKEN_BRIDGE_ADDRESS);
+    // leaf-only mocks
+    MultichainMockMailbox public leafMailbox_2;
 
     // common variables
     Users internal users;
@@ -94,16 +129,16 @@ abstract contract BaseForkFixture is Test, TestConstants {
         weth = IWETH9(WETH9_ADDRESS);
         vm.warp({newTimestamp: leafStartTime});
 
+        leafId_2 = vm.createSelectFork({urlOrAlias: 'mode', blockNumber: leafForkBlockNumber_2});
+        leafStartTime_2 = rootStartTime;
+        vm.warp({newTimestamp: leafStartTime_2});
+
         vm.stopPrank();
     }
 
     function deployRootDependencies() public virtual {
         // deploy root mocks
-        vm.startPrank(users.owner);
-        rootMailbox = new MultichainMockMailbox(rootDomain);
-        rootIsm = new TestIsm();
-
-        vm.stopPrank();
+        rootMailbox = _overwriteMailbox(OPEN_USDT_OPTIMISM_MAILBOX_ADDRESS, OPEN_USDT_OPTIMISM_ISM_ADDRESS, rootDomain);
     }
 
     function setUpRootChain() public virtual {
@@ -124,54 +159,105 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloV2Factory: address(VELO_V2_FACTORY),
             veloCLFactory: address(CL_FACTORY),
             veloV2InitCodeHash: VELO_V2_INIT_CODE_HASH,
-            veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH
+            veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH,
+            rootHLMessageModule: ROOT_HL_MESSAGE_MODULE_ADDRESS
         });
 
-        deployRoot = new TestDeployRoot(params);
-        deployRoot.run();
+        deployRouter = new TestDeployRouter(params);
+        deployRouter.run();
 
-        router = deployRoot.router();
+        router = deployRouter.router();
 
         // deploy root contracts
         /// @dev some tests require lower block number to execute properly
         if (rootForkBlockNumber >= 132196376) {
-            rootOpenUsdtTokenBridge = new HypXERC20(OPEN_USDT_ADDRESS, address(rootMailbox));
             vm.label({account: address(rootOpenUsdtTokenBridge), newLabel: 'Root OpenUSDT Token Bridge'});
-            vm.label({account: address(rootOpenUSDT), newLabel: 'Root OpenUSDT'});
+            vm.label({account: address(rootOpenUSDT), newLabel: 'OpenUSDT'}); // same on op and base
         }
 
         vm.label({account: address(router), newLabel: 'UniversalRouter'});
-        vm.label({account: address(rootMailbox), newLabel: 'Root Mailbox'});
-        vm.label({account: address(rootIsm), newLabel: 'Root ISM'});
+        vm.label({account: address(rootMailbox), newLabel: 'Optimism Mailbox'});
+        vm.label({account: address(rootXVeloTokenBridge), newLabel: 'XVELO Token Bridge'});
+        vm.label({account: address(rootXVelo), newLabel: 'XVELO'}); // same on op and mode
+        vm.label({account: address(VELO_ADDRESS), newLabel: 'VELO'});
     }
 
     function setUpLeafChain() public virtual {
         vm.selectFork({forkId: leafId});
-        // deploy leaf mocks
-        // use deployer2 here to ensure addresses are different from the root mocks
-        // this helps with labeling
-        vm.startPrank(users.deployer2);
-        leafMailbox = new MultichainMockMailbox(leafDomain);
-        leafIsm = new TestIsm();
-        vm.stopPrank();
 
-        leafOpenUsdtTokenBridge = new HypXERC20(OPEN_USDT_ADDRESS, address(leafMailbox));
+        leafMailbox = _overwriteMailbox(OPEN_USDT_BASE_MAILBOX_ADDRESS, OPEN_USDT_BASE_ISM_ADDRESS, leafDomain);
 
-        vm.label({account: address(leafMailbox), newLabel: 'Leaf Mailbox'});
-        vm.label({account: address(leafIsm), newLabel: 'Leaf ISM'});
+        vm.selectFork({forkId: leafId_2});
+
+        // deploy router on mode (values copied from DeployMode.s.sol)
+        params = RouterParameters({
+            permit2: MODE_PERMIT2_ADDRESS,
+            weth9: address(WETH),
+            v2Factory: address(0),
+            v3Factory: address(0),
+            pairInitCodeHash: bytes32(0),
+            poolInitCodeHash: bytes32(0),
+            v4PoolManager: address(0),
+            v3NFTPositionManager: address(0),
+            v4PositionManager: address(0),
+            veloV2Factory: address(0x31832f2a97Fd20664D76Cc421207669b55CE4BC0),
+            veloCLFactory: address(0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F),
+            veloV2InitCodeHash: 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d,
+            veloCLInitCodeHash: 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5,
+            rootHLMessageModule: address(0)
+        });
+
+        deployRouter = new TestDeployRouter(params);
+        deployRouter.run();
+
+        leafRouter_2 = deployRouter.router();
+
+        leafMailbox_2 = _overwriteMailbox(XVELO_MODE_MAILBOX_ADDRESS, address(0), leafDomain_2);
+
+        vm.label({account: address(leafMailbox), newLabel: 'Base Mailbox'});
         vm.label({account: address(leafOpenUsdtTokenBridge), newLabel: 'Leaf OpenUSDT Token Bridge'});
-        vm.label({account: address(leafOpenUSDT), newLabel: 'Leaf OpenUSDT'});
+        vm.label({account: address(leafOpenUSDT), newLabel: 'OpenUSDT'}); // same on op and base
+        vm.label({account: address(leafMailbox_2), newLabel: 'Mode Mailbox'});
     }
 
     // Any set up required to link the contracts across the two chains
     function setUpPostCommon() public virtual {
+        if (rootForkBlockNumber < 132196376) return;
         vm.selectFork({forkId: rootId});
+
+        // add base
         rootMailbox.addRemoteMailbox({_domain: leafDomain, _mailbox: leafMailbox});
         rootMailbox.setDomainForkId({_domain: leafDomain, _forkId: leafId});
 
+        // for HypXERC20
+        vm.prank(rootOpenUsdtTokenBridge.owner());
+        rootOpenUsdtTokenBridge.enrollRemoteRouter({
+            _domain: leafDomain,
+            _router: _addressToBytes32(address(leafOpenUsdtTokenBridge))
+        });
+
+        rootMailbox.addRemoteMailbox({_domain: leafDomain_2, _mailbox: leafMailbox_2});
+        rootMailbox.setDomainForkId({_domain: leafDomain_2, _forkId: leafId_2});
+
         vm.selectFork({forkId: leafId});
+
+        // add optimism to base mailbox
         leafMailbox.addRemoteMailbox({_domain: rootDomain, _mailbox: rootMailbox});
         leafMailbox.setDomainForkId({_domain: rootDomain, _forkId: rootId});
+
+        // for HypXERC20
+        vm.prank(leafOpenUsdtTokenBridge.owner());
+        leafOpenUsdtTokenBridge.enrollRemoteRouter({
+            _domain: rootDomain,
+            _router: _addressToBytes32(address(rootOpenUsdtTokenBridge))
+        });
+
+        vm.selectFork({forkId: leafId_2});
+        // add optimism to mode mailbox
+        leafMailbox_2.addRemoteMailbox({_domain: rootDomain, _mailbox: rootMailbox});
+        leafMailbox_2.setDomainForkId({_domain: rootDomain, _forkId: rootId});
+
+        vm.stopPrank();
     }
 
     function createUsers() internal {
@@ -193,12 +279,19 @@ abstract contract BaseForkFixture is Test, TestConstants {
     /// @dev Move time forward on all chains
     function skipTime(uint256 _time) internal {
         uint256 activeFork = vm.activeFork();
+
         vm.selectFork({forkId: rootId});
         vm.warp({newTimestamp: block.timestamp + _time});
         vm.roll({newHeight: block.number + _time / 2});
+
         vm.selectFork({forkId: leafId});
         vm.warp({newTimestamp: block.timestamp + _time});
         vm.roll({newHeight: block.number + _time / 2});
+
+        vm.selectFork({forkId: leafId_2});
+        vm.warp({newTimestamp: block.timestamp + _time});
+        vm.roll({newHeight: block.number + _time / 2});
+
         vm.selectFork({forkId: activeFork});
     }
 
@@ -212,12 +305,31 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     modifier syncForkTimestamps() {
         uint256 fork = vm.activeFork();
+
         vm.selectFork({forkId: rootId});
         vm.warp({newTimestamp: rootStartTime});
         vm.selectFork({forkId: leafId});
         vm.warp({newTimestamp: leafStartTime});
+        vm.selectFork({forkId: leafId_2});
+        vm.warp({newTimestamp: leafStartTime_2});
+
         vm.selectFork({forkId: fork});
         _;
+    }
+
+    function _addressToBytes32(address _address) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(address(_address))));
+    }
+
+    function _overwriteMailbox(address mailboxAddress, address ismAddress, uint32 domain)
+        private
+        returns (MultichainMockMailbox)
+    {
+        vm.allowCheatcodes(mailboxAddress);
+        deployCodeTo('MultichainMockMailbox.sol', abi.encode(domain), mailboxAddress);
+        if (ismAddress != address(0)) deployCodeTo('TestIsm.sol', ismAddress);
+
+        return MultichainMockMailbox(mailboxAddress);
     }
 
     /// @dev Helper to get the InitCodeHash from the `_implementation` address

@@ -19,4 +19,5 @@ struct RouterParameters {
     address veloCLFactory;
     bytes32 veloV2InitCodeHash;
     bytes32 veloCLInitCodeHash;
+    address rootHLMessageModule;
 }

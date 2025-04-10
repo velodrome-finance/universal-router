@@ -1,11 +1,8 @@
-name: Forge Tests
+name: gas
 
 on:
-  push:
-    branches:
-      - main
-      - develop
   pull_request:
+  workflow_dispatch:
 
 env:
   FOUNDRY_PROFILE: ci
@@ -21,15 +18,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-
-      # Must install node modules for forge to reference in remappings
       - uses: actions/setup-node@v4
         with:
-          node-version: 18.x
-          registry-url: https://registry.npmjs.org
-
-      - name: Install Yarn
-        run: npm install -g yarn
+          node-version: 20
 
       - id: yarn-cache
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -40,24 +31,22 @@ jobs:
           key: yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             yarn-
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
-      # End of node module support
 
+      # Runs a single command using the runners shell
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.0.0
 
-      - name: Run Forge build
-        run: |
-          forge --version
-          forge build
-        id: build
+      - name: Install deps
+        run: forge install
 
       - name: Run Forge tests
         run: |
-          forge test --isolate -vvv
+          FORGE_SNAPSHOT_CHECK=true FOUNDRY_NO_MATCH_TEST=DISABLE forge test --isolate --mt testGas -vvv
         id: test
         env:
           OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}

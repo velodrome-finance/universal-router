@@ -14,6 +14,7 @@ import {
   VELO_V2_INIT_CODE_HASH_MAINNET,
   VELO_CL_INIT_CODE_HASH_MAINNET,
   WETH,
+  ZERO_ADDRESS,
 } from './constants'
 import { deployV4PoolManager, deployV4PositionManager } from './v4Helpers'
 
@@ -47,6 +48,7 @@ export async function deployRouter(
     veloCLFactory: VELO_CL_FACTORY_MAINNET,
     veloV2InitCodeHash: VELO_V2_INIT_CODE_HASH_MAINNET,
     veloCLInitCodeHash: VELO_CL_INIT_CODE_HASH_MAINNET,
+    rootHLMessageModule: ZERO_ADDRESS,
   }
 
   const routerFactory = await ethers.getContractFactory('UniversalRouter')

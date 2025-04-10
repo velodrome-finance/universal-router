@@ -1,0 +1,94 @@
+BridgeTokenTest
+├── When recipient is zero address
+│   └── It should revert with {InvalidRecipient}
+├── When bridge is zero address
+│   └── It should revert
+├── When token is zero address
+│   └── It should revert
+├── When amount is zero
+│   └── It should revert
+├── When bridge type is invalid
+│   └── It should revert with {InvalidBridgeType}
+└── When basic validations pass
+    ├── When bridge type is HYP_XERC20
+    │   ├── When token is not the bridge token
+    │   │   └── It should revert with {InvalidTokenAddress}
+    │   ├── When no token approval was given
+    │   │   └── It should revert with {AllowanceExpired}
+    │   ├── When using permit2
+    │   │   ├── When domain is zero
+    │   │   │   └── It should revert with "No router enrolled for domain: 0"
+    │   │   ├── When domain is not registered
+    │   │   │   └── It should revert with "No router enrolled for domain: 111"
+    │   │   ├── When domain is the same as source domain
+    │   │   │   └── It should revert with "No router enrolled for domain: 10"
+    │   │   ├── When fee is insufficient
+    │   │   │   └── It should revert
+    │   │   └── When all checks pass
+    │   │       ├── It should bridge tokens to destination chain
+    │   │       ├── It should return excess fee if any
+    │   │       └── It should emit {UniversalRouterBridge} event
+    │   └── When using direct approval
+    │       ├── When domain is zero_
+    │       │   └── It should revert with "No router enrolled for domain: 0"
+    │       ├── When domain is not registered_
+    │       │   └── It should revert with "No router enrolled for domain: 111"
+    │       ├── When domain is the same as source domain_
+    │       │   └── It should revert with "No router enrolled for domain: 10"
+    │       ├── When fee is insufficient_
+    │       │   └── It should revert
+    │       └── When all checks pass_
+    │           ├── It should bridge tokens to destination chain
+    │           ├── It should return excess fee if any
+    │           └── It should emit {UniversalRouterBridge} event
+    └── When bridge type is XVELO
+        ├── When destination chain is MODE
+        │   ├── When token is not the bridge token_
+        │   │   └── It should revert with {InvalidTokenAddress}
+        │   ├── When no token approval was given_
+        │   │   └── It should revert with {AllowanceExpired}
+        │   ├── When using permit2_
+        │   │   ├── When domain is zero__
+        │   │   │   └── It should revert with {NotRegistered}
+        │   │   ├── When domain is not registered__
+        │   │   │   └── It should revert with {NotRegistered}
+        │   │   ├── When domain is the same as source domain__
+        │   │   │   └── It should revert with {NotRegistered}
+        │   │   ├── When fee is insufficient__
+        │   │   │   └── It should revert with {InsufficientFunds}
+        │   │   └── When all checks pass__
+        │   │       ├── It should bridge tokens to destination chain
+        │   │       ├── It should return excess fee if any
+        │   │       └── It should emit {UniversalRouterBridge} event
+        │   └── When using direct approval_
+        │       ├── When domain is zero___
+        │       │   └── It should revert with {NotRegistered}
+        │       ├── When domain is not registered___
+        │       │   └── It should revert with {NotRegistered}
+        │       ├── When domain is the same as source domain___
+        │       │   └── It should revert with {NotRegistered}
+        │       ├── When fee is insufficient___
+        │       │   └── It should revert with {InsufficientFunds}
+        │       └── When all checks pass___
+        │           ├── It should bridge tokens to destination chain
+        │           ├── It should return excess fee if any
+        │           └── It should emit {UniversalRouterBridge} event
+        └── When destination chain is OPTIMISM
+            ├── When token is not the bridge token__
+            │   └── It should revert with {InvalidTokenAddress}
+            ├── When no token approval was given__
+            │   └── It should revert with {AllowanceExpired}
+            ├── When using permit2__
+            │   ├── When fee is insufficient____
+            │   │   └── It should revert with {InsufficientFunds}
+            │   └── When all checks pass____
+            │       ├── It should bridge tokens to destination chain
+            │       ├── It should return excess fee if any
+            │       └── It should emit {UniversalRouterBridge} event
+            └── When using direct approval__
+                ├── When fee is insufficient_____
+                │   └── It should revert with {InsufficientFunds}
+                └── When all checks pass_____
+                    ├── It should bridge tokens to destination chain
+                    ├── It should return excess fee if any
+                    └── It should emit {UniversalRouterBridge} event
