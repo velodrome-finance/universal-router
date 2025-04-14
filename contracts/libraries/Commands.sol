@@ -35,7 +35,8 @@ library Commands {
     uint256 constant V4_SWAP = 0x10;
     uint256 constant V4_INITIALIZE_POOL = 0x11;
     uint256 constant BRIDGE_TOKEN = 0x12;
-    // COMMAND_PLACEHOLDER = 0x13 -> 0x20
+    uint256 constant EXECUTE_CROSS_CHAIN = 0x13;
+    // COMMAND_PLACEHOLDER = 0x14 -> 0x20
 
     // Command Types where 0x21<=value<=0x3f
     uint256 constant EXECUTE_SUB_PLAN = 0x21;

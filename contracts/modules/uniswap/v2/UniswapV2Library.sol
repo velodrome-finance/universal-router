@@ -160,7 +160,7 @@ library UniswapV2Library {
     /// @return amountIn The input amount of the input token
     function getAmountIn(uint256 fee, uint256 amountOut, uint256 reserveIn, uint256 reserveOut, bool stable)
         private
-        view
+        pure
         returns (uint256 amountIn)
     {
         if (reserveIn == 0 || reserveOut == 0) revert InvalidReserves();

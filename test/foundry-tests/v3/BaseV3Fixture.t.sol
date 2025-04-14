@@ -11,7 +11,6 @@ import {ICLPool} from 'contracts/interfaces/external/ICLPool.sol';
 import {RouterParameters} from 'contracts/types/RouterParameters.sol';
 import {UniversalRouter} from 'contracts/UniversalRouter.sol';
 import {Constants} from 'contracts/libraries/Constants.sol';
-import {Commands} from 'contracts/libraries/Commands.sol';
 
 import '../BaseForkFixture.t.sol';
 

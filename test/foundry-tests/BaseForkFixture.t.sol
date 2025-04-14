@@ -6,6 +6,7 @@ import {ActionConstants} from '@uniswap/v4-periphery/src/libraries/ActionConstan
 import {SafeCast} from '@openzeppelin/contracts/utils/math/SafeCast.sol';
 import {Math} from '@openzeppelin/contracts/utils/math/Math.sol';
 import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+import {CallLib} from '@hyperlane-updated/contracts/middleware/libs/Call.sol';
 import {HypXERC20} from '@hyperlane/core/contracts/token/extensions/HypXERC20.sol';
 import {TestIsm} from '@hyperlane/core/contracts/test/TestIsm.sol';
 import {TestPostDispatchHook} from '@hyperlane/core/contracts/test/TestPostDispatchHook.sol';
@@ -14,12 +15,14 @@ import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
 
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
 import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
+import {Commands} from 'contracts/libraries/Commands.sol';
 import {CreateXLibrary} from '../../contracts/libraries/CreateXLibrary.sol';
 import {ITokenBridge} from '../../contracts/interfaces/external/ITokenBridge.sol';
 import {IRootHLMessageModule} from '../../contracts/interfaces/external/IRootHLMessageModule.sol';
 import {Constants} from '../../contracts/libraries/Constants.sol';
 import {Commands} from '../../contracts/libraries/Commands.sol';
 
+import {MockInterchainAccountRouter} from '../foundry-tests/mock/MockInterchainAccountRouter.sol';
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRouter, RouterParameters} from '../foundry-tests/utils/TestDeployRouter.sol';
@@ -74,10 +77,10 @@ abstract contract BaseForkFixture is Test, TestConstants {
     uint32 public leafDomain = 8453; // leaf domain
     uint256 public leafId; // leaf fork id (used by foundry)
     uint256 public leafStartTime; // leaf fork start time (set to start of epoch for simplicity)
-    uint256 public leafForkBlockNumber = 27777777; // creation of oUSDT is at blk 26601142
+    uint256 public leafForkBlockNumber = 28700000; // creation of oUSDT is at blk 26601142
 
     // leaf router
-    UniversalRouter public leafRouter; // not initialized
+    UniversalRouter public leafRouter;
 
     // leaf contracts
     IXERC20 public leafOpenUSDT = IXERC20(OPEN_USDT_ADDRESS);
@@ -184,6 +187,27 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.selectFork({forkId: leafId});
 
         leafMailbox = _overwriteMailbox(OPEN_USDT_BASE_MAILBOX_ADDRESS, OPEN_USDT_BASE_ISM_ADDRESS, leafDomain);
+
+        // deploy router on base
+        params = RouterParameters({
+            permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
+            weth9: address(WETH),
+            v2Factory: 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6,
+            v3Factory: 0x33128a8fC17869897dcE68Ed026d694621f6FDfD,
+            pairInitCodeHash: 0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f,
+            poolInitCodeHash: 0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54,
+            v4PoolManager: address(0),
+            veloV2Factory: 0x420DD381b31aEf6683db6B902084cB0FFECe40Da,
+            veloCLFactory: 0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A,
+            veloV2InitCodeHash: 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c,
+            veloCLInitCodeHash: 0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30,
+            rootHLMessageModule: address(0)
+        });
+
+        deployRouter = new TestDeployRouter(params);
+        deployRouter.run();
+
+        leafRouter = deployRouter.router();
 
         vm.selectFork({forkId: leafId_2});
 
@@ -311,6 +335,17 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         vm.selectFork({forkId: fork});
         _;
+    }
+
+    /// @dev Helper function to generate commitment hashes
+    function hashCommitment(CallLib.Call[] memory _calls) internal pure returns (bytes32 _salt) {
+        bytes memory calls;
+        uint256 length = _calls.length;
+        for (uint256 i = 0; i < length; i++) {
+            calls = abi.encode(calls, _calls[i].to, _calls[i].value, _calls[i].data);
+        }
+
+        return keccak256(calls);
     }
 
     function _addressToBytes32(address _address) internal pure returns (bytes32) {

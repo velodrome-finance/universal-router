@@ -2,12 +2,15 @@
 pragma solidity ^0.8.24;
 
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
+import {TypeCasts} from '@hyperlane/core/contracts/libs/TypeCasts.sol';
+import {IPostDispatchHook} from '@hyperlane/core/contracts/interfaces/hooks/IPostDispatchHook.sol';
 import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
 import {ActionConstants} from '@uniswap/v4-periphery/src/libraries/ActionConstants.sol';
 import {CalldataDecoder} from '@uniswap/v4-periphery/src/libraries/CalldataDecoder.sol';
 import {PoolKey} from '@uniswap/v4-core/src/types/PoolKey.sol';
 import {IPoolManager} from '@uniswap/v4-core/src/interfaces/IPoolManager.sol';
 
+import {IInterchainAccountRouter} from '../interfaces/external/IInterchainAccountRouter.sol';
 import {V2SwapRouter} from '../modules/uniswap/v2/V2SwapRouter.sol';
 import {V3SwapRouter} from '../modules/uniswap/v3/V3SwapRouter.sol';
 import {V4SwapRouter} from '../modules/uniswap/v4/V4SwapRouter.sol';
@@ -348,8 +351,35 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         amount: amount,
                         domain: domain
                     });
+                } else if (command == Commands.EXECUTE_CROSS_CHAIN) {
+                    // equivalent: abi.decode(inputs, (uint32, address, bytes32, bytes32, bytes32, address, bytes))
+                    uint32 domain;
+                    address icaRouter;
+                    bytes32 remoteRouter;
+                    bytes32 ism;
+                    bytes32 commitment;
+                    address hook;
+                    assembly {
+                        domain := calldataload(inputs.offset)
+                        icaRouter := calldataload(add(inputs.offset, 0x20))
+                        remoteRouter := calldataload(add(inputs.offset, 0x40))
+                        ism := calldataload(add(inputs.offset, 0x60))
+                        commitment := calldataload(add(inputs.offset, 0x80))
+                        hook := calldataload(add(inputs.offset, 0xA0))
+                        // 0xC0 offset contains the hook metadata, decoded below
+                    }
+                    bytes calldata hookMetadata = inputs.toBytes(6);
+                    IInterchainAccountRouter(icaRouter).callRemoteWithOverrides({
+                        _destination: domain,
+                        _router: remoteRouter,
+                        _ism: ism,
+                        _callsCommitment: commitment,
+                        _hookMetadata: hookMetadata,
+                        _salt: TypeCasts.addressToBytes32(msgSender()),
+                        _hook: IPostDispatchHook(hook)
+                    });
                 } else {
-                    // placeholder area for commands 0x13-0x20
+                    // placeholder area for commands 0x14-0x20
                     revert InvalidCommandType(command);
                 }
             }

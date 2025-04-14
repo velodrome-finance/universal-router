@@ -66,8 +66,8 @@ abstract contract BridgeRouter is Permit2Payments {
                 domain: domain
             });
         } else if (bridgeType == BridgeTypes.XVELO) {
-            address bridgeToken = block.chainid == 10 ? ITokenBridge(bridge).erc20() : ITokenBridge(bridge).xerc20();
-            if (bridgeToken != token) revert InvalidTokenAddress();
+            address _bridgeToken = block.chainid == 10 ? ITokenBridge(bridge).erc20() : ITokenBridge(bridge).xerc20();
+            if (_bridgeToken != token) revert InvalidTokenAddress();
 
             prepareTokensForBridge({_token: token, _bridge: bridge, _sender: sender, _amount: amount, _payer: payer});
 

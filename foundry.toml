@@ -8,6 +8,7 @@ no-match-test = "testGas"
 evm_version = "cancun"
 remappings = [
   "node_modules/@hyperlane-xyz/:@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
+  "lib/hyperlane-monorepo/solidity/:@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
   "@openzeppelin/contracts/=lib/v4-periphery/lib/v4-core/lib/openzeppelin-contracts/contracts/",
 ]
 

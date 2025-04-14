@@ -57,7 +57,7 @@ jobs:
 
       - name: Run Forge tests
         run: |
-          forge test --isolate -vvv
+          forge test -vvv
         id: test
         env:
           OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}
