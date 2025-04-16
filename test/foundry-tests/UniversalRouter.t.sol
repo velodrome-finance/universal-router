@@ -43,13 +43,6 @@ contract UniversalRouterTest is Test {
 
     event ExampleModuleEvent(string message);
 
-    function testCannotCallSTF(address caller) public {
-        vm.assume(caller != address(router));
-        vm.prank(caller);
-        vm.expectRevert(Permit2Payments.NotUniversalRouter.selector);
-        router.stf(address(0), address(0), address(0), 0);
-    }
-
     function testCallModule() public {
         uint256 bytecodeSize;
         address theRouter = address(router);

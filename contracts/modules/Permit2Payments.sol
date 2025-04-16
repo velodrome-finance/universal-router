@@ -48,15 +48,17 @@ abstract contract Permit2Payments is Payments {
         if (payer == address(this)) {
             pay(token, recipient, amount);
         } else {
-            try this.stf(token, payer, recipient, amount) {}
-            catch {
+            // Try regular transferFrom before using Permit2
+            (bool success, bytes memory data) =
+                token.call(abi.encodeCall(ERC20.transferFrom, (payer, recipient, amount)));
+
+            // Fall back to Permit2 if either:
+            // 1. The call itself failed (reverted), or
+            // 2. The call succeeded but returned a non-empty response of 'false'
+            //    (Some ERC20 tokens return false instead of reverting on failure)
+            if (!success || (data.length != 0 && !abi.decode(data, (bool)))) {
                 permit2TransferFrom(token, payer, recipient, amount.toUint160());
             }
         }
-    }
-
-    function stf(address token, address from, address to, uint256 amount) external {
-        if (msg.sender != address(this)) revert NotUniversalRouter();
-        ERC20(token).safeTransferFrom(from, to, amount);
     }
 }
