@@ -55,7 +55,7 @@ BridgeTokenTest
         │   │   ├── When domain is the same as source domain__
         │   │   │   └── It should revert with {NotRegistered}
         │   │   ├── When fee is insufficient__
-        │   │   │   └── It should revert with {InsufficientFunds}
+        │   │   │   └── It should revert with "IGP: insufficient interchain gas payment"
         │   │   └── When all checks pass__
         │   │       ├── It should bridge tokens to destination chain
         │   │       ├── It should return excess fee if any
@@ -68,7 +68,7 @@ BridgeTokenTest
         │       ├── When domain is the same as source domain___
         │       │   └── It should revert with {NotRegistered}
         │       ├── When fee is insufficient___
-        │       │   └── It should revert with {InsufficientFunds}
+        │       │   └── It should revert with "IGP: insufficient interchain gas payment"
         │       └── When all checks pass___
         │           ├── It should bridge tokens to destination chain
         │           ├── It should return excess fee if any
@@ -80,14 +80,14 @@ BridgeTokenTest
             │   └── It should revert with {AllowanceExpired}
             ├── When using permit2__
             │   ├── When fee is insufficient____
-            │   │   └── It should revert with {InsufficientFunds}
+            │   │   └── It should revert with "IGP: insufficient interchain gas payment"
             │   └── When all checks pass____
             │       ├── It should bridge tokens to destination chain
             │       ├── It should return excess fee if any
             │       └── It should emit {UniversalRouterBridge} event
             └── When using direct approval__
                 ├── When fee is insufficient_____
-                │   └── It should revert with {InsufficientFunds}
+                │   └── It should revert with "IGP: insufficient interchain gas payment"
                 └── When all checks pass_____
                     ├── It should bridge tokens to destination chain
                     ├── It should return excess fee if any

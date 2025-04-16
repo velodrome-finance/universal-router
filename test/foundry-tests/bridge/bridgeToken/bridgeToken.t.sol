@@ -5,9 +5,9 @@ import {BridgeTypes} from '../../../../contracts/libraries/BridgeTypes.sol';
 import {BridgeRouter} from '../../../../contracts/modules/bridge/BridgeRouter.sol';
 import {Commands} from '../../../../contracts/libraries/Commands.sol';
 import {IChainRegistry} from '../../../../contracts/interfaces/external/IChainRegistry.sol';
-import './../../BaseForkFixture.t.sol';
+import './BaseOverrideBridge.sol';
 
-contract BridgeTokenTest is BaseForkFixture {
+contract BridgeTokenTest is BaseOverrideBridge {
     uint256 public openUsdtBridgeAmount = USDC_1 * 1000;
     uint256 public xVeloBridgeAmount = TOKEN_1 * 1000;
 
@@ -20,10 +20,6 @@ contract BridgeTokenTest is BaseForkFixture {
 
     function setUp() public override {
         super.setUp();
-
-        // add mode domain to root hl message module
-        vm.prank(Ownable(ROOT_HL_MESSAGE_MODULE_ADDRESS).owner());
-        rootHLMessageModule.setDomain(leaf_2, leafDomain_2);
 
         deal(address(users.alice), 1 ether);
         deal(OPEN_USDT_ADDRESS, users.alice, openUsdtBridgeAmount);
@@ -108,8 +104,8 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
-            0, //amount
+            address(rootXVeloTokenBridge),
+            0, // amount
             leafDomain_2,
             true
         );
@@ -387,7 +383,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             leafDomain_2,
             true
@@ -409,7 +405,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             OPEN_USDT_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             1000, // openUSDT is 6 decimals so can't use xVeloBridgeAmount
             leafDomain_2,
             true
@@ -448,7 +444,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             0,
             true
@@ -470,7 +466,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             mockDomainId,
             true
@@ -492,7 +488,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             rootDomain,
             true
@@ -509,8 +505,8 @@ contract BridgeTokenTest is BaseForkFixture {
         whenDestinationChainIsMODE
         whenUsingPermit2_
     {
-        // It should revert with {InsufficientFunds}
-        vm.expectRevert(BridgeRouter.InsufficientFunds.selector);
+        // It should revert with "IGP: insufficient interchain gas payment"
+        vm.expectRevert('IGP: insufficient interchain gas payment');
         router.execute{value: 0}(commands, inputs);
     }
 
@@ -556,7 +552,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             0,
             true
@@ -578,7 +574,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             mockDomainId,
             true
@@ -600,7 +596,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             VELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             rootDomain,
             true
@@ -617,8 +613,8 @@ contract BridgeTokenTest is BaseForkFixture {
         whenDestinationChainIsMODE
         whenUsingDirectApproval_
     {
-        // It should revert with {InsufficientFunds}
-        vm.expectRevert(BridgeRouter.InsufficientFunds.selector);
+        // It should revert with "IGP: insufficient interchain gas payment"
+        vm.expectRevert('IGP: insufficient interchain gas payment');
         router.execute{value: 0}(commands, inputs);
     }
 
@@ -653,7 +649,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             XVELO_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
             rootDomain,
             true
@@ -674,7 +670,7 @@ contract BridgeTokenTest is BaseForkFixture {
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
             OPEN_USDT_ADDRESS,
-            XVELO_TOKEN_BRIDGE_ADDRESS,
+            address(rootXVeloTokenBridge),
             1000, // openUSDT is 6 decimals so can't use xVeloBridgeAmount
             rootDomain,
             true
@@ -708,8 +704,8 @@ contract BridgeTokenTest is BaseForkFixture {
         whenDestinationChainIsOPTIMISM
         whenUsingPermit2__
     {
-        // It should revert with {InsufficientFunds}
-        vm.expectRevert(BridgeRouter.InsufficientFunds.selector);
+        // It should revert with "IGP: insufficient interchain gas payment"
+        vm.expectRevert('IGP: insufficient interchain gas payment');
         leafRouter_2.execute{value: 0}(commands, inputs);
     }
 
@@ -749,8 +745,8 @@ contract BridgeTokenTest is BaseForkFixture {
         whenDestinationChainIsOPTIMISM
         whenUsingDirectApproval__
     {
-        // It should revert with {InsufficientFunds}
-        vm.expectRevert(BridgeRouter.InsufficientFunds.selector);
+        // It should revert with "IGP: insufficient interchain gas payment"
+        vm.expectRevert('IGP: insufficient interchain gas payment');
         leafRouter_2.execute{value: 0}(commands, inputs);
     }
 
@@ -766,7 +762,7 @@ contract BridgeTokenTest is BaseForkFixture {
         // It should emit {UniversalRouterBridge} event
         uint256 balanceBefore = address(users.alice).balance;
 
-        vm.expectEmit(address(router));
+        vm.expectEmit(address(leafRouter_2));
         emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, XVELO_ADDRESS, xVeloBridgeAmount, rootDomain);
         leafRouter_2.execute{value: feeAmount}(commands, inputs);
 

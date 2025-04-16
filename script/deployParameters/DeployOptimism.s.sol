@@ -17,8 +17,7 @@ contract DeployOptimism is DeployUniversalRouter {
             veloV2Factory: 0xF1046053aa5682b4F9a81b5481394DA16BE5FF5a,
             veloCLFactory: 0xCc0bDDB707055e04e497aB22a59c2aF4391cd12F,
             veloV2InitCodeHash: 0xc0629f1c7daa09624e54d4f711ba99922a844907cce02997176399e4cc7e8fcf,
-            veloCLInitCodeHash: 0x339492e30b7a68609e535da9b0773082bfe60230ca47639ee5566007d525f5a7,
-            rootHLMessageModule: 0x2BbA7515F7cF114B45186274981888D8C2fBA15E
+            veloCLInitCodeHash: 0x339492e30b7a68609e535da9b0773082bfe60230ca47639ee5566007d525f5a7
         });
 
         unsupported = 0x40d51104Da22E3e77b683894E7e3E12e8FC61E65;

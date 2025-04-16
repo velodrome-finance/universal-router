@@ -62,8 +62,7 @@ abstract contract DeployUniversalRouter is Script {
             veloV2Factory: mapUnsupported(params.veloV2Factory),
             veloCLFactory: mapUnsupported(params.veloCLFactory),
             veloV2InitCodeHash: params.veloV2InitCodeHash,
-            veloCLInitCodeHash: params.veloCLInitCodeHash,
-            rootHLMessageModule: params.rootHLMessageModule
+            veloCLInitCodeHash: params.veloCLInitCodeHash
         });
 
         deploy();

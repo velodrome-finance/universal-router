@@ -43,6 +43,19 @@ interface ITokenBridge {
     /// @dev If bridging from/to Root, ERC20 tokens are wrapped into xERC20 for bridging and unwrapped back when received.
     /// @param _recipient The address of the recipient on the destination chain
     /// @param _amount The amount of xERC20 tokens to send
-    /// @param _chainid The chain id of the destination chain
-    function sendToken(address _recipient, uint256 _amount, uint256 _chainid) external payable;
+    /// @param _domain The domain of the destination chain
+    function sendToken(address _recipient, uint256 _amount, uint32 _domain) external payable;
+
+    /// @notice Burns xERC20 tokens from the sender and triggers a x-chain transfer
+    /// @dev If bridging from/to Root, ERC20 tokens are wrapped into xERC20 for bridging and unwrapped back when received.
+    /// @dev Refunds go to the specified _refundAddress
+    /// @param _recipient The address of the recipient on the destination chain
+    /// @param _amount The amount of xERC20 tokens to send
+    /// @param _domain The domain of the destination chain
+    /// @param _refundAddress The address to send the excess eth to
+    function sendToken(address _recipient, uint256 _amount, uint32 _domain, address _refundAddress) external payable;
+
+    /// @notice Registers a domain on the bridge
+    /// @param _domain The domain to register
+    function registerDomain(uint32 _domain) external;
 }

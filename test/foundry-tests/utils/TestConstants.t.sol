@@ -44,6 +44,7 @@ abstract contract TestConstants {
     address public constant OPEN_USDT_BASE_ISM_ADDRESS = 0x9C53d53B652Feb2014aC6719E1Cd42B5B24B4A28;
 
     // XVELO related
+    address public constant VOTING_ESCROW = 0xFAf8FD17D9840595845582fCB047DF13f006787d;
     address public constant VELO_ADDRESS = 0x9560e827aF36c94D2Ac33a39bCE1Fe78631088Db;
     address public constant XVELO_ADDRESS = 0x7f9AdFbd38b669F03d1d11000Bc76b9AaEA28A81;
     address public constant XVELO_TOKEN_BRIDGE_ADDRESS = 0x1A9d17828897d6289C6dff9DC9F5cc3bAEa17814;
@@ -52,6 +53,9 @@ abstract contract TestConstants {
     address public constant MODE_PERMIT2_ADDRESS = 0xbF055A2D7450b55c194c32e285deDb956416CAF3;
 
     // common
+    address public constant STORAGE_GAS_ORACLE = 0x27e88AeB8EA4B159d81df06355Ea3d20bEB1de38;
+    address public constant ROOT_IGP = 0xD8A76C4D91fCbB7Cc8eA795DFDF870E48368995C;
+    address public constant LEAF_IGP = 0x931dFCc8c1141D6F532FD023bd87DAe0080c835d;
     address public constant PERMIT2_ADDRESS = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
     address public constant WETH9_ADDRESS = 0x4200000000000000000000000000000000000006;
     address public constant bUSDC_ADDRESS = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;

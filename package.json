@@ -65,8 +65,8 @@
   "scripts": {
     "compile": "FOUNDRY_PROFILE=hardhat hardhat compile && FOUNDRY_PROFILE=hardhat forge build",
     "test:hardhat": "FOUNDRY_PROFILE=hardhat yarn compile && FOUNDRY_PROFILE=hardhat hardhat test",
-    "test:gas": "UPDATE_SNAPSHOT=1 yarn test:hardhat --grep gas && FOUNDRY_PROFILE=hardhat FOUNDRY_NO_MATCH_TEST=DISABLE forge test --isolate --mt testGas -vvv",
-    "test:all": "UPDATE_SNAPSHOT=1 yarn test:hardhat && forge test --isolate",
+    "test:gas": "UPDATE_SNAPSHOT=1 yarn test:hardhat --grep gas && FOUNDRY_NO_MATCH_TEST=DISABLE forge test --isolate --mt testGas -vvv",
+    "test:all": "UPDATE_SNAPSHOT=1 yarn test:hardhat && forge test",
     "prettier:fix": "prettier --write '**/*.ts' && prettier --write '**/*.json'",
     "lint": "yarn prettier:fix && forge fmt",
     "lint:check": "prettier --check '**/*.ts' && forge fmt --check"

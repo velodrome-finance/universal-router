@@ -7,7 +7,6 @@ import {RouterParameters} from './types/RouterParameters.sol';
 import {PaymentsImmutables, PaymentsParameters} from './modules/PaymentsImmutables.sol';
 import {UniswapImmutables, UniswapParameters} from './modules/uniswap/UniswapImmutables.sol';
 import {V4SwapRouter} from './modules/uniswap/v4/V4SwapRouter.sol';
-import {BridgeRouter} from './modules/bridge/BridgeRouter.sol';
 import {Commands} from './libraries/Commands.sol';
 import {IUniversalRouter} from './interfaces/IUniversalRouter.sol';
 
@@ -27,7 +26,6 @@ contract UniversalRouter is IUniversalRouter, Dispatcher {
         )
         V4SwapRouter(params.v4PoolManager)
         PaymentsImmutables(PaymentsParameters(params.permit2, params.weth9))
-        BridgeRouter(params.rootHLMessageModule)
     {}
 
     modifier checkDeadline(uint256 deadline) {

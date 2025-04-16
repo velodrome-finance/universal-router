@@ -65,9 +65,6 @@ abstract contract BaseForkFixture is Test, TestConstants {
     IXERC20 public rootXVelo = IXERC20(XVELO_ADDRESS);
     ITokenBridge public rootXVeloTokenBridge = ITokenBridge(XVELO_TOKEN_BRIDGE_ADDRESS);
 
-    // @dev used for bridge tests
-    IRootHLMessageModule public rootHLMessageModule = IRootHLMessageModule(ROOT_HL_MESSAGE_MODULE_ADDRESS);
-
     // root-only mocks
     MultichainMockMailbox public rootMailbox;
 
@@ -160,8 +157,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloV2Factory: address(VELO_V2_FACTORY),
             veloCLFactory: address(CL_FACTORY),
             veloV2InitCodeHash: VELO_V2_INIT_CODE_HASH,
-            veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH,
-            rootHLMessageModule: ROOT_HL_MESSAGE_MODULE_ADDRESS
+            veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH
         });
 
         deployRouter = new TestDeployRouter(params);
@@ -200,8 +196,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloV2Factory: 0x420DD381b31aEf6683db6B902084cB0FFECe40Da,
             veloCLFactory: 0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A,
             veloV2InitCodeHash: 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c,
-            veloCLInitCodeHash: 0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30,
-            rootHLMessageModule: address(0)
+            veloCLInitCodeHash: 0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30
         });
 
         deployRouter = new TestDeployRouter(params);
@@ -223,8 +218,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloV2Factory: address(0x31832f2a97Fd20664D76Cc421207669b55CE4BC0),
             veloCLFactory: address(0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F),
             veloV2InitCodeHash: 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d,
-            veloCLInitCodeHash: 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5,
-            rootHLMessageModule: address(0)
+            veloCLInitCodeHash: 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5
         });
 
         deployRouter = new TestDeployRouter(params);
