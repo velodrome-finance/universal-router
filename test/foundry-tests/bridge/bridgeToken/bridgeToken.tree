@@ -1,6 +1,8 @@
 BridgeTokenTest
 ├── When recipient is zero address
 │   └── It should revert with {InvalidRecipient}
+├── When message fee is smaller than contract balance
+│   └── It should revert with {InvalidETH}
 ├── When bridge is zero address
 │   └── It should revert
 ├── When token is zero address

@@ -15,7 +15,7 @@ import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
 
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
 import {Dispatcher} from '../../contracts/base/Dispatcher.sol';
-import {Commands} from 'contracts/libraries/Commands.sol';
+import {Payments} from '../../contracts/modules/Payments.sol';
 import {CreateXLibrary} from '../../contracts/libraries/CreateXLibrary.sol';
 import {ITokenBridge} from '../../contracts/interfaces/external/ITokenBridge.sol';
 import {IRootHLMessageModule} from '../../contracts/interfaces/external/IRootHLMessageModule.sol';

@@ -29,6 +29,7 @@ abstract contract BridgeRouter is Permit2Payments {
     /// @param token The token to be bridged
     /// @param bridge The bridge used for the token
     /// @param amount The amount to bridge
+    /// @param msgFee The fee to pay for token bridging
     /// @param domain The destination domain
     /// @param payer The address to pay for the transfer
     function bridgeToken(
@@ -38,6 +39,7 @@ abstract contract BridgeRouter is Permit2Payments {
         address token,
         address bridge,
         uint256 amount,
+        uint256 msgFee,
         uint32 domain,
         address payer
     ) internal {
@@ -53,6 +55,7 @@ abstract contract BridgeRouter is Permit2Payments {
                 sender: sender,
                 recipient: recipient,
                 amount: amount,
+                msgFee: msgFee,
                 domain: domain
             });
         } else if (bridgeType == BridgeTypes.XVELO) {
@@ -62,16 +65,28 @@ abstract contract BridgeRouter is Permit2Payments {
 
             prepareTokensForBridge({_token: token, _bridge: bridge, _sender: sender, _amount: amount, _payer: payer});
 
-            executeXVELOBridge({bridge: bridge, sender: sender, recipient: recipient, amount: amount, domain: domain});
+            executeXVELOBridge({
+                bridge: bridge,
+                sender: sender,
+                recipient: recipient,
+                amount: amount,
+                msgFee: msgFee,
+                domain: domain
+            });
         } else {
             revert InvalidBridgeType({bridgeType: bridgeType});
         }
     }
 
     /// @dev Executes bridge transfer via HypXERC20
-    function executeHypXERC20Bridge(address bridge, address sender, address recipient, uint256 amount, uint32 domain)
-        private
-    {
+    function executeHypXERC20Bridge(
+        address bridge,
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 msgFee,
+        uint32 domain
+    ) private {
         bytes memory metadata = StandardHookMetadata.formatMetadata({
             _msgValue: uint256(0),
             _gasLimit: HypXERC20(bridge).destinationGas(domain),
@@ -79,7 +94,7 @@ abstract contract BridgeRouter is Permit2Payments {
             _customMetadata: ''
         });
 
-        HypXERC20(bridge).transferRemote{value: msg.value}({
+        HypXERC20(bridge).transferRemote{value: msgFee}({
             _destination: domain,
             _recipient: TypeCasts.addressToBytes32(recipient),
             _amountOrId: amount,
@@ -89,10 +104,15 @@ abstract contract BridgeRouter is Permit2Payments {
     }
 
     /// @dev Executes bridge transfer via XVELO TokenBridge
-    function executeXVELOBridge(address bridge, address sender, address recipient, uint256 amount, uint32 domain)
-        private
-    {
-        ITokenBridge(bridge).sendToken{value: msg.value}({
+    function executeXVELOBridge(
+        address bridge,
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 msgFee,
+        uint32 domain
+    ) private {
+        ITokenBridge(bridge).sendToken{value: msgFee}({
             _recipient: recipient,
             _amount: amount,
             _domain: domain,

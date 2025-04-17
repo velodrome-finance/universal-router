@@ -314,12 +314,13 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                     (success, output) =
                         address(poolManager).call(abi.encodeCall(IPoolManager.initialize, (poolKey, sqrtPriceX96)));
                 } else if (command == Commands.BRIDGE_TOKEN) {
-                    // equivalent: abi.decode(inputs, (uint8, address, address, address, uint256, uint32, bool))
+                    // equivalent: abi.decode(inputs, (uint8, address, address, address, uint256, uint256, uint32, bool))
                     uint8 bridgeType;
                     address recipient;
                     address token;
                     address bridge;
                     uint256 amount;
+                    uint256 msgFee;
                     uint32 domain;
                     bool payerIsUser;
                     assembly {
@@ -328,8 +329,9 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         token := calldataload(add(inputs.offset, 0x40))
                         bridge := calldataload(add(inputs.offset, 0x60))
                         amount := calldataload(add(inputs.offset, 0x80))
-                        domain := calldataload(add(inputs.offset, 0xA0))
-                        payerIsUser := calldataload(add(inputs.offset, 0xC0))
+                        msgFee := calldataload(add(inputs.offset, 0xA0))
+                        domain := calldataload(add(inputs.offset, 0xC0))
+                        payerIsUser := calldataload(add(inputs.offset, 0xE0))
                     }
                     address sender = msgSender();
                     address payer = payerIsUser ? sender : address(this);
@@ -341,6 +343,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         token: token,
                         bridge: bridge,
                         amount: amount,
+                        msgFee: msgFee,
                         domain: domain,
                         payer: payer
                     });
@@ -352,12 +355,13 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         domain: domain
                     });
                 } else if (command == Commands.EXECUTE_CROSS_CHAIN) {
-                    // equivalent: abi.decode(inputs, (uint32, address, bytes32, bytes32, bytes32, address, bytes))
+                    // equivalent: abi.decode(inputs, (uint32, address, bytes32, bytes32, bytes32, uint256, address, bytes))
                     uint32 domain;
                     address icaRouter;
                     bytes32 remoteRouter;
                     bytes32 ism;
                     bytes32 commitment;
+                    uint256 msgFee;
                     address hook;
                     assembly {
                         domain := calldataload(inputs.offset)
@@ -365,11 +369,13 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         remoteRouter := calldataload(add(inputs.offset, 0x40))
                         ism := calldataload(add(inputs.offset, 0x60))
                         commitment := calldataload(add(inputs.offset, 0x80))
-                        hook := calldataload(add(inputs.offset, 0xA0))
-                        // 0xC0 offset contains the hook metadata, decoded below
+                        msgFee := calldataload(add(inputs.offset, 0xA0))
+                        hook := calldataload(add(inputs.offset, 0xC0))
+                        // 0xE0 offset contains the hook metadata, decoded below
                     }
-                    bytes calldata hookMetadata = inputs.toBytes(6);
-                    IInterchainAccountRouter(icaRouter).callRemoteWithOverrides({
+                    bytes calldata hookMetadata = inputs.toBytes(7);
+
+                    IInterchainAccountRouter(icaRouter).callRemoteWithOverrides{value: msgFee}({
                         _destination: domain,
                         _router: remoteRouter,
                         _ism: ism,

@@ -37,19 +37,37 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
     function test_WhenRecipientIsZeroAddress() external {
         // It should revert with {InvalidRecipient}
-
         inputs[0] = abi.encode(
             uint8(BridgeTypes.HYP_XERC20),
             address(0), //recipient
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             leafDomain,
             true
         );
 
         vm.expectRevert(BridgeRouter.InvalidRecipient.selector);
         router.execute{value: feeAmount}(commands, inputs);
+    }
+
+    function test_WhenMessageFeeIsSmallerThanContractBalance() external {
+        // It should revert with {InvalidETH}
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            ActionConstants.MSG_SENDER,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            openUsdtBridgeAmount,
+            feeAmount,
+            leafDomain,
+            true
+        );
+
+        ERC20(OPEN_USDT_ADDRESS).approve(address(router), type(uint256).max);
+        vm.expectRevert(); // OutOfFunds
+        router.execute{value: feeAmount - 1}(commands, inputs);
     }
 
     function test_RevertWhen_BridgeIsZeroAddress() external {
@@ -60,6 +78,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             address(0), //bridge
             openUsdtBridgeAmount,
+            feeAmount,
             leafDomain,
             true
         );
@@ -76,6 +95,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             address(0),
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             leafDomain,
             true
         );
@@ -93,6 +113,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             0, // amount
+            feeAmount,
             leafDomain,
             true
         );
@@ -122,6 +143,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             leafDomain,
             true
         );
@@ -141,6 +163,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             leafDomain,
             true
         );
@@ -158,12 +181,13 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             leafDomain,
             true
         );
 
         vm.expectRevert(BridgeRouter.InvalidTokenAddress.selector);
-        router.execute(commands, inputs);
+        router.execute{value: feeAmount}(commands, inputs);
     }
 
     function test_WhenNoTokenApprovalWasGiven() external whenBasicValidationsPass whenBridgeTypeIsHYP_XERC20 {
@@ -187,6 +211,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             0,
             true
         );
@@ -208,6 +233,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             mockDomainId,
             true
         );
@@ -229,6 +255,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             rootDomain,
             true
         );
@@ -287,6 +314,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             0,
             true
         );
@@ -308,6 +336,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             mockDomainId,
             true
         );
@@ -329,6 +358,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
+            feeAmount,
             rootDomain,
             true
         );
@@ -385,6 +415,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             leafDomain_2,
             true
         );
@@ -407,12 +438,13 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             address(rootXVeloTokenBridge),
             1000, // openUSDT is 6 decimals so can't use xVeloBridgeAmount
+            feeAmount,
             leafDomain_2,
             true
         );
 
         vm.expectRevert(BridgeRouter.InvalidTokenAddress.selector);
-        router.execute(commands, inputs);
+        router.execute{value: feeAmount}(commands, inputs);
     }
 
     function test_WhenNoTokenApprovalWasGiven_()
@@ -446,6 +478,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             0,
             true
         );
@@ -468,6 +501,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             mockDomainId,
             true
         );
@@ -490,6 +524,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             rootDomain,
             true
         );
@@ -506,6 +541,17 @@ contract BridgeTokenTest is BaseOverrideBridge {
         whenUsingPermit2_
     {
         // It should revert with "IGP: insufficient interchain gas payment"
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            VELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            xVeloBridgeAmount,
+            0, // fee amount
+            leafDomain_2,
+            true
+        );
+
         vm.expectRevert('IGP: insufficient interchain gas payment');
         router.execute{value: 0}(commands, inputs);
     }
@@ -554,6 +600,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             0,
             true
         );
@@ -576,6 +623,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             mockDomainId,
             true
         );
@@ -598,6 +646,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             rootDomain,
             true
         );
@@ -614,6 +663,17 @@ contract BridgeTokenTest is BaseOverrideBridge {
         whenUsingDirectApproval_
     {
         // It should revert with "IGP: insufficient interchain gas payment"
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            VELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            xVeloBridgeAmount,
+            0, // fee amount
+            leafDomain_2,
+            true
+        );
+
         vm.expectRevert('IGP: insufficient interchain gas payment');
         router.execute{value: 0}(commands, inputs);
     }
@@ -651,6 +711,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             XVELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
+            feeAmount,
             rootDomain,
             true
         );
@@ -672,12 +733,13 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             address(rootXVeloTokenBridge),
             1000, // openUSDT is 6 decimals so can't use xVeloBridgeAmount
+            feeAmount,
             rootDomain,
             true
         );
 
         vm.expectRevert(BridgeRouter.InvalidTokenAddress.selector);
-        leafRouter_2.execute(commands, inputs);
+        leafRouter_2.execute{value: feeAmount}(commands, inputs);
     }
 
     function test_WhenNoTokenApprovalWasGiven__()
@@ -705,6 +767,17 @@ contract BridgeTokenTest is BaseOverrideBridge {
         whenUsingPermit2__
     {
         // It should revert with "IGP: insufficient interchain gas payment"
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            XVELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            xVeloBridgeAmount,
+            0, // fee amount
+            rootDomain,
+            true
+        );
+
         vm.expectRevert('IGP: insufficient interchain gas payment');
         leafRouter_2.execute{value: 0}(commands, inputs);
     }
@@ -746,6 +819,17 @@ contract BridgeTokenTest is BaseOverrideBridge {
         whenUsingDirectApproval__
     {
         // It should revert with "IGP: insufficient interchain gas payment"
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            XVELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            xVeloBridgeAmount,
+            0, // fee amount
+            rootDomain,
+            true
+        );
+
         vm.expectRevert('IGP: insufficient interchain gas payment');
         leafRouter_2.execute{value: 0}(commands, inputs);
     }
