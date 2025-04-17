@@ -1,8 +1,17 @@
 TransferFromTest
-├── When safe transfer from succeeds
-│   └── It should transfer tokens from the payer to the recipient via erc20 transfer
-└── When safe transfer from fails
-    ├── When permit2 transfer from fails
-    │   └── It should revert
-    └── When permit2 transfer from succeeds
-        └── It should transfer tokens from the payer to the recipient via permit2
+├── When the amount to transfer is equal to contract balance constant
+│   ├── When safe transfer from succeeds
+│   │   └── It should transfer the whole balance from the payer to the recipient via erc20 transfer
+│   └── When safe transfer from fails
+│       ├── When permit2 transfer from fails
+│       │   └── It should revert
+│       └── When permit2 transfer from succeeds
+│           └── It should transfer the whole balance from the payer to the recipient via permit2
+└── When the amount to transfer is not equal to contract balance constant
+    ├── When safe transfer from succeeds_
+    │   └── It should transfer tokens from the payer to the recipient via erc20 transfer
+    └── When safe transfer from fails_
+        ├── When permit2 transfer from fails_
+        │   └── It should revert
+        └── When permit2 transfer from succeeds_
+            └── It should transfer tokens from the payer to the recipient via permit2

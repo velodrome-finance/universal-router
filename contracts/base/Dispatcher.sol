@@ -189,12 +189,10 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                             recipient := calldataload(add(inputs.offset, 0x20))
                             value := calldataload(add(inputs.offset, 0x40))
                         }
-                        payOrPermit2Transfer({
-                            token: token,
-                            payer: msgSender(),
-                            recipient: map(recipient),
-                            amount: value
-                        });
+
+                        address payer = msgSender();
+                        if (value == ActionConstants.CONTRACT_BALANCE) value = ERC20(token).balanceOf(payer);
+                        payOrPermit2Transfer({token: token, payer: payer, recipient: map(recipient), amount: value});
                     }
                 } else {
                     // 0x08 <= command < 0x10

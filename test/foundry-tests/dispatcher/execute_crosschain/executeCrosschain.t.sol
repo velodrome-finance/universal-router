@@ -67,7 +67,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         // Encode fallback transfer
         bytes memory transferSubplan = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)));
         bytes[] memory transferInputs = new bytes[](1);
-        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, amountIn);
+        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, ActionConstants.CONTRACT_BALANCE);
 
         // Encode Sub Plan
         bytes memory leafCommands = abi.encodePacked(
@@ -167,7 +167,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         // Encode fallback transfer
         bytes memory transferSubplan = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)));
         bytes[] memory transferInputs = new bytes[](1);
-        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, amountIn);
+        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, ActionConstants.CONTRACT_BALANCE);
 
         // Encode Sub Plan
         bytes memory leafCommands = abi.encodePacked(
@@ -368,7 +368,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         // Encode fallback transfer
         bytes memory transferSubplan = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)));
         bytes[] memory transferInputs = new bytes[](1);
-        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, _amountIn);
+        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, ActionConstants.CONTRACT_BALANCE);
 
         // Encode Sub Plan
         bytes memory leafCommands = abi.encodePacked(
