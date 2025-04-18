@@ -7,7 +7,6 @@ import {IUniswapV2Factory} from '@uniswap/v2-core/contracts/interfaces/IUniswapV
 import {IUniswapV3Factory} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
 import {INonfungiblePositionManager} from '@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
 
-import {VelodromeTimeLibrary} from 'contracts/libraries/VelodromeTimeLibrary.sol';
 import {INonfungiblePositionManagerCL} from 'contracts/interfaces/external/INonfungiblePositionManager.sol';
 import {IPoolFactory} from 'contracts/interfaces/external/IPoolFactory.sol';
 import {ICLFactory} from 'contracts/interfaces/external/ICLFactory.sol';
@@ -25,7 +24,6 @@ abstract contract TestConstants {
     uint256 constant PRECISION = 10 ** 18;
 
     uint256 public constant DAY = 1 days;
-    uint256 public constant WEEK = VelodromeTimeLibrary.WEEK;
 
     address public constant SUPERCHAIN_ERC20_BRIDGE = 0x4200000000000000000000000000000000000028;
 

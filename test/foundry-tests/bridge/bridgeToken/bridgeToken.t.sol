@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import {BridgeTypes} from '../../../../contracts/libraries/BridgeTypes.sol';
 import {BridgeRouter} from '../../../../contracts/modules/bridge/BridgeRouter.sol';
 import {Commands} from '../../../../contracts/libraries/Commands.sol';
-import {IChainRegistry} from '../../../../contracts/interfaces/external/IChainRegistry.sol';
+import {IDomainRegistry} from '../../../../contracts/interfaces/external/IDomainRegistry.sol';
 import './BaseOverrideBridge.sol';
 
 contract BridgeTokenTest is BaseOverrideBridge {
@@ -483,7 +483,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        vm.expectRevert(IChainRegistry.NotRegistered.selector);
+        vm.expectRevert(IDomainRegistry.NotRegistered.selector);
         router.execute{value: feeAmount}(commands, inputs);
     }
 
@@ -506,7 +506,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        vm.expectRevert(IChainRegistry.NotRegistered.selector);
+        vm.expectRevert(IDomainRegistry.NotRegistered.selector);
         router.execute{value: feeAmount}(commands, inputs);
     }
 
@@ -529,7 +529,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        vm.expectRevert(IChainRegistry.NotRegistered.selector);
+        vm.expectRevert(IDomainRegistry.NotRegistered.selector);
         router.execute{value: feeAmount}(commands, inputs);
     }
 
@@ -605,7 +605,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        vm.expectRevert(IChainRegistry.NotRegistered.selector);
+        vm.expectRevert(IDomainRegistry.NotRegistered.selector);
         router.execute{value: feeAmount}(commands, inputs);
     }
 
@@ -628,7 +628,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        vm.expectRevert(IChainRegistry.NotRegistered.selector);
+        vm.expectRevert(IDomainRegistry.NotRegistered.selector);
         router.execute{value: feeAmount}(commands, inputs);
     }
 
@@ -651,7 +651,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        vm.expectRevert(IChainRegistry.NotRegistered.selector);
+        vm.expectRevert(IDomainRegistry.NotRegistered.selector);
         router.execute{value: feeAmount}(commands, inputs);
     }
 

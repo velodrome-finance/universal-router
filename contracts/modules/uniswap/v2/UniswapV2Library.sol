@@ -145,7 +145,7 @@ library UniswapV2Library {
                         return y;
                     }
                     if (_f(x0, y + 1) > xy) {
-                        // If f(x0, y + 1) > xy, then we are close to the correct answer.
+                        // If _f(x0, y + 1) > xy, then we are close to the correct answer.
                         // There's no closer answer than y + 1
                         return y + 1;
                     }

@@ -28,12 +28,7 @@ import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRouter, RouterParameters} from '../foundry-tests/utils/TestDeployRouter.sol';
 import {IXERC20, MintLimits} from '../foundry-tests/mock/XERC20/IXERC20.sol';
 import {
-    TestConstants,
-    IPermit2,
-    ERC20,
-    IUniswapV2Factory,
-    IPoolFactory,
-    VelodromeTimeLibrary
+    TestConstants, IPermit2, ERC20, IUniswapV2Factory, IPoolFactory
 } from '../foundry-tests/utils/TestConstants.t.sol';
 
 abstract contract BaseForkFixture is Test, TestConstants {
@@ -288,47 +283,6 @@ abstract contract BaseForkFixture is Test, TestConstants {
     function createUser(string memory name) internal returns (address payable user) {
         user = payable(makeAddr({name: name}));
         vm.deal({account: user, newBalance: TOKEN_1 * 1_000});
-    }
-
-    /// @dev Move time forward on all chains
-    function skipTime(uint256 _time) internal {
-        uint256 activeFork = vm.activeFork();
-
-        vm.selectFork({forkId: rootId});
-        vm.warp({newTimestamp: block.timestamp + _time});
-        vm.roll({newHeight: block.number + _time / 2});
-
-        vm.selectFork({forkId: leafId});
-        vm.warp({newTimestamp: block.timestamp + _time});
-        vm.roll({newHeight: block.number + _time / 2});
-
-        vm.selectFork({forkId: leafId_2});
-        vm.warp({newTimestamp: block.timestamp + _time});
-        vm.roll({newHeight: block.number + _time / 2});
-
-        vm.selectFork({forkId: activeFork});
-    }
-
-    /// @dev Helper utility to forward time to next week on all chains
-    ///      note epoch requires at least one second to have
-    ///      passed into the new epoch
-    function skipToNextEpoch(uint256 _offset) public {
-        uint256 timeToNextEpoch = VelodromeTimeLibrary.epochNext(block.timestamp) - block.timestamp;
-        skipTime(timeToNextEpoch + _offset);
-    }
-
-    modifier syncForkTimestamps() {
-        uint256 fork = vm.activeFork();
-
-        vm.selectFork({forkId: rootId});
-        vm.warp({newTimestamp: rootStartTime});
-        vm.selectFork({forkId: leafId});
-        vm.warp({newTimestamp: leafStartTime});
-        vm.selectFork({forkId: leafId_2});
-        vm.warp({newTimestamp: leafStartTime_2});
-
-        vm.selectFork({forkId: fork});
-        _;
     }
 
     /// @dev Helper function to generate commitment hashes
