@@ -6,7 +6,6 @@ import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {IPoolFactory} from '../../../interfaces/external/IPoolFactory.sol';
 import {IPool} from '../../../interfaces/external/IPool.sol';
 
-import {UniswapFlag} from '../../../libraries/UniswapFlag.sol';
 import {Constants} from '../../../libraries/Constants.sol';
 import {V2Path} from './V2Path.sol';
 
@@ -16,84 +15,15 @@ library UniswapV2Library {
     using V2Path for bytes;
 
     error InvalidReserves();
-    error InvalidPath();
     error StableExactOutputUnsupported();
-
-    /// @notice Calculates the v2 address for a pair without making any external calls
-    /// @param factory The address of the v2 pool factory
-    /// @param initCodeHash The hash of the pair initcode
-    /// @param path The encoded token0, token1 (and stable)
-    /// @return pair The resultant v2 pair address
-    function pairFor(address factory, bytes32 initCodeHash, bytes calldata path) internal view returns (address pair) {
-        address token0;
-        address token1;
-        bytes32 salt;
-
-        if (UniswapFlag.get()) {
-            (address tokenA, address tokenB) = path.v2DecodePair();
-            (token0, token1) = sortTokens({tokenA: tokenA, tokenB: tokenB});
-            salt = keccak256(abi.encodePacked(token0, token1));
-        } else {
-            (address tokenA, address tokenB, bool stable) = path.decodeRoute();
-            (token0, token1) = sortTokens({tokenA: tokenA, tokenB: tokenB});
-            salt = keccak256(abi.encodePacked(token0, token1, stable));
-        }
-
-        pair = pairForSalt({factory: factory, initCodeHash: initCodeHash, salt: salt});
-    }
-
-    /// @notice Calculates the v2 address for a pair and the pair's token0
-    /// @param factory The address of the v2 pool factory
-    /// @param initCodeHash The hash of the pair initcode
-    /// @param path The encoded token0, token1 (and stable)
-    /// @return pair The resultant v2 pair address
-    /// @return token0 The token considered token0 in this pair
-    function pairAndToken0For(address factory, bytes32 initCodeHash, bytes calldata path)
-        internal
-        view
-        returns (address pair, address token0)
-    {
-        address token1;
-        bytes32 salt;
-
-        if (UniswapFlag.get()) {
-            (address tokenA, address tokenB) = path.v2DecodePair();
-            (token0, token1) = sortTokens({tokenA: tokenA, tokenB: tokenB});
-            salt = keccak256(abi.encodePacked(token0, token1));
-        } else {
-            (address tokenA, address tokenB, bool stable) = path.decodeRoute();
-            (token0, token1) = sortTokens({tokenA: tokenA, tokenB: tokenB});
-            salt = keccak256(abi.encodePacked(token0, token1, stable));
-        }
-
-        pair = pairForSalt({factory: factory, initCodeHash: initCodeHash, salt: salt});
-    }
 
     /// @notice Calculates the v2 address for a pair
     /// @param factory The address of the v2 pool factory
     /// @param initCodeHash The hash of the pair initcode
     /// @param salt The salt for the pair
     /// @return pair The resultant v2 pair address
-    function pairForSalt(address factory, bytes32 initCodeHash, bytes32 salt) private pure returns (address pair) {
+    function pairForSalt(address factory, bytes32 initCodeHash, bytes32 salt) internal pure returns (address pair) {
         pair = address(uint160(uint256(keccak256(abi.encodePacked(hex'ff', factory, salt, initCodeHash)))));
-    }
-
-    /// @notice Calculates the v2 address for a pair and fetches the reserves for each token
-    /// @param factory The address of the v2 pool factory
-    /// @param initCodeHash The hash of the pair initcode
-    /// @param path The encoded token0, token1 (and stable)
-    /// @return pair The resultant v2 pair address
-    /// @return reserveA The reserves for tokenA
-    /// @return reserveB The reserves for tokenB
-    function pairAndReservesFor(address factory, bytes32 initCodeHash, bytes calldata path)
-        private
-        view
-        returns (address pair, uint256 reserveA, uint256 reserveB)
-    {
-        address token0;
-        (pair, token0) = pairAndToken0For({factory: factory, initCodeHash: initCodeHash, path: path});
-        (uint256 reserve0, uint256 reserve1,) = IPool(pair).getReserves();
-        (reserveA, reserveB) = path.decodeFirstToken() == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
     }
 
     /// @notice Given an input asset amount returns the maximum output amount of the other asset
@@ -156,10 +86,9 @@ library UniswapV2Library {
     /// @param reserveIn The reserves available of the input token
     /// @param reserveOut The reserves available of the output token
     /// @param stable Whether the pair is stable or not (only used for Velo, should be false for uniswap)
-    /// @dev Assumes only 1 path is passed (token0, token1, stable)
     /// @return amountIn The input amount of the input token
     function getAmountIn(uint256 fee, uint256 amountOut, uint256 reserveIn, uint256 reserveOut, bool stable)
-        private
+        internal
         pure
         returns (uint256 amountIn)
     {
@@ -170,53 +99,6 @@ library UniswapV2Library {
             amountIn = numerator / denominator + 1;
         } else {
             revert StableExactOutputUnsupported();
-        }
-    }
-
-    /// @notice Returns the input amount needed for a desired output amount in a multi-hop trade
-    /// @param factory The address of the v2 pool factory
-    /// @param initCodeHash The hash of the pair initcode
-    /// @param amountOut The desired output amount
-    /// @param path The path of the multi-hop trade
-    /// @return amount The input amount of the input token
-    /// @return pair The first pair in the trade
-    function getAmountInMultihop(address factory, bytes32 initCodeHash, uint256 amountOut, bytes calldata path)
-        internal
-        view
-        returns (uint256 amount, address pair)
-    {
-        bool isUni = UniswapFlag.get();
-        if (!path.v2HasMultipleTokens()) revert InvalidPath();
-        amount = amountOut;
-        while (path.v2HasMultipleTokens()) {
-            uint256 reserveIn;
-            uint256 reserveOut;
-            if (isUni) {
-                (pair, reserveIn, reserveOut) =
-                    pairAndReservesFor({factory: factory, initCodeHash: initCodeHash, path: path.v2GetLastTokens()});
-                amount = getAmountIn({
-                    fee: Constants.V2_FEE,
-                    amountOut: amount,
-                    reserveIn: reserveIn,
-                    reserveOut: reserveOut,
-                    stable: false
-                });
-                path = path.v2RemoveLastToken();
-            } else {
-                bytes calldata veloPath = path.veloGetLastRoute();
-                bool stable = veloPath.getFirstStable();
-                (pair, reserveIn, reserveOut) =
-                    pairAndReservesFor({factory: factory, initCodeHash: initCodeHash, path: veloPath});
-                amount = getAmountIn({
-                    fee: IPoolFactory(factory).getFee(pair, stable),
-                    amountOut: amount,
-                    reserveIn: reserveIn,
-                    reserveOut: reserveOut,
-                    stable: stable
-                });
-
-                path = path.veloRemoveLastRoute();
-            }
         }
     }
 

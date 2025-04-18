@@ -5,11 +5,11 @@ import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 
 import {UniswapImmutables} from '../UniswapImmutables.sol';
 import {IPool} from '../../../interfaces/external/IPool.sol';
+import {IPoolFactory} from '../../../interfaces/external/IPoolFactory.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
 
 import {Constants} from '../../../libraries/Constants.sol';
 import {UniswapV2Library} from './UniswapV2Library.sol';
-import {UniswapFlag} from '../../../libraries/UniswapFlag.sol';
 import {V2Path} from './V2Path.sol';
 
 /// @title Router for Uniswap v2 Trades
@@ -19,6 +19,115 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
     error V2TooLittleReceived();
     error V2TooMuchRequested();
     error V2InvalidPath();
+    error InvalidPath();
+
+    /// @notice Calculates the v2 address for a pair without making any external calls
+    /// @param isUni Whether this is a Uniswap V2 path or not
+    /// @param path The encoded token0, token1 (and stable)
+    /// @return pair The resultant v2 pair address
+    function pairFor(bool isUni, bytes calldata path) internal view returns (address pair) {
+        address token0;
+        address token1;
+        address tokenA;
+        address tokenB;
+        bytes32 salt;
+        address factory;
+        bytes32 initCodeHash;
+
+        if (isUni) {
+            factory = UNISWAP_V2_FACTORY;
+            initCodeHash = UNISWAP_V2_PAIR_INIT_CODE_HASH;
+            (tokenA, tokenB) = path.v2DecodePair();
+            (token0, token1) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
+            salt = keccak256(abi.encodePacked(token0, token1));
+        } else {
+            factory = VELODROME_V2_FACTORY;
+            initCodeHash = VELODROME_V2_INIT_CODE_HASH;
+            bool stable;
+            (tokenA, tokenB, stable) = path.decodeRoute();
+            (token0, token1) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
+            salt = keccak256(abi.encodePacked(token0, token1, stable));
+        }
+
+        pair = UniswapV2Library.pairForSalt({factory: factory, initCodeHash: initCodeHash, salt: salt});
+    }
+
+    /// @notice Calculates the v2 address for a pair and the pair's token0
+    /// @param isUni Whether this is a Uniswap V2 path or not
+    /// @param path The encoded token0, token1 (and stable)
+    /// @return pair The resultant v2 pair address
+    /// @return token0 The token considered token0 in this pair
+    function pairAndToken0For(bool isUni, bytes calldata path) internal view returns (address pair, address token0) {
+        if (isUni) {
+            (address tokenA, address tokenB) = path.v2DecodePair();
+            (token0,) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
+        } else {
+            (address tokenA, address tokenB,) = path.decodeRoute();
+            (token0,) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
+        }
+
+        pair = pairFor({isUni: isUni, path: path});
+    }
+
+    /// @notice Calculates the v2 address for a pair and fetches the reserves for each token
+    /// @param isUni Whether this is a Uniswap V2 path or not
+    /// @param path The encoded token0, token1 (and stable)
+    /// @return pair The resultant v2 pair address
+    /// @return reserveA The reserves for tokenA
+    /// @return reserveB The reserves for tokenB
+    function pairAndReservesFor(bool isUni, bytes calldata path)
+        internal
+        view
+        returns (address pair, uint256 reserveA, uint256 reserveB)
+    {
+        address token0;
+        (pair, token0) = pairAndToken0For({isUni: isUni, path: path});
+        (uint256 reserve0, uint256 reserve1,) = IPool(pair).getReserves();
+        (reserveA, reserveB) = path.decodeFirstToken() == token0 ? (reserve0, reserve1) : (reserve1, reserve0);
+    }
+
+    /// @notice Returns the input amount needed for a desired output amount in a multi-hop trade
+    /// @param amountOut The desired output amount
+    /// @param path The path of the multi-hop trade
+    /// @param isUni Whether this is a Uniswap V2 path or not
+    /// @return amount The input amount of the input token
+    /// @return pair The first pair in the trade
+    function getAmountInMultihop(uint256 amountOut, bytes calldata path, bool isUni)
+        internal
+        view
+        returns (uint256 amount, address pair)
+    {
+        if (!path.v2HasMultipleTokens()) revert InvalidPath();
+        amount = amountOut;
+        while (path.v2HasMultipleTokens()) {
+            uint256 reserveIn;
+            uint256 reserveOut;
+            if (isUni) {
+                (pair, reserveIn, reserveOut) = pairAndReservesFor({isUni: true, path: path.v2GetLastTokens()});
+                amount = UniswapV2Library.getAmountIn({
+                    fee: Constants.V2_FEE,
+                    amountOut: amount,
+                    reserveIn: reserveIn,
+                    reserveOut: reserveOut,
+                    stable: false
+                });
+                path = path.v2RemoveLastToken();
+            } else {
+                bytes calldata veloPath = path.veloGetLastRoute();
+                bool stable = veloPath.getFirstStable();
+                (pair, reserveIn, reserveOut) = pairAndReservesFor({isUni: false, path: veloPath});
+                amount = UniswapV2Library.getAmountIn({
+                    fee: IPoolFactory(VELODROME_V2_FACTORY).getFee({_pool: pair, _stable: stable}),
+                    amountOut: amount,
+                    reserveIn: reserveIn,
+                    reserveOut: reserveOut,
+                    stable: stable
+                });
+
+                path = path.veloRemoveLastRoute();
+            }
+        }
+    }
 
     /// @dev path only contains addresses
     function _v2Swap(bytes calldata path, address recipient, address pair) private {
@@ -45,11 +154,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                     input == token0 ? (uint256(0), amountOutput) : (amountOutput, uint256(0));
                 address nextPair;
                 (nextPair, token0) = i < penultimatePairIndex
-                    ? UniswapV2Library.pairAndToken0For({
-                        factory: UNISWAP_V2_FACTORY,
-                        initCodeHash: UNISWAP_V2_PAIR_INIT_CODE_HASH,
-                        path: path.pairAt(i + 1)
-                    })
+                    ? pairAndToken0For({isUni: true, path: path.pairAt(i + 1)})
                     : (recipient, address(0));
                 IPool(pair).swap({amount0Out: amount0Out, amount1Out: amount1Out, to: nextPair, data: new bytes(0)});
                 pair = nextPair;
@@ -88,11 +193,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                     input == token0 ? (uint256(0), amountOutput) : (amountOutput, uint256(0));
                 address nextPair;
                 (nextPair, token0) = i < finalPairIndex
-                    ? UniswapV2Library.pairAndToken0For({
-                        factory: VELODROME_V2_FACTORY,
-                        initCodeHash: VELODROME_V2_INIT_CODE_HASH,
-                        path: routes.veloRouteAt(i + 1)
-                    })
+                    ? pairAndToken0For({isUni: false, path: routes.veloRouteAt(i + 1)})
                     : (recipient, address(0));
                 IPool(pair).swap({amount0Out: amount0Out, amount1Out: amount1Out, to: nextPair, data: new bytes(0)});
                 pair = nextPair;
@@ -106,30 +207,23 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
     /// @param amountOutMinimum The minimum desired amount of output tokens
     /// @param path The path of the trade as an array of token addresses
     /// @param payer The address that will be paying the input
+    /// @param isUni Whether this is a Uniswap V2 path or not
     function v2SwapExactInput(
         address recipient,
         uint256 amountIn,
         uint256 amountOutMinimum,
         bytes calldata path,
-        address payer
+        address payer,
+        bool isUni
     ) internal {
-        bool isUni = UniswapFlag.get();
         ERC20 tokenOut = ERC20(path.getTokenOut());
         address firstPair = isUni
-            ? UniswapV2Library.pairFor({
-                factory: UNISWAP_V2_FACTORY,
-                initCodeHash: UNISWAP_V2_PAIR_INIT_CODE_HASH,
-                path: path.v2GetFirstTokens()
-            })
-            : UniswapV2Library.pairFor({
-                factory: VELODROME_V2_FACTORY,
-                initCodeHash: VELODROME_V2_INIT_CODE_HASH,
-                path: path.getFirstRoute()
-            });
+            ? pairFor({isUni: true, path: path.v2GetFirstTokens()})
+            : pairFor({isUni: false, path: path.getFirstRoute()});
         if (
             amountIn != Constants.ALREADY_PAID // amountIn of 0 to signal that the pair already has the tokens
         ) {
-            payOrPermit2Transfer(path.decodeFirstToken(), payer, firstPair, amountIn);
+            payOrPermit2Transfer({token: path.decodeFirstToken(), payer: payer, recipient: firstPair, amount: amountIn});
         }
 
         uint256 balanceBefore = tokenOut.balanceOf(recipient);
@@ -148,26 +242,19 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
     /// @param amountInMaximum The maximum desired amount of input tokens
     /// @param path The path of the trade as an array of token addresses
     /// @param payer The address that will be paying the input
+    /// @param isUni Whether this is a Uniswap V2 path or not
     function v2SwapExactOutput(
         address recipient,
         uint256 amountOut,
         uint256 amountInMaximum,
         bytes calldata path,
-        address payer
+        address payer,
+        bool isUni
     ) internal {
-        bool isUni = UniswapFlag.get();
-        (address factory, bytes32 initCodeHash) = isUni
-            ? (UNISWAP_V2_FACTORY, UNISWAP_V2_PAIR_INIT_CODE_HASH)
-            : (VELODROME_V2_FACTORY, VELODROME_V2_INIT_CODE_HASH);
-        (uint256 amountIn, address firstPair) = UniswapV2Library.getAmountInMultihop({
-            factory: factory,
-            initCodeHash: initCodeHash,
-            amountOut: amountOut,
-            path: path
-        });
+        (uint256 amountIn, address firstPair) = getAmountInMultihop({amountOut: amountOut, path: path, isUni: isUni});
         if (amountIn > amountInMaximum) revert V2TooMuchRequested();
 
-        payOrPermit2Transfer(path.decodeFirstToken(), payer, firstPair, amountIn);
+        payOrPermit2Transfer({token: path.decodeFirstToken(), payer: payer, recipient: firstPair, amount: amountIn});
 
         isUni
             ? _v2Swap({path: path, recipient: recipient, pair: firstPair})

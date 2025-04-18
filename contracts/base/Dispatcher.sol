@@ -18,7 +18,6 @@ import {BytesLib} from '../modules/uniswap/v3/BytesLib.sol';
 import {Payments} from '../modules/Payments.sol';
 import {PaymentsImmutables} from '../modules/PaymentsImmutables.sol';
 import {BridgeRouter} from '../modules/bridge/BridgeRouter.sol';
-import {UniswapFlag} from '../libraries/UniswapFlag.sol';
 import {Commands} from '../libraries/Commands.sol';
 import {Lock} from './Lock.sol';
 
@@ -82,15 +81,14 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isUni) UniswapFlag.set(true);
                         v3SwapExactInput({
                             recipient: map(recipient),
                             amountIn: amountIn,
                             amountOutMinimum: amountOutMin,
                             path: path,
-                            payer: payer
+                            payer: payer,
+                            isUni: isUni
                         });
-                        if (isUni) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msgSender(), recipient: recipient});
                     } else if (command == Commands.V3_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
@@ -109,15 +107,14 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isUni) UniswapFlag.set(true);
                         v3SwapExactOutput({
                             recipient: map(recipient),
                             amountOut: amountOut,
                             amountInMaximum: amountInMax,
                             path: path,
-                            payer: payer
+                            payer: payer,
+                            isUni: isUni
                         });
-                        if (isUni) UniswapFlag.set(false);
                         emit UniversalRouterSwap({sender: msgSender(), recipient: recipient});
                     } else if (command == Commands.PERMIT2_TRANSFER_FROM) {
                         // equivalent: abi.decode(inputs, (address, address, uint160))
@@ -213,9 +210,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isUni) UniswapFlag.set(true);
-                        v2SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer);
-                        if (isUni) UniswapFlag.set(false);
+                        v2SwapExactInput(map(recipient), amountIn, amountOutMin, path, payer, isUni);
                         emit UniversalRouterSwap({sender: msgSender(), recipient: recipient});
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
@@ -234,9 +229,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
-                        if (isUni) UniswapFlag.set(true);
-                        v2SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer);
-                        if (isUni) UniswapFlag.set(false);
+                        v2SwapExactOutput(map(recipient), amountOut, amountInMax, path, payer, isUni);
                         emit UniversalRouterSwap({sender: msgSender(), recipient: recipient});
                     } else if (command == Commands.PERMIT2_PERMIT) {
                         // equivalent: abi.decode(inputs, (IAllowanceTransfer.PermitSingle, bytes))
