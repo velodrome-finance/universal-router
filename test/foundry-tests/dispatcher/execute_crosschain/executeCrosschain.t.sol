@@ -253,6 +253,84 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
     }
 
+    function test_executeCrosschainICARefund() public {
+        uint256 amount = USDC_1;
+
+        // Predict User's ICA address
+        address userICA = rootIcaRouter.getRemoteInterchainAccount({
+            _destination: leafDomain,
+            _owner: address(router),
+            _userSalt: TypeCasts.addressToBytes32(users.alice)
+        });
+
+        // Bridge tokens to User's ICA to simulate stuck funds
+        bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)));
+        bytes[] memory inputs = new bytes[](1);
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            userICA,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            amount,
+            bridgeMsgFee,
+            leafDomain,
+            true
+        );
+
+        // Broadcast bridge message
+        deal(OPEN_USDT_ADDRESS, users.alice, USDC_1);
+        ERC20(OPEN_USDT_ADDRESS).approve(address(router), amount);
+        router.execute{value: bridgeMsgFee}(commands, inputs);
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+
+        // Process Token Bridging message & check tokens arrived
+        vm.selectFork(leafId);
+        leafMailbox.processNextInboundMessage();
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), amount);
+
+        vm.selectFork(rootId);
+
+        // Encode refund ICA call
+        CallLib.Call[] memory calls = new CallLib.Call[](1);
+        calls[0] = CallLib.build({
+            to: OPEN_USDT_ADDRESS,
+            value: 0,
+            data: abi.encodeCall(ERC20.transfer, (users.alice, amount))
+        });
+
+        // Calculate commitment hash
+        bytes32 commitment = hashCommitment(calls);
+
+        // Encode origin chain command
+        commands = abi.encodePacked(bytes1(uint8(Commands.EXECUTE_CROSS_CHAIN)));
+        inputs[0] = abi.encode(
+            leafDomain, // destination domain
+            address(rootIcaRouter), // origin ica router
+            rootIcaRouter.routers(leafDomain), // destination ica router
+            rootIcaRouter.isms(leafDomain), // destination ism
+            commitment, // commitment of the calls to be made
+            MESSAGE_FEE, // fee to dispatch x-chain message
+            rootIcaRouter.hook(), // post dispatch hook
+            new bytes(0) // hook metadata
+        );
+        router.execute{value: MESSAGE_FEE}(commands, inputs);
+
+        // Process Commitment message & check commitment was stored
+        vm.selectFork(leafId);
+        leafMailbox.processNextInboundMessage();
+        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+
+        // Self Relay the message. Refund transfer should be executed
+        vm.expectEmit(OPEN_USDT_ADDRESS);
+        emit ERC20.Transfer({from: userICA, to: users.alice, amount: amount});
+        vm.startPrank({msgSender: users.alice});
+        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), amount);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+    }
+
     function test_RevertWhen_executeCrosschainInsufficientFee() public {
         uint256 amountIn = USDC_1;
         uint256 amountOutMin = 9e5;
