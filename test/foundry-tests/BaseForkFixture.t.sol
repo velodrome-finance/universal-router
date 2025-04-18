@@ -10,6 +10,7 @@ import {CallLib} from '@hyperlane-updated/contracts/middleware/libs/Call.sol';
 import {HypXERC20} from '@hyperlane/core/contracts/token/extensions/HypXERC20.sol';
 import {TestIsm} from '@hyperlane/core/contracts/test/TestIsm.sol';
 import {TestPostDispatchHook} from '@hyperlane/core/contracts/test/TestPostDispatchHook.sol';
+import {IMailbox} from '@hyperlane/core/contracts/interfaces/IMailbox.sol';
 import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
 import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
 
@@ -27,6 +28,7 @@ import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMo
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRouter, RouterParameters} from '../foundry-tests/utils/TestDeployRouter.sol';
 import {IXERC20, MintLimits} from '../foundry-tests/mock/XERC20/IXERC20.sol';
+import {IPool} from 'contracts/interfaces/external/IPool.sol';
 import {
     TestConstants, IPermit2, ERC20, IUniswapV2Factory, IPoolFactory
 } from '../foundry-tests/utils/TestConstants.t.sol';

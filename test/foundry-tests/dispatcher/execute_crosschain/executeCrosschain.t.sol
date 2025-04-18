@@ -3,7 +3,9 @@ pragma solidity ^0.8.15;
 
 import {InterchainAccountRouter} from '@hyperlane-updated/contracts/middleware/InterchainAccountRouter.sol';
 import {TypeCasts} from '@hyperlane/core/contracts/libs/TypeCasts.sol';
+import {IPostDispatchHook} from '@hyperlane/core/contracts/interfaces/hooks/IPostDispatchHook.sol';
 
+import {IInterchainAccountRouter} from 'contracts/interfaces/external/IInterchainAccountRouter.sol';
 import {BridgeTypes} from '../../../../contracts/libraries/BridgeTypes.sol';
 
 import {MockHandleForwarder} from '../../mock/MockHandleForwarder.sol';
@@ -49,12 +51,14 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             data: abi.encodeWithSelector(InterchainAccountRouter.handle.selector)
         });
 
+        createAndSeedPair(baseUSDC, OPEN_USDT_ADDRESS, false);
+
         vm.selectFork({forkId: rootId});
         vm.deal(users.alice, MESSAGE_FEE * 10);
         vm.startPrank({msgSender: users.alice});
     }
 
-    function test_executeCrosschainFlow() public {
+    function test_executeCrosschainFlowV3SwapExactIn() public {
         uint256 amountIn = USDC_1;
         uint256 amountOutMin = 9e5;
 
@@ -128,16 +132,43 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         // Broadcast x-chain messages
         deal(OPEN_USDT_ADDRESS, users.alice, USDC_1);
         ERC20(OPEN_USDT_ADDRESS).approve(address(router), amountIn);
+        vm.expectCall({
+            callee: address(rootIcaRouter),
+            data: abi.encodeCall(
+                IInterchainAccountRouter.callRemoteWithOverrides,
+                (
+                    leafDomain,
+                    rootIcaRouter.routers(leafDomain),
+                    rootIcaRouter.isms(leafDomain),
+                    commitment,
+                    new bytes(0),
+                    TypeCasts.addressToBytes32(users.alice),
+                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                )
+            )
+        });
         router.execute{value: bridgeMsgFee + MESSAGE_FEE}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
 
         // Process Token Bridging message & check tokens arrived
         vm.selectFork(leafId);
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS),
+            recipient: address(leafOpenUsdtTokenBridge)
+        });
         leafMailbox.processNextInboundMessage();
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), amountIn);
 
         // Process Commitment message & check commitment was stored
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(address(rootIcaRouter)),
+            recipient: address(leafIcaRouter)
+        });
         leafMailbox.processNextInboundMessage();
         assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
 
@@ -149,8 +180,394 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.startPrank({msgSender: users.alice});
         leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
 
-        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0); // no leftover input from swap in exactIn
         assertGt(ERC20(baseUSDC).balanceOf(users.alice), amountOutMin);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
+    }
+
+    function test_executeCrosschainFlowV3SwapExactOut() public {
+        uint256 amountOut = 9e5;
+        uint256 amountInMax = USDC_1;
+
+        // Encode destination swap
+        bytes memory swapSubplan = abi.encodePacked(bytes1(uint8(Commands.V3_SWAP_EXACT_OUT)));
+        bytes memory path = abi.encodePacked(baseUSDC, int24(1), OPEN_USDT_ADDRESS);
+        bytes[] memory swapInputs = new bytes[](1);
+        swapInputs[0] = abi.encode(users.alice, amountOut, amountInMax, path, true, false);
+
+        // Encode fallback transfer
+        bytes memory transferSubplan = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)));
+        bytes[] memory transferInputs = new bytes[](1);
+        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, ActionConstants.CONTRACT_BALANCE);
+
+        // Encode Sub Plan
+        bytes memory leafCommands = abi.encodePacked(
+            bytes1(uint8(Commands.EXECUTE_SUB_PLAN)) | Commands.FLAG_ALLOW_REVERT,
+            bytes1(uint8(Commands.EXECUTE_SUB_PLAN)) | Commands.FLAG_ALLOW_REVERT
+        );
+        bytes[] memory leafInputs = new bytes[](2);
+        leafInputs[0] = abi.encode(swapSubplan, swapInputs);
+        leafInputs[1] = abi.encode(transferSubplan, transferInputs);
+
+        // Encode ICA calls
+        CallLib.Call[] memory calls = new CallLib.Call[](2);
+        calls[0] = CallLib.build({
+            to: OPEN_USDT_ADDRESS,
+            value: 0,
+            data: abi.encodeCall(ERC20.approve, (address(leafRouter), amountInMax))
+        });
+        calls[1] = CallLib.build({
+            to: address(leafRouter),
+            value: 0,
+            data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
+        });
+        // Calculate commitment hash
+        bytes32 commitment = hashCommitment(calls);
+
+        // Predict User's ICA address
+        address userICA = rootIcaRouter.getRemoteInterchainAccount({
+            _destination: leafDomain,
+            _owner: address(router),
+            _userSalt: TypeCasts.addressToBytes32(users.alice)
+        });
+
+        // Encode origin chain commands
+        bytes memory commands =
+            abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)), bytes1(uint8(Commands.EXECUTE_CROSS_CHAIN)));
+        bytes[] memory inputs = new bytes[](2);
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            userICA,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            amountInMax,
+            bridgeMsgFee,
+            leafDomain,
+            true
+        );
+        inputs[1] = abi.encode(
+            leafDomain, // destination domain
+            address(rootIcaRouter), // origin ica router
+            rootIcaRouter.routers(leafDomain), // destination ica router
+            rootIcaRouter.isms(leafDomain), // destination ism
+            commitment, // commitment of the calls to be made
+            MESSAGE_FEE, // fee to dispatch x-chain message
+            rootIcaRouter.hook(), // post dispatch hook
+            new bytes(0) // hook metadata
+        );
+
+        // Broadcast x-chain messages
+        deal(OPEN_USDT_ADDRESS, users.alice, USDC_1);
+        ERC20(OPEN_USDT_ADDRESS).approve(address(router), amountInMax);
+        vm.expectCall({
+            callee: address(rootIcaRouter),
+            data: abi.encodeCall(
+                IInterchainAccountRouter.callRemoteWithOverrides,
+                (
+                    leafDomain,
+                    rootIcaRouter.routers(leafDomain),
+                    rootIcaRouter.isms(leafDomain),
+                    commitment,
+                    new bytes(0),
+                    TypeCasts.addressToBytes32(users.alice),
+                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                )
+            )
+        });
+        router.execute{value: bridgeMsgFee + MESSAGE_FEE}(commands, inputs);
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+
+        // Process Token Bridging message & check tokens arrived
+        vm.selectFork(leafId);
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS),
+            recipient: address(leafOpenUsdtTokenBridge)
+        });
+        leafMailbox.processNextInboundMessage();
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), amountInMax);
+
+        // Process Commitment message & check commitment was stored
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(address(rootIcaRouter)),
+            recipient: address(leafIcaRouter)
+        });
+        leafMailbox.processNextInboundMessage();
+        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+
+        assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
+
+        // Self Relay the message & check swap was successful
+        vm.expectEmit(address(leafRouter));
+        emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
+        vm.startPrank({msgSender: users.alice});
+        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 99599); //leftover from swap is sent to user
+        assertEq(ERC20(baseUSDC).balanceOf(users.alice), amountOut);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
+    }
+
+    function test_executeCrosschainFlowV2SwapExactIn() public {
+        uint256 amountIn = USDC_1;
+        uint256 amountOutMin = 9e5;
+
+        // Encode destination swap
+        bytes memory swapSubplan = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_IN)));
+        bytes memory path = abi.encodePacked(OPEN_USDT_ADDRESS, false, baseUSDC);
+        bytes[] memory swapInputs = new bytes[](1);
+        swapInputs[0] = abi.encode(users.alice, amountIn, amountOutMin, path, true, false);
+
+        // Encode fallback transfer
+        bytes memory transferSubplan = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)));
+        bytes[] memory transferInputs = new bytes[](1);
+        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, ActionConstants.CONTRACT_BALANCE);
+
+        // Encode Sub Plan
+        bytes memory leafCommands = abi.encodePacked(
+            bytes1(uint8(Commands.EXECUTE_SUB_PLAN)) | Commands.FLAG_ALLOW_REVERT,
+            bytes1(uint8(Commands.EXECUTE_SUB_PLAN)) | Commands.FLAG_ALLOW_REVERT
+        );
+        bytes[] memory leafInputs = new bytes[](2);
+        leafInputs[0] = abi.encode(swapSubplan, swapInputs);
+        leafInputs[1] = abi.encode(transferSubplan, transferInputs);
+
+        // Encode ICA calls
+        CallLib.Call[] memory calls = new CallLib.Call[](2);
+        calls[0] = CallLib.build({
+            to: OPEN_USDT_ADDRESS,
+            value: 0,
+            data: abi.encodeCall(ERC20.approve, (address(leafRouter), amountIn))
+        });
+        calls[1] = CallLib.build({
+            to: address(leafRouter),
+            value: 0,
+            data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
+        });
+        // Calculate commitment hash
+        bytes32 commitment = hashCommitment(calls);
+
+        // Predict User's ICA address
+        address userICA = rootIcaRouter.getRemoteInterchainAccount({
+            _destination: leafDomain,
+            _owner: address(router),
+            _userSalt: TypeCasts.addressToBytes32(users.alice)
+        });
+
+        // Encode origin chain commands
+        bytes memory commands =
+            abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)), bytes1(uint8(Commands.EXECUTE_CROSS_CHAIN)));
+        bytes[] memory inputs = new bytes[](2);
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            userICA,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            amountIn,
+            bridgeMsgFee,
+            leafDomain,
+            true
+        );
+        inputs[1] = abi.encode(
+            leafDomain, // destination domain
+            address(rootIcaRouter), // origin ica router
+            rootIcaRouter.routers(leafDomain), // destination ica router
+            rootIcaRouter.isms(leafDomain), // destination ism
+            commitment, // commitment of the calls to be made
+            MESSAGE_FEE, // fee to dispatch x-chain message
+            rootIcaRouter.hook(), // post dispatch hook
+            new bytes(0) // hook metadata
+        );
+
+        // Broadcast x-chain messages
+        deal(OPEN_USDT_ADDRESS, users.alice, USDC_1);
+        ERC20(OPEN_USDT_ADDRESS).approve(address(router), amountIn);
+        vm.expectCall({
+            callee: address(rootIcaRouter),
+            data: abi.encodeCall(
+                IInterchainAccountRouter.callRemoteWithOverrides,
+                (
+                    leafDomain,
+                    rootIcaRouter.routers(leafDomain),
+                    rootIcaRouter.isms(leafDomain),
+                    commitment,
+                    new bytes(0),
+                    TypeCasts.addressToBytes32(users.alice),
+                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                )
+            )
+        });
+        router.execute{value: bridgeMsgFee + MESSAGE_FEE}(commands, inputs);
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+
+        // Process Token Bridging message & check tokens arrived
+        vm.selectFork(leafId);
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS),
+            recipient: address(leafOpenUsdtTokenBridge)
+        });
+        leafMailbox.processNextInboundMessage();
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), amountIn);
+
+        // Process Commitment message & check commitment was stored
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(address(rootIcaRouter)),
+            recipient: address(leafIcaRouter)
+        });
+        leafMailbox.processNextInboundMessage();
+        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+
+        assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
+
+        // Self Relay the message & check swap was successful
+        vm.expectEmit(address(leafRouter));
+        emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
+        vm.startPrank({msgSender: users.alice});
+        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0); //no leftover from swap in exactIn
+        assertGt(ERC20(baseUSDC).balanceOf(users.alice), amountOutMin);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
+    }
+
+    function test_executeCrosschainFlowV2SwapExactOut() public {
+        uint256 amountOut = 9e5;
+        uint256 amountInMax = USDC_1;
+
+        // Encode destination swap
+        bytes memory swapSubplan = abi.encodePacked(bytes1(uint8(Commands.V2_SWAP_EXACT_OUT)));
+        bytes memory path = abi.encodePacked(OPEN_USDT_ADDRESS, false, baseUSDC);
+        bytes[] memory swapInputs = new bytes[](1);
+        swapInputs[0] = abi.encode(users.alice, amountOut, amountInMax, path, true, false);
+
+        // Encode fallback transfer
+        bytes memory transferSubplan = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)));
+        bytes[] memory transferInputs = new bytes[](1);
+        transferInputs[0] = abi.encode(OPEN_USDT_ADDRESS, users.alice, ActionConstants.CONTRACT_BALANCE);
+
+        // Encode Sub Plan
+        bytes memory leafCommands = abi.encodePacked(
+            bytes1(uint8(Commands.EXECUTE_SUB_PLAN)) | Commands.FLAG_ALLOW_REVERT,
+            bytes1(uint8(Commands.EXECUTE_SUB_PLAN)) | Commands.FLAG_ALLOW_REVERT
+        );
+        bytes[] memory leafInputs = new bytes[](2);
+        leafInputs[0] = abi.encode(swapSubplan, swapInputs);
+        leafInputs[1] = abi.encode(transferSubplan, transferInputs);
+
+        // Encode ICA calls
+        CallLib.Call[] memory calls = new CallLib.Call[](2);
+        calls[0] = CallLib.build({
+            to: OPEN_USDT_ADDRESS,
+            value: 0,
+            data: abi.encodeCall(ERC20.approve, (address(leafRouter), amountInMax))
+        });
+        calls[1] = CallLib.build({
+            to: address(leafRouter),
+            value: 0,
+            data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
+        });
+        // Calculate commitment hash
+        bytes32 commitment = hashCommitment(calls);
+
+        // Predict User's ICA address
+        address userICA = rootIcaRouter.getRemoteInterchainAccount({
+            _destination: leafDomain,
+            _owner: address(router),
+            _userSalt: TypeCasts.addressToBytes32(users.alice)
+        });
+
+        // Encode origin chain commands
+        bytes memory commands =
+            abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)), bytes1(uint8(Commands.EXECUTE_CROSS_CHAIN)));
+        bytes[] memory inputs = new bytes[](2);
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            userICA,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            amountInMax,
+            bridgeMsgFee,
+            leafDomain,
+            true
+        );
+        inputs[1] = abi.encode(
+            leafDomain, // destination domain
+            address(rootIcaRouter), // origin ica router
+            rootIcaRouter.routers(leafDomain), // destination ica router
+            rootIcaRouter.isms(leafDomain), // destination ism
+            commitment, // commitment of the calls to be made
+            MESSAGE_FEE, // fee to dispatch x-chain message
+            rootIcaRouter.hook(), // post dispatch hook
+            new bytes(0) // hook metadata
+        );
+
+        // Broadcast x-chain messages
+        deal(OPEN_USDT_ADDRESS, users.alice, USDC_1);
+        ERC20(OPEN_USDT_ADDRESS).approve(address(router), amountInMax);
+        vm.expectCall({
+            callee: address(rootIcaRouter),
+            data: abi.encodeCall(
+                IInterchainAccountRouter.callRemoteWithOverrides,
+                (
+                    leafDomain,
+                    rootIcaRouter.routers(leafDomain),
+                    rootIcaRouter.isms(leafDomain),
+                    commitment,
+                    new bytes(0),
+                    TypeCasts.addressToBytes32(users.alice),
+                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                )
+            )
+        });
+        router.execute{value: bridgeMsgFee + MESSAGE_FEE}(commands, inputs);
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+
+        // Process Token Bridging message & check tokens arrived
+        vm.selectFork(leafId);
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS),
+            recipient: address(leafOpenUsdtTokenBridge)
+        });
+        leafMailbox.processNextInboundMessage();
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), amountInMax);
+
+        // Process Commitment message & check commitment was stored
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(address(rootIcaRouter)),
+            recipient: address(leafIcaRouter)
+        });
+        leafMailbox.processNextInboundMessage();
+        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+
+        assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
+
+        // Self Relay the message & check swap was successful
+        vm.expectEmit(address(leafRouter));
+        emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
+        vm.startPrank({msgSender: users.alice});
+        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 89093); //leftover from swap is sent to user
+        assertGe(ERC20(baseUSDC).balanceOf(users.alice), amountOut);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
     }
 
     function test_executeCrosschainFallback() public {
@@ -234,10 +651,22 @@ contract ExecuteCrossChainTest is BaseForkFixture {
 
         // Process Token Bridging message & check tokens arrived
         vm.selectFork(leafId);
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS),
+            recipient: address(leafOpenUsdtTokenBridge)
+        });
         leafMailbox.processNextInboundMessage();
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), amountIn);
 
         // Process Commitment message & check commitment was stored
+        vm.expectEmit(address(leafMailbox));
+        emit IMailbox.Process({
+            origin: rootDomain,
+            sender: TypeCasts.addressToBytes32(address(rootIcaRouter)),
+            recipient: address(leafIcaRouter)
+        });
         leafMailbox.processNextInboundMessage();
         assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
 
@@ -251,6 +680,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), amountIn);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
     }
 
     function test_executeCrosschainICARefund() public {
@@ -502,5 +932,20 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             rootIcaRouter.hook(), // post dispatch hook
             new bytes(0) // hook metadata
         );
+    }
+
+    function createAndSeedPair(address tokenA, address tokenB, bool _stable) internal returns (address newPair) {
+        address factory = 0x420DD381b31aEf6683db6B902084cB0FFECe40Da;
+        newPair = IPoolFactory(factory).getPool(tokenA, tokenB, _stable);
+        if (newPair == address(0)) {
+            newPair = IPoolFactory(factory).createPool(tokenA, tokenB, _stable);
+        }
+
+        deal(tokenA, address(this), 100 * 10 ** ERC20(tokenA).decimals());
+        deal(tokenB, address(this), 100 * 10 ** ERC20(tokenB).decimals());
+
+        ERC20(tokenA).transfer(address(newPair), 100 * 10 ** ERC20(tokenA).decimals());
+        ERC20(tokenB).transfer(address(newPair), 100 * 10 ** ERC20(tokenB).decimals());
+        IPool(newPair).mint(address(this));
     }
 }
