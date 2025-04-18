@@ -3,7 +3,7 @@
 exports[`Payments Gas Tests Individual Command Tests gas: SWEEP with ERC20 1`] = `
 Object {
   "calldataByteLength": 356,
-  "gasUsed": 36641,
+  "gasUsed": 36600,
 }
 `;
 

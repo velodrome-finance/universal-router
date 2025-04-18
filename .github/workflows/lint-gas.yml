@@ -1,0 +1,90 @@
+name: Lint + Gas
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+permissions:
+  contents: write
+
+env:
+  FOUNDRY_PROFILE: ci
+
+jobs:
+  ci:
+    name: Lint and Gas Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          submodules: recursive
+
+      - name: Set up node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            yarn-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+
+      - name: Run Forge build
+        run: |
+          forge --version
+          forge build
+        id: build
+
+      - name: Run linter and fix
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop'
+        run: |
+          yarn run lint
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "style: fix lint" || true
+
+      - name: Run linter check only
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: yarn run lint:check
+
+      - name: Run gas tests and update
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/develop'
+        run: |
+          FOUNDRY_NO_MATCH_TEST=DISABLE forge test --isolate --mt testGas -vvv
+          git add .
+          git commit -m "test: update gas snapshots" || true
+          git push
+        env:
+          OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          MODE_RPC_URL: ${{ secrets.MODE_RPC_URL }}
+          
+      - name: Run gas tests check only
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: FORGE_SNAPSHOT_CHECK=true FOUNDRY_NO_MATCH_TEST=DISABLE forge test --isolate --mt testGas -vvv
+        env:
+          OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          MODE_RPC_URL: ${{ secrets.MODE_RPC_URL }} 
