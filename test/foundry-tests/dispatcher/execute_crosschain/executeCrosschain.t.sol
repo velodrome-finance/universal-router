@@ -565,7 +565,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
-        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 89093); //leftover from swap is sent to user
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 89094); //leftover from swap is sent to user
         assertGe(ERC20(baseUSDC).balanceOf(users.alice), amountOut);
         assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
     }
