@@ -94,9 +94,8 @@ library UniswapV2Library {
     {
         if (reserveIn == 0 || reserveOut == 0) revert InvalidReserves();
         if (!stable) {
-            uint256 numerator = reserveIn * amountOut * 10_000;
-            uint256 denominator = (reserveOut - amountOut) * (10_000 - fee);
-            amountIn = numerator / denominator + 1;
+            amountIn = (amountOut * reserveIn) / (reserveOut - amountOut);
+            amountIn = amountIn * 10_000 / (10_000 - fee) + 1;
         } else {
             revert StableExactOutputUnsupported();
         }
