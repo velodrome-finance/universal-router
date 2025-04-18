@@ -1,9 +1,9 @@
 import type { Contract } from '@ethersproject/contracts'
 import { BigNumber } from 'ethers'
-import { expect } from './shared/expect'
-import { IPermit2, PoolManager, PositionManager, UniversalRouter } from '../../typechain'
-import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
-import { resetFork, WETH, DAI, USDC, PERMIT2 } from './shared/mainnetForkHelpers'
+import { expect } from '../shared/expect'
+import { IPermit2, PoolManager, PositionManager, UniversalRouter } from '../../../typechain'
+import { abi as TOKEN_ABI } from '../../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
+import { resetFork, WETH, DAI, USDC, PERMIT2 } from '../shared/mainnetForkHelpers'
 import {
   ALICE_ADDRESS,
   DEADLINE,
@@ -18,11 +18,11 @@ import {
   USDC_HOLDER,
   PERMIT2_ADDRESS,
   V4_POSITION_DESCRIPTOR_ADDRESS,
-} from './shared/constants'
-import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
+} from '../shared/constants'
+import { expandTo18DecimalsBN, expandTo6DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import deployUniversalRouter from './shared/deployUniversalRouter'
-import { CommandType, RoutePlanner } from './shared/planner'
+import deployUniversalRouter from '../shared/deployUniversalRouter'
+import { CommandType, RoutePlanner } from '../shared/planner'
 import hre from 'hardhat'
 import {
   addLiquidityToV4Pool,
@@ -34,9 +34,9 @@ import {
   ETH_USDC,
   initializeV4Pool,
   USDC_WETH,
-} from './shared/v4Helpers'
-import { Actions, V4Planner } from './shared/v4Planner'
-import { executeRouter } from './shared/executeRouter'
+} from '../shared/v4Helpers'
+import { Actions, V4Planner } from '../shared/v4Planner'
+import { executeRouter } from '../shared/executeRouter'
 const { ethers } = hre
 
 describe('Uniswap V4 Tests:', () => {

@@ -1,9 +1,9 @@
 import type { Contract } from '@ethersproject/contracts'
-import { expect } from './shared/expect'
+import { expect } from '../shared/expect'
 import { BigNumber, BigNumberish } from 'ethers'
-import { IPermit2, UniversalRouter } from '../../typechain'
-import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
-import { resetFork, WETH, DAI, USDC, PERMIT2 } from './shared/mainnetForkHelpers'
+import { IPermit2, UniversalRouter } from '../../../typechain'
+import { abi as TOKEN_ABI } from '../../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
+import { resetFork, WETH, DAI, USDC, PERMIT2 } from '../shared/mainnetForkHelpers'
 import {
   ADDRESS_THIS,
   ALICE_ADDRESS,
@@ -16,15 +16,15 @@ import {
   UNISWAP_FLAG,
   DAI_HOLDER,
   WETH_HOLDER,
-} from './shared/constants'
-import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
+} from '../shared/constants'
+import { expandTo18DecimalsBN, expandTo6DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import deployUniversalRouter from './shared/deployUniversalRouter'
-import { RoutePlanner, CommandType } from './shared/planner'
+import deployUniversalRouter from '../shared/deployUniversalRouter'
+import { RoutePlanner, CommandType } from '../shared/planner'
 import hre from 'hardhat'
-import { encodePathExactInput, encodePathExactOutput } from './shared/swapRouter02Helpers'
-import { executeRouter } from './shared/executeRouter'
-import { getPermitSignature, PermitSingle } from './shared/protocolHelpers/permit2'
+import { encodePathExactInput, encodePathExactOutput } from '../shared/swapRouter02Helpers'
+import { executeRouter } from '../shared/executeRouter'
+import { getPermitSignature, PermitSingle } from '../shared/protocolHelpers/permit2'
 import { ADDRESS_ZERO } from '@uniswap/v3-sdk'
 const { ethers } = hre
 

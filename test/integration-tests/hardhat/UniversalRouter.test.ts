@@ -1,11 +1,11 @@
-import { UniversalRouter, ERC20, IWETH9, IPermit2 } from '../../typechain'
+import { UniversalRouter, ERC20, IWETH9, IPermit2 } from '../../../typechain'
 import { Pair } from '@uniswap/v2-sdk'
-import { expect } from './shared/expect'
-import { abi as ROUTER_ABI } from '../../artifacts/contracts/UniversalRouter.sol/UniversalRouter.json'
-import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
-import { abi as WETH_ABI } from '../../artifacts/@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol/IWETH9.json'
+import { expect } from '../shared/expect'
+import { abi as ROUTER_ABI } from '../../../artifacts/contracts/UniversalRouter.sol/UniversalRouter.json'
+import { abi as TOKEN_ABI } from '../../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
+import { abi as WETH_ABI } from '../../../artifacts/@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol/IWETH9.json'
 
-import deployUniversalRouter from './shared/deployUniversalRouter'
+import deployUniversalRouter from '../shared/deployUniversalRouter'
 import {
   ADDRESS_THIS,
   ALICE_ADDRESS,
@@ -16,13 +16,13 @@ import {
   ETH_ADDRESS,
   DAI_HOLDER,
   UNISWAP_FLAG,
-} from './shared/constants'
-import { encodePathV2 } from './shared/swapRouter02Helpers'
-import { resetFork, WETH, DAI, PERMIT2 } from './shared/mainnetForkHelpers'
-import { CommandType, RoutePlanner } from './shared/planner'
-import { makePair } from './shared/swapRouter02Helpers'
+} from '../shared/constants'
+import { encodePathV2 } from '../shared/swapRouter02Helpers'
+import { resetFork, WETH, DAI, PERMIT2 } from '../shared/mainnetForkHelpers'
+import { CommandType, RoutePlanner } from '../shared/planner'
+import { makePair } from '../shared/swapRouter02Helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { expandTo18DecimalsBN } from './shared/helpers'
+import { expandTo18DecimalsBN } from '../shared/helpers'
 import hre from 'hardhat'
 
 const { ethers } = hre

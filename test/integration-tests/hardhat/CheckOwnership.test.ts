@@ -1,14 +1,14 @@
-import { CommandType, RoutePlanner } from './shared/planner'
-import { expect } from './shared/expect'
-import { UniversalRouter } from '../../typechain'
-import { resetFork, USDC } from './shared/mainnetForkHelpers'
-import { ALICE_ADDRESS, DEADLINE } from './shared/constants'
+import { CommandType, RoutePlanner } from '../shared/planner'
+import { expect } from '../shared/expect'
+import { UniversalRouter } from '../../../typechain'
+import { resetFork, USDC } from '../shared/mainnetForkHelpers'
+import { ALICE_ADDRESS, DEADLINE } from '../shared/constants'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import hre from 'hardhat'
-import deployUniversalRouter from './shared/deployUniversalRouter'
-import { findCustomErrorSelector } from './shared/parseEvents'
+import deployUniversalRouter from '../shared/deployUniversalRouter'
+import { findCustomErrorSelector } from '../shared/parseEvents'
 import { BigNumber, Contract } from 'ethers'
-import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
+import { abi as TOKEN_ABI } from '../../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
 const { ethers } = hre
 
 describe('Check Ownership', () => {

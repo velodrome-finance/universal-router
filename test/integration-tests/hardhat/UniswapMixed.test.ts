@@ -1,10 +1,10 @@
 import type { Contract } from '@ethersproject/contracts'
 import { Pair } from '@uniswap/v2-sdk'
-import { expect } from './shared/expect'
+import { expect } from '../shared/expect'
 import { BigNumber } from 'ethers'
-import { IPermit2, PoolManager, PositionManager, UniversalRouter } from '../../typechain'
-import { abi as TOKEN_ABI } from '../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
-import { resetFork, WETH, DAI, USDC, USDT, PERMIT2 } from './shared/mainnetForkHelpers'
+import { IPermit2, PoolManager, PositionManager, UniversalRouter } from '../../../typechain'
+import { abi as TOKEN_ABI } from '../../../artifacts/solmate/src/tokens/ERC20.sol/ERC20.json'
+import { resetFork, WETH, DAI, USDC, USDT, PERMIT2 } from '../shared/mainnetForkHelpers'
 import {
   ADDRESS_THIS,
   ALICE_ADDRESS,
@@ -23,16 +23,16 @@ import {
   USDC_HOLDER,
   PERMIT2_ADDRESS,
   V4_POSITION_DESCRIPTOR_ADDRESS,
-} from './shared/constants'
-import { expandTo18DecimalsBN, expandTo6DecimalsBN } from './shared/helpers'
+} from '../shared/constants'
+import { expandTo18DecimalsBN, expandTo6DecimalsBN } from '../shared/helpers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import deployUniversalRouter from './shared/deployUniversalRouter'
-import { RoutePlanner, CommandType } from './shared/planner'
+import deployUniversalRouter from '../shared/deployUniversalRouter'
+import { RoutePlanner, CommandType } from '../shared/planner'
 import hre from 'hardhat'
-import { getPermitBatchSignature } from './shared/protocolHelpers/permit2'
-import { encodePathV2, encodePathExactInput, encodePathExactOutput } from './shared/swapRouter02Helpers'
-import { executeRouter } from './shared/executeRouter'
-import { Actions, V4Planner } from './shared/v4Planner'
+import { getPermitBatchSignature } from '../shared/protocolHelpers/permit2'
+import { encodePathV2, encodePathExactInput, encodePathExactOutput } from '../shared/swapRouter02Helpers'
+import { executeRouter } from '../shared/executeRouter'
+import { Actions, V4Planner } from '../shared/v4Planner'
 import {
   addLiquidityToV4Pool,
   DAI_USDC,
@@ -42,7 +42,7 @@ import {
   ETH_USDC,
   initializeV4Pool,
   USDC_WETH,
-} from './shared/v4Helpers'
+} from '../shared/v4Helpers'
 const { ethers } = hre
 
 describe('Uniswap V2, V3, and V4 Tests:', () => {

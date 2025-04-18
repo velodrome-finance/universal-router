@@ -6,7 +6,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const DEFAULT_COMPILER_SETTINGS = {
-  version: '0.8.26',
+  version: '0.8.29',
   settings: {
     viaIR: true,
     evmVersion: 'cancun',
