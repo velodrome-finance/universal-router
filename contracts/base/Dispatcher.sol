@@ -16,7 +16,6 @@ import {V3SwapRouter} from '../modules/uniswap/v3/V3SwapRouter.sol';
 import {V4SwapRouter} from '../modules/uniswap/v4/V4SwapRouter.sol';
 import {BytesLib} from '../modules/uniswap/v3/BytesLib.sol';
 import {Payments} from '../modules/Payments.sol';
-import {PaymentsImmutables} from '../modules/PaymentsImmutables.sol';
 import {BridgeRouter} from '../modules/bridge/BridgeRouter.sol';
 import {Commands} from '../libraries/Commands.sol';
 import {Lock} from './Lock.sol';

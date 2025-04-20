@@ -17,7 +17,7 @@ remappings = [
   "@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
 ]
 
-optimizer_runs = 10_000
+optimizer_runs = 44444444
 fs_permissions = [
   { access = "read", path = "./script/deployParameters/" },
   { access = "read-write", path = "./deployment-addresses/" },

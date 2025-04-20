@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
 import {SafeCast160} from 'permit2/src/libraries/SafeCast160.sol';
-import {SafeTransferLib} from 'solmate/src/utils/SafeTransferLib.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 import {Payments} from './Payments.sol';
 
@@ -11,10 +10,8 @@ import {Payments} from './Payments.sol';
 /// @notice Performs interactions with Permit2 to transfer tokens
 abstract contract Permit2Payments is Payments {
     using SafeCast160 for uint256;
-    using SafeTransferLib for ERC20;
 
     error FromAddressIsNotOwner();
-    error NotUniversalRouter();
 
     /// @notice Performs a transferFrom on Permit2
     /// @param token The token to transfer

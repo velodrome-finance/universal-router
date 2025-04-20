@@ -27,7 +27,7 @@ library V2Path {
 
     /// @dev Get the number of tokens in the path
     function v2Length(bytes calldata path) internal pure returns (uint256) {
-        return path.length / (Constants.ADDR_SIZE);
+        return path.length / Constants.ADDR_SIZE;
     }
 
     /// @dev Get the token0, token1 pair at the given index
@@ -83,14 +83,14 @@ library V2Path {
     }
 
     /// @dev Get the number of routes in the path
-    /// Path is an odd number of elements. Removing the initial address makes the path divisible by (stable, address)j
+    /// Path is an odd number of elements. Removing the initial address makes the path divisible by (stable, address)
     function veloLength(bytes calldata path) internal pure returns (uint256) {
         return (path.length - Constants.ADDR_SIZE) / (Constants.VELO_PARTIAL_ROUTE_SIZE);
     }
 
     /// @dev Get the route at the given index
     function veloRouteAt(bytes calldata path, uint256 index) internal pure returns (bytes calldata) {
-        uint256 start = index * (Constants.VELO_PARTIAL_ROUTE_SIZE);
+        uint256 start = index * Constants.VELO_PARTIAL_ROUTE_SIZE;
         uint256 end = start + Constants.VELO_ROUTE_SIZE;
         return path[start:end];
     }
