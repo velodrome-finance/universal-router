@@ -16,7 +16,10 @@ contract BridgeTokenTest is BaseOverrideBridge {
     bytes public commands = abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)));
     bytes[] public inputs;
 
-    uint256 feeAmount = 0.1 ether;
+    /// @dev Fixed fee used for x-chain message quotes
+    uint256 public constant MESSAGE_FEE = 1 ether / 10_000; // 0.0001 ETH
+    uint256 leftoverETH = MESSAGE_FEE / 2;
+    uint256 feeAmount = MESSAGE_FEE;
 
     function setUp() public override {
         super.setUp();
@@ -163,13 +166,12 @@ contract BridgeTokenTest is BaseOverrideBridge {
             OPEN_USDT_ADDRESS,
             OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
             openUsdtBridgeAmount,
-            feeAmount,
+            feeAmount + leftoverETH,
             leafDomain,
             true
         );
 
-        // polled the value from TokenBridge Mailbox -> 105179722836615
-        TestPostDispatchHook(address(rootMailbox.defaultHook())).setFee(105179722836615);
+        TestPostDispatchHook(address(rootMailbox.requiredHook())).setFee(MESSAGE_FEE);
         _;
     }
 
@@ -286,14 +288,14 @@ contract BridgeTokenTest is BaseOverrideBridge {
         emit Dispatcher.UniversalRouterBridge(
             users.alice, users.alice, OPEN_USDT_ADDRESS, openUsdtBridgeAmount, leafDomain
         );
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
 
         uint256 balanceAfter = address(users.alice).balance;
 
         _assertOUsdt();
 
         // Assert excess fee was refunded
-        assertGt(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
     }
 
     modifier whenUsingDirectApproval() {
@@ -394,14 +396,14 @@ contract BridgeTokenTest is BaseOverrideBridge {
         emit Dispatcher.UniversalRouterBridge(
             users.alice, users.alice, OPEN_USDT_ADDRESS, openUsdtBridgeAmount, leafDomain
         );
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
 
         uint256 balanceAfter = address(users.alice).balance;
 
         _assertOUsdt();
 
         // Assert excess fee was refunded
-        assertGt(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
     }
 
     modifier whenBridgeTypeIsXVELO() {
@@ -415,13 +417,26 @@ contract BridgeTokenTest is BaseOverrideBridge {
             VELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
-            feeAmount,
+            feeAmount + leftoverETH,
             leafDomain_2,
             true
         );
 
-        // polled the value from TokenBridge Mailbox -> 162482049456615
-        TestPostDispatchHook(address(rootMailbox.defaultHook())).setFee(162482049456615);
+        (, uint96 gasOverhead) = InterchainGasPaymaster(ROOT_IGP).destinationGasConfigs(leaf_2);
+        uint256 gasLimit = rootXVeloTokenBridge.GAS_LIMIT() + gasOverhead;
+        uint256 exchangeRate = 15000000000;
+        uint256 tokenExchangeRate = 1e10;
+
+        /// @dev Calculate gas price so that quote is `MESSAGE_FEE`
+        uint256 requiredPrice = (MESSAGE_FEE * tokenExchangeRate) / (gasLimit * exchangeRate);
+
+        // Mock the gas oracle response for domain 1000034443
+        bytes memory mockResponse = abi.encode(uint128(exchangeRate), uint128(requiredPrice));
+        vm.mockCall(
+            ROOT_STORAGE_GAS_ORACLE,
+            abi.encodeWithSignature('getExchangeRateAndGasPrice(uint32)', leafDomain_2),
+            mockResponse
+        );
         _;
     }
 
@@ -571,14 +586,15 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, VELO_ADDRESS, xVeloBridgeAmount, leafDomain_2);
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
 
         uint256 balanceAfter = address(users.alice).balance;
 
         _assertXVelo();
 
         // Assert excess fee was refunded
-        assertGt(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
     }
 
     modifier whenUsingDirectApproval_() {
@@ -692,14 +708,15 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, VELO_ADDRESS, xVeloBridgeAmount, leafDomain_2);
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
 
         uint256 balanceAfter = address(users.alice).balance;
 
         _assertXVelo();
 
         // Assert excess fee was refunded
-        assertGt(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
     }
 
     modifier whenDestinationChainIsOPTIMISM() {
@@ -711,12 +728,26 @@ contract BridgeTokenTest is BaseOverrideBridge {
             XVELO_ADDRESS,
             address(rootXVeloTokenBridge),
             xVeloBridgeAmount,
-            feeAmount,
+            feeAmount + leftoverETH,
             rootDomain,
             true
         );
 
-        TestPostDispatchHook(address(leafMailbox_2.defaultHook())).setFee(111111111111111);
+        (, uint96 gasOverhead) = InterchainGasPaymaster(LEAF_IGP).destinationGasConfigs(rootDomain);
+        uint256 gasLimit = leafXVeloTokenBridge.GAS_LIMIT() + gasOverhead;
+        uint256 exchangeRate = 15000000000;
+        uint256 tokenExchangeRate = 1e10;
+
+        /// @dev Calculate gas price so that quote is `MESSAGE_FEE`
+        uint256 requiredPrice = (MESSAGE_FEE * tokenExchangeRate) / (gasLimit * exchangeRate);
+
+        // Mock the gas oracle response for domain 10
+        bytes memory mockResponse = abi.encode(uint128(exchangeRate), uint128(requiredPrice));
+        vm.mockCall(
+            LEAF_STORAGE_GAS_ORACLE,
+            abi.encodeWithSignature('getExchangeRateAndGasPrice(uint32)', rootDomain),
+            mockResponse
+        );
         _;
     }
 
@@ -796,14 +827,15 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         vm.expectEmit(address(router));
         emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, XVELO_ADDRESS, xVeloBridgeAmount, rootDomain);
-        leafRouter_2.execute{value: feeAmount}(commands, inputs);
+        leafRouter_2.execute{value: feeAmount + leftoverETH}(commands, inputs);
 
         uint256 balanceAfter = address(users.alice).balance;
 
         _assertXVelo();
 
         // Assert excess fee was refunded
-        assertGt(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
     }
 
     modifier whenUsingDirectApproval__() {
@@ -848,14 +880,125 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         vm.expectEmit(address(leafRouter_2));
         emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, XVELO_ADDRESS, xVeloBridgeAmount, rootDomain);
-        leafRouter_2.execute{value: feeAmount}(commands, inputs);
+        leafRouter_2.execute{value: feeAmount + leftoverETH}(commands, inputs);
 
         uint256 balanceAfter = address(users.alice).balance;
 
         _assertXVelo();
 
         // Assert excess fee was refunded
-        assertGt(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
+    }
+
+    function test_HypXERC20ChainedBridgeTokenFlow() external whenBridgeTypeIsHYP_XERC20 whenUsingDirectApproval {
+        // Encode chained bridge command after transferFrom, so that payer is Router
+        commands = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)), bytes1(uint8(Commands.BRIDGE_TOKEN)));
+        inputs = new bytes[](2);
+        inputs[0] = abi.encode(OPEN_USDT_ADDRESS, address(router), openUsdtBridgeAmount);
+        inputs[1] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            ActionConstants.MSG_SENDER,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            openUsdtBridgeAmount,
+            feeAmount + leftoverETH,
+            leafDomain,
+            false // payer is router
+        );
+
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(OPEN_USDT_ADDRESS);
+        emit ERC20.Transfer(users.alice, address(router), openUsdtBridgeAmount);
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(
+            users.alice, users.alice, OPEN_USDT_ADDRESS, openUsdtBridgeAmount, leafDomain
+        );
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertOUsdt();
+
+        // Assert excess fee was refunded
+        assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+    }
+
+    function test_VeloChainedBridgeTokenFlow()
+        external
+        whenBridgeTypeIsXVELO
+        whenDestinationChainIsMODE
+        whenUsingDirectApproval_
+    {
+        // Encode chained bridge command after transferFrom, so that payer is Router
+        commands = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)), bytes1(uint8(Commands.BRIDGE_TOKEN)));
+        inputs = new bytes[](2);
+        inputs[0] = abi.encode(VELO_ADDRESS, address(router), xVeloBridgeAmount);
+        inputs[1] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            VELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            xVeloBridgeAmount,
+            feeAmount + leftoverETH,
+            leafDomain_2,
+            false // payer is router
+        );
+
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(VELO_ADDRESS);
+        emit ERC20.Transfer(users.alice, address(router), xVeloBridgeAmount);
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, VELO_ADDRESS, xVeloBridgeAmount, leafDomain_2);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertXVelo();
+
+        // Assert excess fee was refunded
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
+    }
+
+    function test_xVeloChainedBridgeTokenFlow()
+        external
+        whenBridgeTypeIsXVELO
+        whenDestinationChainIsOPTIMISM
+        whenUsingDirectApproval__
+    {
+        // Encode chained bridge command after transferFrom, so that payer is Router
+        commands = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)), bytes1(uint8(Commands.BRIDGE_TOKEN)));
+        inputs = new bytes[](2);
+        inputs[0] = abi.encode(XVELO_ADDRESS, address(leafRouter_2), xVeloBridgeAmount);
+        inputs[1] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            XVELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            xVeloBridgeAmount,
+            feeAmount + leftoverETH,
+            rootDomain,
+            false // payer is router
+        );
+
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(XVELO_ADDRESS);
+        emit ERC20.Transfer(users.alice, address(leafRouter_2), xVeloBridgeAmount);
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, XVELO_ADDRESS, xVeloBridgeAmount, rootDomain);
+        leafRouter_2.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertXVelo();
+
+        // Assert excess fee was refunded
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
     }
 
     function _assertOUsdt() private {
@@ -906,14 +1049,14 @@ contract BridgeTokenTest is BaseOverrideBridge {
         ERC20(OPEN_USDT_ADDRESS).approve(address(PERMIT2), type(uint256).max);
         PERMIT2.approve(OPEN_USDT_ADDRESS, address(router), type(uint160).max, type(uint48).max);
 
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_HypXERC20_Permit2');
     }
 
     function testGas_HypXERC20BridgeDirectApproval() public whenBridgeTypeIsHYP_XERC20 {
         ERC20(OPEN_USDT_ADDRESS).approve(address(router), type(uint256).max);
 
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_HypXERC20_DirectApproval');
     }
 
@@ -921,14 +1064,14 @@ contract BridgeTokenTest is BaseOverrideBridge {
         ERC20(VELO_ADDRESS).approve(address(PERMIT2), type(uint256).max);
         PERMIT2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
 
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_XVelo_Permit2');
     }
 
     function testGas_XVeloBridgeDirectApproval() public whenBridgeTypeIsXVELO whenDestinationChainIsMODE {
         ERC20(VELO_ADDRESS).approve(address(router), type(uint256).max);
 
-        router.execute{value: feeAmount}(commands, inputs);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_XVelo_DirectApproval');
     }
 }

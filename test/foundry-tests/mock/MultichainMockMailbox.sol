@@ -25,9 +25,8 @@ contract MultichainMockMailbox is Mailbox, Test {
         TestIsm ism = new TestIsm();
         defaultIsm = ism;
 
-        TestPostDispatchHook hook = new TestPostDispatchHook();
-        defaultHook = hook;
-        requiredHook = hook;
+        defaultHook = new TestPostDispatchHook();
+        requiredHook = new TestPostDispatchHook();
 
         _transferOwnership(msg.sender);
         _disableInitializers();

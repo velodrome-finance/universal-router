@@ -55,7 +55,7 @@ abstract contract BaseOverrideBridge is BaseForkFixture {
         // Mock the gas oracle response for domain 1000034443
         bytes memory mockResponse = abi.encode(uint128(15000000000), uint128(313141588));
         vm.mockCall(
-            STORAGE_GAS_ORACLE,
+            ROOT_STORAGE_GAS_ORACLE,
             abi.encodeWithSignature('getExchangeRateAndGasPrice(uint32)', leafDomain_2),
             mockResponse
         );

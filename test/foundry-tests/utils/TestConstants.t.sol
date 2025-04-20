@@ -51,7 +51,8 @@ abstract contract TestConstants {
     address public constant MODE_PERMIT2_ADDRESS = 0xbF055A2D7450b55c194c32e285deDb956416CAF3;
 
     // common
-    address public constant STORAGE_GAS_ORACLE = 0x27e88AeB8EA4B159d81df06355Ea3d20bEB1de38;
+    address public constant ROOT_STORAGE_GAS_ORACLE = 0x27e88AeB8EA4B159d81df06355Ea3d20bEB1de38;
+    address public constant LEAF_STORAGE_GAS_ORACLE = 0xC9B8ea6230d6687a4b13fD3C0b8f0Ec607B26465;
     address public constant ROOT_IGP = 0xD8A76C4D91fCbB7Cc8eA795DFDF870E48368995C;
     address public constant LEAF_IGP = 0x931dFCc8c1141D6F532FD023bd87DAe0080c835d;
     address public constant PERMIT2_ADDRESS = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
