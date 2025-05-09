@@ -91,10 +91,17 @@ abstract contract TestConstants {
     // Velo specific
     IPoolFactory constant VELO_V2_FACTORY = IPoolFactory(VELO_V2_FACTORY_ADDRESS);
 
-    ICLFactory constant CL_FACTORY = ICLFactory(0x548118C7E0B865C2CfA94D15EC86B666468ac758);
-    bytes32 constant CL_POOL_INIT_CODE_HASH = 0x3e17c3f6d9f39d14b65192404b8d70a2f921655d3f7f5e7481ab3fcf0756e8ea;
+    ICLFactory constant CL_FACTORY = ICLFactory(0xCc0bDDB707055e04e497aB22a59c2aF4391cd12F);
+    bytes32 constant CL_POOL_INIT_CODE_HASH = keccak256(
+        abi.encodePacked(
+            hex'3d602d80600a3d3981f3363d3d373d3d3d363d73',
+            0xc28aD28853A547556780BEBF7847628501A3bCbb,
+            hex'5af43d82803e903d91602b57fd5bf3'
+        )
+    );
+
     INonfungiblePositionManagerCL constant NFT =
-        INonfungiblePositionManagerCL(0xbB5DFE1380333CEE4c2EeBd7202c80dE2256AdF4);
+        INonfungiblePositionManagerCL(0x416b433906b1B72FA758e166e239c43d68dC6F29);
 
     // Tokens
     ERC20 constant VELO = ERC20(0x3c8B650257cFb5f272f799F5e2b4e65093a11a05);

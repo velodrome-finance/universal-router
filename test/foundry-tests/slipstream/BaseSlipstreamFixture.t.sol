@@ -17,7 +17,7 @@ abstract contract BaseSlipstreamFixture is BaseForkFixture {
     address public pool2; // second hop
 
     function setUp() public virtual override {
-        rootForkBlockNumber = 118300000;
+        rootForkBlockNumber = 121503000; //cl factory creation - 121501661
         super.setUp();
 
         labelContracts();
