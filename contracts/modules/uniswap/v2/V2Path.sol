@@ -11,7 +11,7 @@ library V2Path {
     /// UniV2 functions
 
     /// @dev Check the path has at least 2 tokens (doesnt account for incorrectly encoded arguments)
-    function v2HasMultipleTokens(bytes calldata path) internal pure returns (bool) {
+    function hasMultipleTokens(bytes calldata path) internal pure returns (bool) {
         return path.length >= Constants.V2_MULTIPLE_TOKENS_MIN_LENGTH;
     }
 
@@ -50,6 +50,11 @@ library V2Path {
     }
 
     /// VeloV2 functions
+
+    /// @dev Check the path has at least 1 route (doesnt account for incorrectly encoded arguments)
+    function hasMultipleRoutes(bytes calldata path) internal pure returns (bool) {
+        return path.length >= Constants.VELO_ROUTE_SIZE;
+    }
 
     /// @dev Get stable param (2nd argument - between token0 and token1)
     function getFirstStable(bytes calldata path) internal pure returns (bool stable) {

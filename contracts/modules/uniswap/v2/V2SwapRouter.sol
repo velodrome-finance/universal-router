@@ -97,12 +97,12 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
         view
         returns (uint256 amount, address pair)
     {
-        if (!path.v2HasMultipleTokens()) revert InvalidPath();
+        if (isUni ? !path.hasMultipleTokens() : !path.hasMultipleRoutes()) revert InvalidPath();
         amount = amountOut;
-        while (path.v2HasMultipleTokens()) {
-            uint256 reserveIn;
-            uint256 reserveOut;
-            if (isUni) {
+        uint256 reserveIn;
+        uint256 reserveOut;
+        if (isUni) {
+            while (path.hasMultipleTokens()) {
                 (pair, reserveIn, reserveOut) = pairAndReservesFor({isUni: true, path: path.v2GetLastTokens()});
                 amount = UniswapV2Library.getAmountIn({
                     fee: Constants.V2_FEE,
@@ -113,7 +113,9 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                     stable: false
                 });
                 path = path.v2RemoveLastToken();
-            } else {
+            }
+        } else {
+            while (path.hasMultipleRoutes()) {
                 bytes calldata veloPath = path.veloGetLastRoute();
                 bool stable = veloPath.getFirstStable();
                 (pair, reserveIn, reserveOut) = pairAndReservesFor({isUni: false, path: veloPath});
@@ -134,7 +136,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
     /// @dev path only contains addresses
     function _v2Swap(bytes calldata path, address recipient, address pair) private {
         unchecked {
-            if (!path.v2HasMultipleTokens()) revert V2InvalidPath();
+            if (!path.hasMultipleTokens()) revert V2InvalidPath();
 
             // cached to save on duplicate operations
             (address token0, address token1) = path.v2DecodePair();
