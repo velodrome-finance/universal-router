@@ -58,6 +58,7 @@ abstract contract BridgeRouter is Permit2Payments {
                 msgFee: msgFee,
                 domain: domain
             });
+            ERC20(token).safeApprove({to: bridge, amount: 0});
         } else if (bridgeType == BridgeTypes.XVELO) {
             address _bridgeToken =
                 block.chainid == OPTIMISM_CHAIN_ID ? ITokenBridge(bridge).erc20() : ITokenBridge(bridge).xerc20();
@@ -73,6 +74,7 @@ abstract contract BridgeRouter is Permit2Payments {
                 msgFee: msgFee,
                 domain: domain
             });
+            ERC20(token).safeApprove({to: bridge, amount: 0});
         } else {
             revert InvalidBridgeType({bridgeType: bridgeType});
         }
@@ -125,6 +127,6 @@ abstract contract BridgeRouter is Permit2Payments {
         if (_payer != address(this)) {
             payOrPermit2Transfer({token: _token, payer: _payer, recipient: address(this), amount: _amount});
         }
-        ERC20(_token).safeApprove({to: address(_bridge), amount: _amount});
+        ERC20(_token).safeApprove({to: _bridge, amount: _amount});
     }
 }
