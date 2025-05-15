@@ -72,7 +72,7 @@ library UniswapV2Library {
             uint256 normalizedReserveIn = reserveIn * 1e18 / decimalsIn;
             uint256 normalizedReserveOut = reserveOut * 1e18 / decimalsOut;
             uint256 normalizedAmountIn = amountIn * 1e18 / decimalsIn;
-            uint256 xy = _k(normalizedReserveIn, normalizedReserveOut);
+            uint256 xy = _f(normalizedReserveIn, normalizedReserveOut);
             uint256 y = normalizedReserveOut - getY(normalizedAmountIn + normalizedReserveIn, xy, normalizedReserveOut);
             return (y * decimalsOut) / 1e18;
         } else {
@@ -115,13 +115,7 @@ library UniswapV2Library {
     }
 
     /// @notice Calculates k based on stable AMM formula given normalized reserves
-    function _k(uint256 normalizedReservesA, uint256 normalizedReservesB) internal pure returns (uint256) {
-        uint256 _a = (normalizedReservesA * normalizedReservesB) / 1e18;
-        uint256 _b =
-            ((normalizedReservesA * normalizedReservesA) / 1e18 + (normalizedReservesB * normalizedReservesB) / 1e18);
-        return (_a * _b) / 1e18; // x3y+y3x >= k
-    }
-
+    /// Uses the newton raphson approximation to find a solution for the stable formula
     function _f(uint256 x0, uint256 y) internal pure returns (uint256) {
         uint256 _a = (x0 * y) / 1e18;
         uint256 _b = ((x0 * x0) / 1e18 + (y * y) / 1e18);
