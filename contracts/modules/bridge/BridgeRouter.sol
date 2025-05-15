@@ -48,7 +48,7 @@ abstract contract BridgeRouter is Permit2Payments {
         if (bridgeType == BridgeTypes.HYP_XERC20) {
             if (address(HypXERC20(bridge).wrappedToken()) != token) revert InvalidTokenAddress();
 
-            prepareTokensForBridge({_token: token, _bridge: bridge, _sender: sender, _amount: amount, _payer: payer});
+            prepareTokensForBridge({_token: token, _bridge: bridge, _payer: payer, _amount: amount});
 
             executeHypXERC20Bridge({
                 bridge: bridge,
@@ -63,7 +63,7 @@ abstract contract BridgeRouter is Permit2Payments {
                 block.chainid == OPTIMISM_CHAIN_ID ? ITokenBridge(bridge).erc20() : ITokenBridge(bridge).xerc20();
             if (_bridgeToken != token) revert InvalidTokenAddress();
 
-            prepareTokensForBridge({_token: token, _bridge: bridge, _sender: sender, _amount: amount, _payer: payer});
+            prepareTokensForBridge({_token: token, _bridge: bridge, _payer: payer, _amount: amount});
 
             executeXVELOBridge({
                 bridge: bridge,
@@ -121,11 +121,9 @@ abstract contract BridgeRouter is Permit2Payments {
     }
 
     /// @dev Moves the tokens from sender to this contract then approves the bridge
-    function prepareTokensForBridge(address _token, address _bridge, address _sender, uint256 _amount, address _payer)
-        private
-    {
+    function prepareTokensForBridge(address _token, address _bridge, address _payer, uint256 _amount) private {
         if (_payer != address(this)) {
-            payOrPermit2Transfer({token: _token, payer: _sender, recipient: address(this), amount: _amount});
+            payOrPermit2Transfer({token: _token, payer: _payer, recipient: address(this), amount: _amount});
         }
         ERC20(_token).safeApprove({to: address(_bridge), amount: _amount});
     }
