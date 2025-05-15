@@ -109,6 +109,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                     amountOut: amount,
                     reserveIn: reserveIn,
                     reserveOut: reserveOut,
+                    isUni: isUni,
                     stable: false
                 });
                 path = path.v2RemoveLastToken();
@@ -121,6 +122,7 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                     amountOut: amount,
                     reserveIn: reserveIn,
                     reserveOut: reserveOut,
+                    isUni: isUni,
                     stable: stable
                 });
 

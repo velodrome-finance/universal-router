@@ -87,13 +87,17 @@ library UniswapV2Library {
     /// @param reserveOut The reserves available of the output token
     /// @param stable Whether the pair is stable or not (only used for Velo, should be false for uniswap)
     /// @return amountIn The input amount of the input token
-    function getAmountIn(uint256 fee, uint256 amountOut, uint256 reserveIn, uint256 reserveOut, bool stable)
+    function getAmountIn(uint256 fee, uint256 amountOut, uint256 reserveIn, uint256 reserveOut, bool isUni, bool stable)
         internal
         pure
         returns (uint256 amountIn)
     {
         if (reserveIn == 0 || reserveOut == 0) revert InvalidReserves();
-        if (!stable) {
+        if (isUni) {
+            uint256 numerator = reserveIn * amountOut * 1000;
+            uint256 denominator = (reserveOut - amountOut) * 997;
+            amountIn = (numerator / denominator) + 1;
+        } else if (!stable) {
             amountIn = (amountOut * reserveIn) / (reserveOut - amountOut);
             amountIn = amountIn * 10_000 / (10_000 - fee) + 1;
         } else {

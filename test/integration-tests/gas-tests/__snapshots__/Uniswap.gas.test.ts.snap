@@ -73,7 +73,7 @@ Object {
 exports[`Uniswap Gas Tests Trade on UniswapV2 with Universal Router. ERC20 --> ERC20 gas: exactOut, one trade, one hop 1`] = `
 Object {
   "calldataByteLength": 548,
-  "gasUsed": 112953,
+  "gasUsed": 113028,
 }
 `;
 
@@ -87,7 +87,7 @@ Object {
 exports[`Uniswap Gas Tests Trade on UniswapV2 with Universal Router. ETH --> ERC20 gas: exactOut, one trade, one hop 1`] = `
 Object {
   "calldataByteLength": 804,
-  "gasUsed": 125914,
+  "gasUsed": 125989,
 }
 `;
 

@@ -20,6 +20,7 @@ abstract contract TestConstants {
     uint256 public constant MAX_TOKENS = 1e40;
     uint256 public constant MAX_BPS = 10_000;
     uint112 public constant MAX_BUFFER_CAP = type(uint112).max;
+    uint256 public constant MAX_RESERVES = 1e26;
 
     uint256 constant PRECISION = 10 ** 18;
 
