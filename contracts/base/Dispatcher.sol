@@ -18,6 +18,7 @@ import {BytesLib} from '../modules/uniswap/v3/BytesLib.sol';
 import {Payments} from '../modules/Payments.sol';
 import {BridgeRouter} from '../modules/bridge/BridgeRouter.sol';
 import {Commands} from '../libraries/Commands.sol';
+import {Constants} from '../libraries/Constants.sol';
 import {Lock} from './Lock.sol';
 
 /// @title Decodes and Executes Commands
@@ -187,7 +188,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         }
 
                         address payer = msgSender();
-                        if (value == ActionConstants.CONTRACT_BALANCE) value = ERC20(token).balanceOf(payer);
+                        if (value == Constants.TOTAL_BALANCE) value = ERC20(token).balanceOf(payer);
                         payOrPermit2Transfer({token: token, payer: payer, recipient: map(recipient), amount: value});
                     }
                 } else {

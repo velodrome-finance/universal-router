@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
+import {ActionConstants} from '@uniswap/v4-periphery/src/libraries/ActionConstants.sol';
+
 /// @title Constant state
 /// @notice Constant state used by the Universal Router
 library Constants {
     /// @dev Used for identifying cases when a v2 pair has already received input tokens
     uint256 internal constant ALREADY_PAID = 0;
+
+    /// @notice used to signal that an action should use the entire balance of a currency
+    /// This value is equivalent to 1<<255, i.e. a singular 1 in the most significant bit.
+    uint256 internal constant TOTAL_BALANCE = ActionConstants.CONTRACT_BALANCE;
 
     /// @dev Used as a flag for identifying the transfer of ETH instead of a token
     address internal constant ETH = address(0);
