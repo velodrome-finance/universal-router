@@ -825,7 +825,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
 
         // Self Relay the message & check both swaps were successful
         vm.expectEmit(address(leafRouter));
-        emit Dispatcher.UniversalRouterSwap(userICA, ActionConstants.ADDRESS_THIS);
+        emit Dispatcher.UniversalRouterSwap({sender: userICA, recipient: address(leafRouter)});
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});

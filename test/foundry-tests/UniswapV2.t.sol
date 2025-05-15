@@ -48,7 +48,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertEq(ERC20(token0()).balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
@@ -61,7 +61,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertEq(ERC20(token1()).balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
@@ -75,7 +75,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, false, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertGt(ERC20(token1()).balanceOf(FROM), BALANCE);
     }
@@ -88,7 +88,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, 0, path, false, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertGt(ERC20(token0()).balanceOf(FROM), BALANCE);
     }
@@ -100,7 +100,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertLt(ERC20(token0()).balanceOf(FROM), BALANCE);
         assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + AMOUNT);
@@ -113,7 +113,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertLt(ERC20(token1()).balanceOf(FROM), BALANCE);
         assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + AMOUNT);
@@ -127,7 +127,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, false, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertGe(ERC20(token1()).balanceOf(FROM), BALANCE + AMOUNT);
     }
@@ -140,7 +140,7 @@ abstract contract UniswapV2Test is BaseForkFixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, type(uint256).max, path, false, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertGe(ERC20(token0()).balanceOf(FROM), BALANCE + AMOUNT);
     }

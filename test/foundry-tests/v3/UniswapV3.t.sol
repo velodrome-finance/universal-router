@@ -20,7 +20,7 @@ contract UniswapV3Test is BaseV3Fixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, amountOutMin, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertEq(OP.balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(WETH.balanceOf(FROM), BALANCE);
@@ -34,7 +34,7 @@ contract UniswapV3Test is BaseV3Fixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, amountOutMin, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertEq(WETH.balanceOf(FROM), BALANCE - AMOUNT);
         assertGt(OP.balanceOf(FROM), BALANCE);
@@ -51,7 +51,7 @@ contract UniswapV3Test is BaseV3Fixture {
         uint256 ethBalanceBefore = FROM.balance;
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, address(router));
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: address(router)});
         router.execute(commands, inputs);
 
         uint256 ethBalanceAfter = FROM.balance;
@@ -67,7 +67,7 @@ contract UniswapV3Test is BaseV3Fixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, amountOutMin, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertEq(OP.balanceOf(FROM), BALANCE - AMOUNT);
         assertEq(WETH.balanceOf(FROM), BALANCE);
@@ -83,7 +83,7 @@ contract UniswapV3Test is BaseV3Fixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, amountInMax, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertLt(ERC20(address(OP)).balanceOf(FROM), BALANCE);
         assertEq(ERC20(address(WETH)).balanceOf(FROM), BALANCE + AMOUNT);
@@ -97,7 +97,7 @@ contract UniswapV3Test is BaseV3Fixture {
         inputs[0] = abi.encode(ActionConstants.MSG_SENDER, AMOUNT, amountInMax, path, true, true);
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, ActionConstants.MSG_SENDER);
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: FROM});
         router.execute(commands, inputs);
         assertLt(ERC20(address(WETH)).balanceOf(FROM), BALANCE);
         assertEq(ERC20(address(OP)).balanceOf(FROM), BALANCE + AMOUNT);
@@ -114,7 +114,7 @@ contract UniswapV3Test is BaseV3Fixture {
         uint256 ethBalanceBefore = FROM.balance;
 
         vm.expectEmit(address(router));
-        emit Dispatcher.UniversalRouterSwap(FROM, address(router));
+        emit Dispatcher.UniversalRouterSwap({sender: FROM, recipient: address(router)});
         router.execute(commands, inputs);
 
         uint256 ethBalanceAfter = FROM.balance;
