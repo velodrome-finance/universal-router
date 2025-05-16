@@ -1212,24 +1212,26 @@
     protobufjs "^7.2.5"
     yargs "^17.7.2"
 
-"@hyperlane-xyz/core@5.12.0":
-  version "5.12.0"
-  resolved "https://registry.yarnpkg.com/@hyperlane-xyz/core/-/core-5.12.0.tgz#37fb904934e7fa7d2814eb3c26eed66e2901c71e"
-  integrity sha512-FS04B+ikkjJr0BmAGRNSIFG0eS3Oz7gZU2AbNRp4KCggmXqOsQxkLiEC17ffsiGuuzNZU4FdT0P0flkqad54pg==
+"@hyperlane-xyz/core@7.1.4":
+  version "7.1.4"
+  resolved "https://registry.yarnpkg.com/@hyperlane-xyz/core/-/core-7.1.4.tgz#a5ebf1d012e80a91a369a4e1995dd4f1343abdd2"
+  integrity sha512-L47BXOHztDij4s+7guI8vbnyClDQM6hwmGBo7b1nBVbc4w9D5Z+aWLszRPdhLovBdRBPz7HIN4PGHCpyukk93w==
   dependencies:
     "@arbitrum/nitro-contracts" "^1.2.1"
     "@chainlink/contracts-ccip" "^1.5.0"
     "@eth-optimism/contracts" "^0.6.0"
-    "@hyperlane-xyz/utils" "8.9.0"
+    "@hyperlane-xyz/utils" "12.5.0"
     "@layerzerolabs/lz-evm-oapp-v2" "2.0.2"
+    "@matterlabs/hardhat-zksync-solc" "1.2.5"
+    "@matterlabs/hardhat-zksync-verify" "1.7.1"
     "@openzeppelin/contracts" "^4.9.3"
     "@openzeppelin/contracts-upgradeable" "^4.9.3"
     fx-portal "^1.0.3"
 
-"@hyperlane-xyz/utils@8.9.0":
-  version "8.9.0"
-  resolved "https://registry.yarnpkg.com/@hyperlane-xyz/utils/-/utils-8.9.0.tgz#fc71e57e5632db0016f65a13bc5919f075178f2d"
-  integrity sha512-8i/U1jnp5WsegfsiSCXLjJKvpLqf1Rnq0dswkYR+qsvjRNBc21Ne/GqyBhRlYxGjbq6wBC+6cm6tddQ5hpTd8g==
+"@hyperlane-xyz/utils@12.5.0":
+  version "12.5.0"
+  resolved "https://registry.yarnpkg.com/@hyperlane-xyz/utils/-/utils-12.5.0.tgz#9873aea18dcbc084033c684acf1ca526b7305c46"
+  integrity sha512-mUfNFk/czd3RT85HWJhDjBusdY086ULXBNvuUSFNhDDmLD5DiMCt9mtcPRJzox0wUnn/wtsfYAUapzBUePoQwQ==
   dependencies:
     "@cosmjs/encoding" "^0.32.4"
     "@solana/web3.js" "^1.95.4"
@@ -1415,6 +1417,23 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
+"@matterlabs/hardhat-zksync-solc@1.2.5":
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/@matterlabs/hardhat-zksync-solc/-/hardhat-zksync-solc-1.2.5.tgz#fbeeabc3fea0dd232fa3c8cb31bd93c103eba11a"
+  integrity sha512-iZyznWl1Hoe/Z46hnUe1s2drBZBjJOS/eN+Ql2lIBX9B6NevBl9DYzkKzH5HEIMCLGnX9sWpRAJqUQJWy9UB6w==
+  dependencies:
+    "@nomiclabs/hardhat-docker" "^2.0.2"
+    chai "^4.3.4"
+    chalk "^4.1.2"
+    debug "^4.3.5"
+    dockerode "^4.0.2"
+    fs-extra "^11.2.0"
+    proper-lockfile "^4.1.2"
+    semver "^7.6.2"
+    sinon "^18.0.0"
+    sinon-chai "^3.7.0"
+    undici "^6.18.2"
+
 "@matterlabs/hardhat-zksync-solc@^1.2.5":
   version "1.2.6"
   resolved "https://registry.yarnpkg.com/@matterlabs/hardhat-zksync-solc/-/hardhat-zksync-solc-1.2.6.tgz#fb2d7b585d4551af01ef7a1af3d3e0d4ff6b90ba"
@@ -1432,7 +1451,7 @@
     sinon-chai "^3.7.0"
     undici "^6.18.2"
 
-"@matterlabs/hardhat-zksync-verify@^1.6.0":
+"@matterlabs/hardhat-zksync-verify@1.7.1", "@matterlabs/hardhat-zksync-verify@^1.6.0":
   version "1.7.1"
   resolved "https://registry.yarnpkg.com/@matterlabs/hardhat-zksync-verify/-/hardhat-zksync-verify-1.7.1.tgz#45d4c1a4ea5ebe1137df1856f93a9686b018481f"
   integrity sha512-FtibELgllkyAZORDW4/s/7XSC5DaqAXG0KXMqGipQyXuIXQ9l1kpaHMpoEtHvQL7xxmkgZqCcSZgATnKl91nDg==
@@ -1766,10 +1785,10 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-4.9.3.tgz#00d7a8cf35a475b160b3f0293a6403c511099364"
   integrity sha512-He3LieZ1pP2TNt5JbkPA4PNT9WC3gOTOlDcFGJW4Le4QKqwmiNJCRt44APfxMxvq7OugU/cqYuPcSBzOw38DAg==
 
-"@openzeppelin/contracts@5.0.2":
-  version "5.0.2"
-  resolved "https://registry.npmjs.org/@openzeppelin/contracts/-/contracts-5.0.2.tgz"
-  integrity sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA==
+"@openzeppelin/contracts@5.3.0":
+  version "5.3.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-5.3.0.tgz#0a90ce16f5c855e3c8239691f1722cd4999ae741"
+  integrity sha512-zj/KGoW7zxWUE8qOI++rUM18v+VeLTTzKs/DJFkSzHpQFPD/jKKF0TrMxBfGLl3kpdELCNccvB3zmofSzm4nlA==
 
 "@openzeppelin/contracts@^4.2.0", "@openzeppelin/contracts@^4.9.3":
   version "4.9.6"
@@ -2270,6 +2289,11 @@
   version "1.0.0"
   resolved "https://registry.npmjs.org/@uniswap/v3-core/-/v3-core-1.0.0.tgz"
   integrity sha512-kSC4djMGKMHj7sLMYVnn61k9nu+lHjMIxgg9CDQT+s2QYLoA56GbSK9Oxr+qJXzzygbkrmuY6cwgP6cW2JXPFA==
+
+"@uniswap/v3-core@1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@uniswap/v3-core/-/v3-core-1.0.1.tgz#b6d2bdc6ba3c3fbd610bdc502395d86cd35264a0"
+  integrity sha512-7pVk4hEm00j9tc71Y9+ssYpO6ytkeI0y7WE9P6UcmNzhxPePwyAxImuhVsTqWK9YFvzgtvzJHi64pBl4jUzKMQ==
 
 "@uniswap/v3-periphery@1.3.0", "@uniswap/v3-periphery@^1.0.1":
   version "1.3.0"
