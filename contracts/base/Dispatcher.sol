@@ -213,7 +213,14 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
                         recipient = map(recipient);
-                        v2SwapExactInput(recipient, amountIn, amountOutMin, path, payer, isUni);
+                        v2SwapExactInput({
+                            recipient: recipient,
+                            amountIn: amountIn,
+                            amountOutMinimum: amountOutMin,
+                            path: path,
+                            payer: payer,
+                            isUni: isUni
+                        });
                         emit UniversalRouterSwap({sender: msgSender(), recipient: recipient});
                     } else if (command == Commands.V2_SWAP_EXACT_OUT) {
                         // equivalent: abi.decode(inputs, (address, uint256, uint256, bytes, bool, bool))
@@ -233,7 +240,14 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         bytes calldata path = inputs.toBytes(3);
                         address payer = payerIsUser ? msgSender() : address(this);
                         recipient = map(recipient);
-                        v2SwapExactOutput(recipient, amountOut, amountInMax, path, payer, isUni);
+                        v2SwapExactOutput({
+                            recipient: recipient,
+                            amountOut: amountOut,
+                            amountInMaximum: amountInMax,
+                            path: path,
+                            payer: payer,
+                            isUni: isUni
+                        });
                         emit UniversalRouterSwap({sender: msgSender(), recipient: recipient});
                     } else if (command == Commands.PERMIT2_PERMIT) {
                         // equivalent: abi.decode(inputs, (IAllowanceTransfer.PermitSingle, bytes))

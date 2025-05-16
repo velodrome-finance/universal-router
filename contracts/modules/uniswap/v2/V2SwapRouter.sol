@@ -58,14 +58,9 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
     /// @return pair The resultant v2 pair address
     /// @return token0 The token considered token0 in this pair
     function pairAndToken0For(bool isUni, bytes calldata path) internal view returns (address pair, address token0) {
-        if (isUni) {
-            (address tokenA, address tokenB) = path.v2DecodePair();
-            (token0,) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
-        } else {
-            (address tokenA, address tokenB,) = path.decodeRoute();
-            (token0,) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
-        }
+        (address tokenA, address tokenB) = isUni ? path.v2DecodePair() : path.veloDecodePair();
 
+        (token0,) = UniswapV2Library.sortTokens({tokenA: tokenA, tokenB: tokenB});
         pair = pairFor({isUni: isUni, path: path});
     }
 
@@ -173,11 +168,11 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
             if (length == 0) revert V2InvalidPath();
 
             // cached to save on duplicate operations
-            (address from, address to) = routes.veloRouteAt(0).veloDecodePair();
-            (address token0,) = UniswapV2Library.sortTokens({tokenA: from, tokenB: to});
+            (address input, address output, bool stable) = routes.veloRouteAt(0).decodeRoute();
+            (address token0,) = UniswapV2Library.sortTokens({tokenA: input, tokenB: output});
             uint256 finalPairIndex = length - 1;
             for (uint256 i; i < length; i++) {
-                (address input, address output, bool stable) = routes.veloRouteAt(i).decodeRoute();
+                (input, output, stable) = routes.veloRouteAt(i).decodeRoute();
                 (uint256 reserve0, uint256 reserve1,) = IPool(pair).getReserves();
 
                 (uint256 reserveInput, uint256 reserveOutput) =
