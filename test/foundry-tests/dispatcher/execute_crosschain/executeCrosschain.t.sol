@@ -4,17 +4,18 @@ pragma solidity ^0.8.15;
 import {InterchainAccountRouter} from '@hyperlane-updated/contracts/middleware/InterchainAccountRouter.sol';
 import {StandardHookMetadata} from '@hyperlane/core/contracts/hooks/libs/StandardHookMetadata.sol';
 import {IPostDispatchHook} from '@hyperlane/core/contracts/interfaces/hooks/IPostDispatchHook.sol';
+import {OwnableMulticall} from '@hyperlane-updated/contracts/middleware/libs/OwnableMulticall.sol';
 import {TypeCasts} from '@hyperlane/core/contracts/libs/TypeCasts.sol';
 
 import {IInterchainAccountRouter} from 'contracts/interfaces/external/IInterchainAccountRouter.sol';
-import {BridgeTypes} from '../../../../contracts/libraries/BridgeTypes.sol';
+import {IRouterClient} from 'contracts/interfaces/external/IRouterClient.sol';
+import {BridgeTypes} from 'contracts/libraries/BridgeTypes.sol';
 
-import {MockHandleForwarder} from '../../mock/MockHandleForwarder.sol';
 import '../../BaseForkFixture.t.sol';
 
 contract ExecuteCrossChainTest is BaseForkFixture {
-    MockInterchainAccountRouter public rootIcaRouter;
-    MockInterchainAccountRouter public leafIcaRouter;
+    InterchainAccountRouter public rootIcaRouter;
+    InterchainAccountRouter public leafIcaRouter;
 
     IPoolFactory public constant v2Factory = IPoolFactory(0x420DD381b31aEf6683db6B902084cB0FFECe40Da);
     address public constant baseUSDC = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
@@ -26,31 +27,26 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         super.setUp();
 
         deal(address(users.alice), 1 ether);
-        rootIcaRouter = MockInterchainAccountRouter(OPTIMISM_ROUTER_ICA_ADDRESS);
+        rootIcaRouter = InterchainAccountRouter(OPTIMISM_ROUTER_ICA_ADDRESS);
+        address hook = address(rootIcaRouter.hook());
+        address owner = rootIcaRouter.owner();
+        // @dev value used in HL tests
+        uint256 commitGasUsage = 20_000;
         deployCodeTo(
-            'MockInterchainAccountRouter.sol:MockInterchainAccountRouter',
-            abi.encode(address(rootMailbox)),
+            'InterchainAccountRouter.sol:InterchainAccountRouter',
+            abi.encode(address(rootMailbox), hook, owner, commitGasUsage),
             address(rootIcaRouter)
         );
-        /// @dev set custom fee in mailbox's hook
-        TestPostDispatchHook(address(rootMailbox.requiredHook())).setFee(MESSAGE_FEE);
 
         vm.selectFork({forkId: leafId});
-        leafIcaRouter = MockInterchainAccountRouter(BASE_ROUTER_ICA_ADDRESS);
+        leafIcaRouter = InterchainAccountRouter(BASE_ROUTER_ICA_ADDRESS);
+        hook = address(leafIcaRouter.hook());
+        owner = leafIcaRouter.owner();
         deployCodeTo(
-            'MockInterchainAccountRouter.sol:MockInterchainAccountRouter',
-            abi.encode(address(leafMailbox)),
+            'InterchainAccountRouter.sol:InterchainAccountRouter',
+            abi.encode(address(leafMailbox), hook, owner, commitGasUsage),
             address(leafIcaRouter)
         );
-
-        /// @dev Use helper contract to override non-virtual handle function in ICA Router
-        MockHandleForwarder forwarder =
-            new MockHandleForwarder({_icaRouter: address(leafIcaRouter), _mailbox: address(leafMailbox)});
-        vm.mockFunction({
-            callee: address(leafIcaRouter),
-            target: address(forwarder),
-            data: abi.encodeWithSelector(InterchainAccountRouter.handle.selector)
-        });
 
         createAndSeedPair(baseUSDC, OPEN_USDT_ADDRESS, false);
 
@@ -95,15 +91,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -136,15 +135,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -171,7 +170,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
 
@@ -179,7 +178,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0); // no leftover input from swap in exactIn
@@ -223,15 +222,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -264,15 +266,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -299,7 +301,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
 
@@ -307,7 +309,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 99599); //leftover from swap is sent to user
@@ -351,15 +353,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -392,15 +397,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -427,7 +432,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
 
@@ -435,7 +440,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0); //no leftover from swap in exactIn
@@ -479,15 +484,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -520,15 +528,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -555,7 +563,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
 
@@ -563,7 +571,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 89094); //leftover from swap is sent to user
@@ -608,15 +616,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -669,13 +680,13 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         // Self Relay the message. Swap should fail & fallback transfer should succeed
         vm.expectEmit(OPEN_USDT_ADDRESS);
         emit ERC20.Transfer({from: userICA, to: users.alice, amount: amountIn});
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Swap input is returned to user on destination
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), amountIn);
@@ -735,15 +746,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -776,15 +790,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -818,7 +832,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
         assertEq(ERC20(WETH9_ADDRESS).balanceOf(users.alice), 0);
@@ -829,7 +843,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         // No leftover in the Router
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(address(leafRouter)), 0);
@@ -899,15 +913,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -940,15 +957,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -982,7 +999,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
         assertEq(ERC20(WETH9_ADDRESS).balanceOf(users.alice), 0);
@@ -991,7 +1008,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(OPEN_USDT_ADDRESS);
         emit ERC20.Transfer({from: userICA, to: users.alice, amount: v3AmountIn});
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         // No leftover in the Router
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(address(leafRouter)), 0);
@@ -1061,15 +1078,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -1102,15 +1122,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    IPostDispatchHook(address(rootIcaRouter.hook()))
+                    commitment
                 )
             )
         });
@@ -1144,7 +1164,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
         assertEq(ERC20(WETH9_ADDRESS).balanceOf(users.alice), 0);
@@ -1153,7 +1173,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(OPEN_USDT_ADDRESS);
         emit ERC20.Transfer({from: userICA, to: users.alice, amount: v3AmountIn});
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         // No leftover in the Router
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(address(leafRouter)), 0);
@@ -1208,15 +1228,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         bytes memory commands =
@@ -1245,8 +1268,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             rootIcaRouter.isms(leafDomain), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE + leftoverETH, // fee to dispatch x-chain message
-            /// @dev Using bridge's hook for refund support
-            HypXERC20(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS).hook(), // post dispatch hook
+            IPostDispatchHook(address(rootIcaRouter.hook())), // post dispatch hook
             hookMetadata // hook metadata
         );
 
@@ -1258,15 +1280,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectCall({
             callee: address(rootIcaRouter),
             data: abi.encodeCall(
-                IInterchainAccountRouter.callRemoteWithOverrides,
+                IInterchainAccountRouter.callRemoteCommitReveal,
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
                     rootIcaRouter.isms(leafDomain),
-                    commitment,
                     hookMetadata,
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
-                    HypXERC20(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS).hook()
+                    commitment
                 )
             )
         });
@@ -1276,7 +1298,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         assertEq(address(rootIcaRouter).balance, 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         // Assert excess fee was refunded
-        assertEq(users.alice.balance, oldETHBal - MESSAGE_FEE * 2);
+        assertEq(users.alice.balance, oldETHBal - (MESSAGE_FEE + leftoverETH));
 
         // Process Token Bridging message & check tokens arrived
         vm.selectFork(leafId);
@@ -1297,7 +1319,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             recipient: address(leafIcaRouter)
         });
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), 0);
 
@@ -1305,7 +1327,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0); // no leftover input from swap in exactIn
@@ -1317,11 +1339,13 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         uint256 amount = USDC_1;
 
         // Predict User's ICA address
-        address userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        address payable userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Bridge tokens to User's ICA to simulate stuck funds
         bytes memory commands = abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)));
@@ -1360,7 +1384,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         });
 
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Encode origin chain command
         commands = abi.encodePacked(bytes1(uint8(Commands.EXECUTE_CROSS_CHAIN)));
@@ -1379,13 +1403,13 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         // Process Commitment message & check commitment was stored
         vm.selectFork(leafId);
         leafMailbox.processNextInboundMessage();
-        assertEq(leafIcaRouter.verifiedCommitments(userICA), commitment);
+        assertTrue(OwnableMulticall(userICA).commitments(commitment));
 
         // Self Relay the message. Refund transfer should be executed
         vm.expectEmit(OPEN_USDT_ADDRESS);
         emit ERC20.Transfer({from: userICA, to: users.alice, amount: amount});
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), amount);
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -1469,7 +1493,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         uint256 amountOutMin = 9e5;
         uint256 leftoverETH = MESSAGE_FEE / 2;
 
-        (address userICA, CallLib.Call[] memory calls, bytes memory commands, bytes[] memory inputs) =
+        (address payable userICA, CallLib.Call[] memory calls, bytes memory commands, bytes[] memory inputs) =
         _executeCrosschainParams({
             _amountIn: amountIn,
             _amountOutMin: amountOutMin,
@@ -1488,7 +1512,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
 
         // Self Relay the message
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
         vm.snapshotGasLastCall('UniversalRouter_ExecuteCrossChain_Destination_Success');
     }
 
@@ -1498,7 +1522,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         uint256 amountOutMin = amountIn * 10;
         uint256 leftoverETH = MESSAGE_FEE / 2;
 
-        (address userICA, CallLib.Call[] memory calls, bytes memory commands, bytes[] memory inputs) =
+        (address payable userICA, CallLib.Call[] memory calls, bytes memory commands, bytes[] memory inputs) =
         _executeCrosschainParams({
             _amountIn: amountIn,
             _amountOutMin: amountOutMin,
@@ -1517,7 +1541,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
 
         // Self Relay the message
         vm.startPrank({msgSender: users.alice});
-        leafIcaRouter.executeWithCommitment({_interchainAccount: userICA, _calls: calls});
+        OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
         vm.snapshotGasLastCall('UniversalRouter_ExecuteCrossChain_Destination_Fallback');
     }
 
@@ -1525,7 +1549,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
     function _executeCrosschainParams(uint256 _amountIn, uint256 _amountOutMin, uint256 _msgFee, uint256 _leftoverETH)
         internal
         view
-        returns (address userICA, CallLib.Call[] memory calls, bytes memory commands, bytes[] memory inputs)
+        returns (address payable userICA, CallLib.Call[] memory calls, bytes memory commands, bytes[] memory inputs)
     {
         // Encode destination swap
         bytes memory swapSubplan = abi.encodePacked(bytes1(uint8(Commands.V3_SWAP_EXACT_IN)));
@@ -1559,15 +1583,18 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             value: 0,
             data: abi.encodeCall(Dispatcher.execute, (leafCommands, leafInputs))
         });
+
         // Calculate commitment hash
-        bytes32 commitment = hashCommitment(calls);
+        bytes32 commitment = hashCommitment({_calls: calls, _salt: TypeCasts.addressToBytes32(users.alice)});
 
         // Predict User's ICA address
-        userICA = rootIcaRouter.getRemoteInterchainAccount({
-            _destination: leafDomain,
-            _owner: address(router),
-            _userSalt: TypeCasts.addressToBytes32(users.alice)
-        });
+        userICA = payable(
+            rootIcaRouter.getRemoteInterchainAccount({
+                _destination: leafDomain,
+                _owner: address(router),
+                _userSalt: TypeCasts.addressToBytes32(users.alice)
+            })
+        );
 
         // Encode origin chain commands
         commands = abi.encodePacked(bytes1(uint8(Commands.BRIDGE_TOKEN)), bytes1(uint8(Commands.EXECUTE_CROSS_CHAIN)));
@@ -1595,8 +1622,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             rootIcaRouter.isms(leafDomain), // destination ism
             commitment, // commitment of the calls to be made
             _msgFee + _leftoverETH, // fee to dispatch x-chain message
-            /// @dev Using bridge's hook for refund support
-            HypXERC20(OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS).hook(), // post dispatch hook
+            rootIcaRouter.hook(), // post dispatch hook
             hookMetadata // hook metadata
         );
     }

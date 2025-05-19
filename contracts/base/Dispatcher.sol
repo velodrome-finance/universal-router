@@ -384,14 +384,14 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                     }
                     bytes calldata hookMetadata = inputs.toBytes(7);
 
-                    IInterchainAccountRouter(icaRouter).callRemoteWithOverrides{value: msgFee}({
+                    IInterchainAccountRouter(icaRouter).callRemoteCommitReveal{value: msgFee}({
                         _destination: domain,
                         _router: remoteRouter,
                         _ism: ism,
-                        _callsCommitment: commitment,
                         _hookMetadata: hookMetadata,
+                        _hook: IPostDispatchHook(hook),
                         _salt: TypeCasts.addressToBytes32(msgSender()),
-                        _hook: IPostDispatchHook(hook)
+                        _commitment: commitment
                     });
                 } else {
                     // placeholder area for commands 0x14-0x20

@@ -23,7 +23,6 @@ import {IRootHLMessageModule} from '../../contracts/interfaces/external/IRootHLM
 import {Constants} from '../../contracts/libraries/Constants.sol';
 import {Commands} from '../../contracts/libraries/Commands.sol';
 
-import {MockInterchainAccountRouter} from '../foundry-tests/mock/MockInterchainAccountRouter.sol';
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRouter, RouterParameters} from '../foundry-tests/utils/TestDeployRouter.sol';
@@ -288,14 +287,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
     }
 
     /// @dev Helper function to generate commitment hashes
-    function hashCommitment(CallLib.Call[] memory _calls) internal pure returns (bytes32 _salt) {
-        bytes memory calls;
-        uint256 length = _calls.length;
-        for (uint256 i = 0; i < length; i++) {
-            calls = abi.encode(calls, _calls[i].to, _calls[i].value, _calls[i].data);
-        }
-
-        return keccak256(calls);
+    function hashCommitment(CallLib.Call[] memory _calls, bytes32 _salt) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_salt, abi.encode(_calls)));
     }
 
     function _addressToBytes32(address _address) internal pure returns (bytes32) {
