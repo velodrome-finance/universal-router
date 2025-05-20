@@ -147,6 +147,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -278,6 +287,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -409,6 +427,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -540,6 +567,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -657,6 +693,30 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         // Broadcast x-chain messages
         deal(OPEN_USDT_ADDRESS, users.alice, USDC_1);
         ERC20(OPEN_USDT_ADDRESS).approve(address(router), amountIn);
+        vm.expectCall({
+            callee: address(rootIcaRouter),
+            data: abi.encodeCall(
+                IInterchainAccountRouter.callRemoteCommitReveal,
+                (
+                    leafDomain,
+                    rootIcaRouter.routers(leafDomain),
+                    rootIcaRouter.isms(leafDomain),
+                    new bytes(0),
+                    IPostDispatchHook(address(rootIcaRouter.hook())),
+                    TypeCasts.addressToBytes32(users.alice),
+                    commitment
+                )
+            )
+        });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -802,6 +862,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -969,6 +1038,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -1134,6 +1212,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2}(commands, inputs);
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
@@ -1292,6 +1379,15 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 )
             )
         });
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.CrossChainSwap({
+            caller: users.alice,
+            localRouter: address(rootIcaRouter),
+            destinationDomain: leafDomain,
+            commitment: commitment
+        });
+
         router.execute{value: MESSAGE_FEE * 2 + leftoverETH}(commands, inputs);
 
         assertEq(address(router).balance, 0);

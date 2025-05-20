@@ -35,6 +35,10 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
         address indexed sender, address indexed recipient, address indexed token, uint256 amount, uint32 domain
     );
 
+    event CrossChainSwap(
+        address indexed caller, address indexed localRouter, uint32 indexed destinationDomain, bytes32 commitment
+    );
+
     /// @notice Executes encoded commands along with provided inputs.
     /// @param commands A set of concatenated commands, each 1 byte in length
     /// @param inputs An array of byte strings containing abi encoded inputs for each command
@@ -392,6 +396,12 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                         _hook: IPostDispatchHook(hook),
                         _salt: TypeCasts.addressToBytes32(msgSender()),
                         _commitment: commitment
+                    });
+                    emit CrossChainSwap({
+                        caller: msgSender(),
+                        localRouter: icaRouter,
+                        destinationDomain: domain,
+                        commitment: commitment
                     });
                 } else {
                     // placeholder area for commands 0x14-0x20
