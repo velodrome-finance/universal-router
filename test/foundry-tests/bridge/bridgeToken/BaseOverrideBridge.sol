@@ -14,8 +14,36 @@ abstract contract BaseOverrideBridge is BaseForkFixture {
     uint128 public rps; // rate limit per second
     uint128 public constant MAX_RATE_LIMIT_PER_SECOND = 25_000 * 1e18;
 
+    function setUpPreCommon() public virtual override {
+        vm.startPrank(users.owner);
+        rootId = vm.createSelectFork({urlOrAlias: 'optimism', blockNumber: rootForkBlockNumber});
+        rootStartTime = block.timestamp;
+        weth = IWETH9(WETH9_ADDRESS);
+        vm.warp({newTimestamp: rootStartTime});
+
+        leafId = vm.createSelectFork({urlOrAlias: 'base', blockNumber: leafForkBlockNumber});
+        leafStartTime = rootStartTime;
+        weth = IWETH9(WETH9_ADDRESS);
+        vm.warp({newTimestamp: leafStartTime});
+
+        leafId_2 = vm.createSelectFork({urlOrAlias: 'metal', blockNumber: leafForkBlockNumber_2});
+        leafStartTime_2 = rootStartTime;
+        vm.warp({newTimestamp: leafStartTime_2});
+
+        vm.stopPrank();
+    }
+
     function setUp() public virtual override {
+        leaf_2 = 1750; // metal chain id
+        leafDomain_2 = 1000001750; // metal domain
+        leafForkBlockNumber_2 = 18047714;
+
+        leafPermit2 = METAL_PERMIT2_ADDRESS;
+        leafMailboxAddress_2 = XVELO_METAL_MAILBOX_ADDRESS;
+
         super.setUp();
+
+        vm.selectFork({forkId: rootId});
 
         // Deploy on root chain with deterministic address
         vm.startPrank(users.deployer);
@@ -35,30 +63,6 @@ abstract contract BaseOverrideBridge is BaseForkFixture {
         vm.startPrank(users.owner);
         rootXVeloTokenBridge.registerDomain(leafDomain_2);
         rootXVeloTokenBridge.setHook({_hook: ROOT_IGP});
-
-        /// As we are using a custom domain id for mode, one that is not supported on the fork
-        /// We must manually set up the gas oracle config for the domain
-        /// The config has been copied across from the original mode config, with the gas oracle call
-        /// mocked to return a fixed value
-        vm.startPrank(Ownable(ROOT_IGP).owner());
-        // Get gas oracle config from hook for chain ID 34443
-        (IGasOracle gasOracle, uint96 gasOverhead) = InterchainGasPaymaster(ROOT_IGP).destinationGasConfigs(leaf_2);
-
-        // Set the same config for domain 1000034443
-        InterchainGasPaymaster.GasParam[] memory configs = new InterchainGasPaymaster.GasParam[](1);
-        configs[0] = InterchainGasPaymaster.GasParam({
-            remoteDomain: leafDomain_2,
-            config: InterchainGasPaymaster.DomainGasConfig({gasOracle: gasOracle, gasOverhead: gasOverhead})
-        });
-        InterchainGasPaymaster(ROOT_IGP).setDestinationGasConfigs(configs);
-
-        // Mock the gas oracle response for domain 1000034443
-        bytes memory mockResponse = abi.encode(uint128(15000000000), uint128(313141588));
-        vm.mockCall(
-            ROOT_STORAGE_GAS_ORACLE,
-            abi.encodeWithSignature('getExchangeRateAndGasPrice(uint32)', leafDomain_2),
-            mockResponse
-        );
 
         // Configure root bridge with maximum buffer cap - use the token's actual owner
         address rootTokenOwner = Ownable(address(rootXVelo)).owner();
@@ -92,7 +96,7 @@ abstract contract BaseOverrideBridge is BaseForkFixture {
 
         vm.startPrank(users.owner);
         leafXVeloTokenBridge.registerDomain(rootDomain);
-        leafXVeloTokenBridge.setHook({_hook: LEAF_IGP});
+        leafXVeloTokenBridge.setHook({_hook: LEAF_IGP_2});
 
         // Configure leaf bridge with maximum buffer cap - use the token's actual owner
         address leafTokenOwner = Ownable(address(leafXVelo)).owner();

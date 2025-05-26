@@ -46,7 +46,7 @@ BridgeTokenTest
     │           ├── It should leave no dangling ERC20 approvals
     │           └── It should emit {UniversalRouterBridge} event
     └── When bridge type is XVELO
-        ├── When destination chain is MODE
+        ├── When destination chain is METAL
         │   ├── When token is not the bridge token_
         │   │   └── It should revert with {InvalidTokenAddress}
         │   ├── When no token approval was given_

@@ -89,6 +89,15 @@ abstract contract BaseForkFixture is Test, TestConstants {
     uint256 public leafStartTime_2; // leaf fork start time (set to start of epoch for simplicity)
     uint256 public leafForkBlockNumber_2 = 21111111;
 
+    // leaf deployment variables
+    // values copied from DeployMode.s.sol
+    address public leafPermit2 = MODE_PERMIT2_ADDRESS;
+    address public leafVeloV2Factory = 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0;
+    address public leafVeloCLFactory = 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F;
+    bytes32 public leafVeloV2InitCodeHash = 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d;
+    bytes32 public leafVeloCLInitCodeHash = 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5;
+    address public leafMailboxAddress_2 = XVELO_MODE_MAILBOX_ADDRESS;
+
     // leaf router
     UniversalRouter public leafRouter_2;
 
@@ -204,17 +213,17 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         // deploy router on mode (values copied from DeployMode.s.sol)
         params = RouterParameters({
-            permit2: MODE_PERMIT2_ADDRESS,
+            permit2: leafPermit2,
             weth9: address(WETH),
             v2Factory: address(0),
             v3Factory: address(0),
             pairInitCodeHash: bytes32(0),
             poolInitCodeHash: bytes32(0),
             v4PoolManager: address(0),
-            veloV2Factory: address(0x31832f2a97Fd20664D76Cc421207669b55CE4BC0),
-            veloCLFactory: address(0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F),
-            veloV2InitCodeHash: 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d,
-            veloCLInitCodeHash: 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5
+            veloV2Factory: leafVeloV2Factory,
+            veloCLFactory: leafVeloCLFactory,
+            veloV2InitCodeHash: leafVeloV2InitCodeHash,
+            veloCLInitCodeHash: leafVeloCLInitCodeHash
         });
 
         deployRouter = new TestDeployRouter(params);
@@ -222,7 +231,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         leafRouter_2 = deployRouter.router();
 
-        leafMailbox_2 = _overwriteMailbox(XVELO_MODE_MAILBOX_ADDRESS, address(0), leafDomain_2);
+        leafMailbox_2 = _overwriteMailbox(leafMailboxAddress_2, address(0), leafDomain_2);
 
         vm.label({account: address(leafMailbox), newLabel: 'Base Mailbox'});
         vm.label({account: address(leafOpenUsdtTokenBridge), newLabel: 'Leaf OpenUSDT Token Bridge'});

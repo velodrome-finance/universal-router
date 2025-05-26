@@ -1,329 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.24;
-
-// lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/draft-IERC6093.sol)
-
-/**
- * @dev Standard ERC20 Errors
- * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC20 tokens.
- */
-interface IERC20Errors {
-    /**
-     * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
-     * @param balance Current balance for the interacting account.
-     * @param needed Minimum amount required to perform a transfer.
-     */
-    error ERC20InsufficientBalance(address sender, uint256 balance, uint256 needed);
-
-    /**
-     * @dev Indicates a failure with the token `sender`. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
-     */
-    error ERC20InvalidSender(address sender);
-
-    /**
-     * @dev Indicates a failure with the token `receiver`. Used in transfers.
-     * @param receiver Address to which tokens are being transferred.
-     */
-    error ERC20InvalidReceiver(address receiver);
-
-    /**
-     * @dev Indicates a failure with the `spender`’s `allowance`. Used in transfers.
-     * @param spender Address that may be allowed to operate on tokens without being their owner.
-     * @param allowance Amount of tokens a `spender` is allowed to operate with.
-     * @param needed Minimum amount required to perform a transfer.
-     */
-    error ERC20InsufficientAllowance(address spender, uint256 allowance, uint256 needed);
-
-    /**
-     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
-     * @param approver Address initiating an approval operation.
-     */
-    error ERC20InvalidApprover(address approver);
-
-    /**
-     * @dev Indicates a failure with the `spender` to be approved. Used in approvals.
-     * @param spender Address that may be allowed to operate on tokens without being their owner.
-     */
-    error ERC20InvalidSpender(address spender);
-}
-
-/**
- * @dev Standard ERC721 Errors
- * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC721 tokens.
- */
-interface IERC721Errors {
-    /**
-     * @dev Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in EIP-20.
-     * Used in balance queries.
-     * @param owner Address of the current owner of a token.
-     */
-    error ERC721InvalidOwner(address owner);
-
-    /**
-     * @dev Indicates a `tokenId` whose `owner` is the zero address.
-     * @param tokenId Identifier number of a token.
-     */
-    error ERC721NonexistentToken(uint256 tokenId);
-
-    /**
-     * @dev Indicates an error related to the ownership over a particular token. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
-     * @param tokenId Identifier number of a token.
-     * @param owner Address of the current owner of a token.
-     */
-    error ERC721IncorrectOwner(address sender, uint256 tokenId, address owner);
-
-    /**
-     * @dev Indicates a failure with the token `sender`. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
-     */
-    error ERC721InvalidSender(address sender);
-
-    /**
-     * @dev Indicates a failure with the token `receiver`. Used in transfers.
-     * @param receiver Address to which tokens are being transferred.
-     */
-    error ERC721InvalidReceiver(address receiver);
-
-    /**
-     * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
-     * @param operator Address that may be allowed to operate on tokens without being their owner.
-     * @param tokenId Identifier number of a token.
-     */
-    error ERC721InsufficientApproval(address operator, uint256 tokenId);
-
-    /**
-     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
-     * @param approver Address initiating an approval operation.
-     */
-    error ERC721InvalidApprover(address approver);
-
-    /**
-     * @dev Indicates a failure with the `operator` to be approved. Used in approvals.
-     * @param operator Address that may be allowed to operate on tokens without being their owner.
-     */
-    error ERC721InvalidOperator(address operator);
-}
-
-/**
- * @dev Standard ERC1155 Errors
- * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC1155 tokens.
- */
-interface IERC1155Errors {
-    /**
-     * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
-     * @param balance Current balance for the interacting account.
-     * @param needed Minimum amount required to perform a transfer.
-     * @param tokenId Identifier number of a token.
-     */
-    error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
-
-    /**
-     * @dev Indicates a failure with the token `sender`. Used in transfers.
-     * @param sender Address whose tokens are being transferred.
-     */
-    error ERC1155InvalidSender(address sender);
-
-    /**
-     * @dev Indicates a failure with the token `receiver`. Used in transfers.
-     * @param receiver Address to which tokens are being transferred.
-     */
-    error ERC1155InvalidReceiver(address receiver);
-
-    /**
-     * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
-     * @param operator Address that may be allowed to operate on tokens without being their owner.
-     * @param owner Address of the current owner of a token.
-     */
-    error ERC1155MissingApprovalForAll(address operator, address owner);
-
-    /**
-     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
-     * @param approver Address initiating an approval operation.
-     */
-    error ERC1155InvalidApprover(address approver);
-
-    /**
-     * @dev Indicates a failure with the `operator` to be approved. Used in approvals.
-     * @param operator Address that may be allowed to operate on tokens without being their owner.
-     */
-    error ERC1155InvalidOperator(address operator);
-
-    /**
-     * @dev Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation.
-     * Used in batch transfers.
-     * @param idsLength Length of the array of token identifiers
-     * @param valuesLength Length of the array of token amounts
-     */
-    error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
-}
-
-// lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)
-
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface IERC20 {
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
-     */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    /**
-     * @dev Returns the value of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns the value of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves a `value` amount of tokens from the caller's account to `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address to, uint256 value) external returns (bool);
-
-    /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    /**
-     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
-     * caller's tokens.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * IMPORTANT: Beware that changing an allowance with this method brings the risk
-     * that someone may use both the old and the new allowance by unfortunate
-     * transaction ordering. One possible solution to mitigate this race
-     * condition is to first reduce the spender's allowance to 0 and set the
-     * desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address spender, uint256 value) external returns (bool);
-
-    /**
-     * @dev Moves a `value` amount of tokens from `from` to `to` using the
-     * allowance mechanism. `value` is then deducted from the caller's
-     * allowance.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(address from, address to, uint256 value) external returns (bool);
-}
-
-// lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/IERC20Permit.sol)
-
-/**
- * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
- * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
- *
- * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
- * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
- * need to send a transaction, and thus is not required to hold Ether at all.
- *
- * ==== Security Considerations
- *
- * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
- * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
- * considered as an intention to spend the allowance in any specific way. The second is that because permits have
- * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
- * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
- * generally recommended is:
- *
- * ```solidity
- * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
- *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
- *     doThing(..., value);
- * }
- *
- * function doThing(..., uint256 value) public {
- *     token.safeTransferFrom(msg.sender, address(this), value);
- *     ...
- * }
- * ```
- *
- * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
- * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
- * {SafeERC20-safeTransferFrom}).
- *
- * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
- * contracts should have entry points that don't rely on permit.
- */
-interface IERC20Permit {
-    /**
-     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
-     * given ``owner``'s signed approval.
-     *
-     * IMPORTANT: The same issues {IERC20-approve} has related to transaction
-     * ordering also apply here.
-     *
-     * Emits an {Approval} event.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `deadline` must be a timestamp in the future.
-     * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
-     * over the EIP712-formatted function arguments.
-     * - the signature must use ``owner``'s current nonce (see {nonces}).
-     *
-     * For more information on the signature format, see the
-     * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
-     * section].
-     *
-     * CAUTION: See Security Considerations above.
-     */
-    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
-        external;
-
-    /**
-     * @dev Returns the current nonce for `owner`. This value must be
-     * included whenever a signature is generated for {permit}.
-     *
-     * Every successful call to {permit} increases ``owner``'s nonce by one. This
-     * prevents a signature from being used multiple times.
-     */
-    function nonces(address owner) external view returns (uint256);
-
-    /**
-     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
-}
+pragma solidity <0.9.0 >=0.6.11 >=0.8.0 >=0.8.19 ^0.8.0 ^0.8.1 ^0.8.2 ^0.8.20;
 
 // lib/openzeppelin-contracts/contracts/utils/Address.sol
 
@@ -482,1125 +158,6 @@ library Address_0 {
             revert FailedInnerCall();
         }
     }
-}
-
-// lib/openzeppelin-contracts/contracts/utils/Context.sol
-
-// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)
-
-/**
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
-    }
-
-    function _contextSuffixLength() internal view virtual returns (uint256) {
-        return 0;
-    }
-}
-
-// lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/IERC165.sol)
-
-/**
- * @dev Interface of the ERC165 standard, as defined in the
- * https://eips.ethereum.org/EIPS/eip-165[EIP].
- *
- * Implementers can declare support of contract interfaces, which can then be
- * queried by others ({ERC165Checker}).
- *
- * For an implementation, see {ERC165}.
- */
-interface IERC165 {
-    /**
-     * @dev Returns true if this contract implements the interface defined by
-     * `interfaceId`. See the corresponding
-     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
-     * to learn more about how these ids are created.
-     *
-     * This function call must use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool);
-}
-
-// lib/openzeppelin-contracts/contracts/utils/math/Math.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
-
-/**
- * @dev Standard math utilities missing in the Solidity language.
- */
-library Math {
-    /**
-     * @dev Muldiv operation overflow.
-     */
-    error MathOverflowedMulDiv();
-
-    enum Rounding {
-        Floor, // Toward negative infinity
-        Ceil, // Toward positive infinity
-        Trunc, // Toward zero
-        Expand // Away from zero
-
-    }
-
-    /**
-     * @dev Returns the addition of two unsigned integers, with an overflow flag.
-     */
-    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            uint256 c = a + b;
-            if (c < a) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
-     */
-    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b > a) return (false, 0);
-            return (true, a - b);
-        }
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
-     */
-    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-            // benefit is lost if 'b' is also tested.
-            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-            if (a == 0) return (true, 0);
-            uint256 c = a * b;
-            if (c / a != b) return (false, 0);
-            return (true, c);
-        }
-    }
-
-    /**
-     * @dev Returns the division of two unsigned integers, with a division by zero flag.
-     */
-    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a / b);
-        }
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
-     */
-    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
-        unchecked {
-            if (b == 0) return (false, 0);
-            return (true, a % b);
-        }
-    }
-
-    /**
-     * @dev Returns the largest of two numbers.
-     */
-    function max(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a > b ? a : b;
-    }
-
-    /**
-     * @dev Returns the smallest of two numbers.
-     */
-    function min(uint256 a, uint256 b) internal pure returns (uint256) {
-        return a < b ? a : b;
-    }
-
-    /**
-     * @dev Returns the average of two numbers. The result is rounded towards
-     * zero.
-     */
-    function average(uint256 a, uint256 b) internal pure returns (uint256) {
-        // (a + b) / 2 can overflow.
-        return (a & b) + (a ^ b) / 2;
-    }
-
-    /**
-     * @dev Returns the ceiling of the division of two numbers.
-     *
-     * This differs from standard division with `/` in that it rounds towards infinity instead
-     * of rounding towards zero.
-     */
-    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
-        if (b == 0) {
-            // Guarantee the same behavior as in a regular Solidity division.
-            return a / b;
-        }
-
-        // (a + b - 1) / b can overflow on addition, so we distribute.
-        return a == 0 ? 0 : (a - 1) / b + 1;
-    }
-
-    /**
-     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
-     * denominator == 0.
-     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
-     * Uniswap Labs also under MIT license.
-     */
-    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
-        unchecked {
-            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
-            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
-            // variables such that product = prod1 * 2^256 + prod0.
-            uint256 prod0 = x * y; // Least significant 256 bits of the product
-            uint256 prod1; // Most significant 256 bits of the product
-            assembly {
-                let mm := mulmod(x, y, not(0))
-                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
-            }
-
-            // Handle non-overflow cases, 256 by 256 division.
-            if (prod1 == 0) {
-                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
-                // The surrounding unchecked block does not change this fact.
-                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
-                return prod0 / denominator;
-            }
-
-            // Make sure the result is less than 2^256. Also prevents denominator == 0.
-            if (denominator <= prod1) {
-                revert MathOverflowedMulDiv();
-            }
-
-            ///////////////////////////////////////////////
-            // 512 by 256 division.
-            ///////////////////////////////////////////////
-
-            // Make division exact by subtracting the remainder from [prod1 prod0].
-            uint256 remainder;
-            assembly {
-                // Compute remainder using mulmod.
-                remainder := mulmod(x, y, denominator)
-
-                // Subtract 256 bit number from 512 bit number.
-                prod1 := sub(prod1, gt(remainder, prod0))
-                prod0 := sub(prod0, remainder)
-            }
-
-            // Factor powers of two out of denominator and compute largest power of two divisor of denominator.
-            // Always >= 1. See https://cs.stackexchange.com/q/138556/92363.
-
-            uint256 twos = denominator & (0 - denominator);
-            assembly {
-                // Divide denominator by twos.
-                denominator := div(denominator, twos)
-
-                // Divide [prod1 prod0] by twos.
-                prod0 := div(prod0, twos)
-
-                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
-                twos := add(div(sub(0, twos), twos), 1)
-            }
-
-            // Shift in bits from prod1 into prod0.
-            prod0 |= prod1 * twos;
-
-            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
-            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
-            // four bits. That is, denominator * inv = 1 mod 2^4.
-            uint256 inverse = (3 * denominator) ^ 2;
-
-            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also
-            // works in modular arithmetic, doubling the correct bits in each step.
-            inverse *= 2 - denominator * inverse; // inverse mod 2^8
-            inverse *= 2 - denominator * inverse; // inverse mod 2^16
-            inverse *= 2 - denominator * inverse; // inverse mod 2^32
-            inverse *= 2 - denominator * inverse; // inverse mod 2^64
-            inverse *= 2 - denominator * inverse; // inverse mod 2^128
-            inverse *= 2 - denominator * inverse; // inverse mod 2^256
-
-            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
-            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
-            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
-            // is no longer required.
-            result = prod0 * inverse;
-            return result;
-        }
-    }
-
-    /**
-     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
-     */
-    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
-        uint256 result = mulDiv(x, y, denominator);
-        if (unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0) {
-            result += 1;
-        }
-        return result;
-    }
-
-    /**
-     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
-     * towards zero.
-     *
-     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
-     */
-    function sqrt(uint256 a) internal pure returns (uint256) {
-        if (a == 0) {
-            return 0;
-        }
-
-        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
-        //
-        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
-        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
-        //
-        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
-        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
-        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
-        //
-        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
-        uint256 result = 1 << (log2(a) >> 1);
-
-        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
-        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
-        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
-        // into the expected uint128 result.
-        unchecked {
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            result = (result + a / result) >> 1;
-            return min(result, a / result);
-        }
-    }
-
-    /**
-     * @notice Calculates sqrt(a), following the selected rounding direction.
-     */
-    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
-        unchecked {
-            uint256 result = sqrt(a);
-            return result + (unsignedRoundsUp(rounding) && result * result < a ? 1 : 0);
-        }
-    }
-
-    /**
-     * @dev Return the log in base 2 of a positive value rounded towards zero.
-     * Returns 0 if given 0.
-     */
-    function log2(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        unchecked {
-            if (value >> 128 > 0) {
-                value >>= 128;
-                result += 128;
-            }
-            if (value >> 64 > 0) {
-                value >>= 64;
-                result += 64;
-            }
-            if (value >> 32 > 0) {
-                value >>= 32;
-                result += 32;
-            }
-            if (value >> 16 > 0) {
-                value >>= 16;
-                result += 16;
-            }
-            if (value >> 8 > 0) {
-                value >>= 8;
-                result += 8;
-            }
-            if (value >> 4 > 0) {
-                value >>= 4;
-                result += 4;
-            }
-            if (value >> 2 > 0) {
-                value >>= 2;
-                result += 2;
-            }
-            if (value >> 1 > 0) {
-                result += 1;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.
-     * Returns 0 if given 0.
-     */
-    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
-        unchecked {
-            uint256 result = log2(value);
-            return result + (unsignedRoundsUp(rounding) && 1 << result < value ? 1 : 0);
-        }
-    }
-
-    /**
-     * @dev Return the log in base 10 of a positive value rounded towards zero.
-     * Returns 0 if given 0.
-     */
-    function log10(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        unchecked {
-            if (value >= 10 ** 64) {
-                value /= 10 ** 64;
-                result += 64;
-            }
-            if (value >= 10 ** 32) {
-                value /= 10 ** 32;
-                result += 32;
-            }
-            if (value >= 10 ** 16) {
-                value /= 10 ** 16;
-                result += 16;
-            }
-            if (value >= 10 ** 8) {
-                value /= 10 ** 8;
-                result += 8;
-            }
-            if (value >= 10 ** 4) {
-                value /= 10 ** 4;
-                result += 4;
-            }
-            if (value >= 10 ** 2) {
-                value /= 10 ** 2;
-                result += 2;
-            }
-            if (value >= 10 ** 1) {
-                result += 1;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
-     * Returns 0 if given 0.
-     */
-    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
-        unchecked {
-            uint256 result = log10(value);
-            return result + (unsignedRoundsUp(rounding) && 10 ** result < value ? 1 : 0);
-        }
-    }
-
-    /**
-     * @dev Return the log in base 256 of a positive value rounded towards zero.
-     * Returns 0 if given 0.
-     *
-     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
-     */
-    function log256(uint256 value) internal pure returns (uint256) {
-        uint256 result = 0;
-        unchecked {
-            if (value >> 128 > 0) {
-                value >>= 128;
-                result += 16;
-            }
-            if (value >> 64 > 0) {
-                value >>= 64;
-                result += 8;
-            }
-            if (value >> 32 > 0) {
-                value >>= 32;
-                result += 4;
-            }
-            if (value >> 16 > 0) {
-                value >>= 16;
-                result += 2;
-            }
-            if (value >> 8 > 0) {
-                result += 1;
-            }
-        }
-        return result;
-    }
-
-    /**
-     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
-     * Returns 0 if given 0.
-     */
-    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
-        unchecked {
-            uint256 result = log256(value);
-            return result + (unsignedRoundsUp(rounding) && 1 << (result << 3) < value ? 1 : 0);
-        }
-    }
-
-    /**
-     * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.
-     */
-    function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
-        return uint8(rounding) % 2 == 1;
-    }
-}
-
-// lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/EnumerableSet.sol)
-// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.
-
-/**
- * @dev Library for managing
- * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
- * types.
- *
- * Sets have the following properties:
- *
- * - Elements are added, removed, and checked for existence in constant time
- * (O(1)).
- * - Elements are enumerated in O(n). No guarantees are made on the ordering.
- *
- * ```solidity
- * contract Example {
- *     // Add the library methods
- *     using EnumerableSet for EnumerableSet.AddressSet;
- *
- *     // Declare a set state variable
- *     EnumerableSet.AddressSet private mySet;
- * }
- * ```
- *
- * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
- * and `uint256` (`UintSet`) are supported.
- *
- * [WARNING]
- * ====
- * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure
- * unusable.
- * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
- *
- * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an
- * array of EnumerableSet.
- * ====
- */
-library EnumerableSet {
-    // To implement this library for multiple types with as little code
-    // repetition as possible, we write it in terms of a generic Set type with
-    // bytes32 values.
-    // The Set implementation uses private functions, and user-facing
-    // implementations (such as AddressSet) are just wrappers around the
-    // underlying Set.
-    // This means that we can only create new EnumerableSets for types that fit
-    // in bytes32.
-
-    struct Set {
-        // Storage of set values
-        bytes32[] _values;
-        // Position is the index of the value in the `values` array plus 1.
-        // Position 0 is used to mean a value is not in the set.
-        mapping(bytes32 value => uint256) _positions;
-    }
-
-    /**
-     * @dev Add a value to a set. O(1).
-     *
-     * Returns true if the value was added to the set, that is if it was not
-     * already present.
-     */
-    function _add(Set storage set, bytes32 value) private returns (bool) {
-        if (!_contains(set, value)) {
-            set._values.push(value);
-            // The value is stored at length-1, but we add 1 to all indexes
-            // and use 0 as a sentinel value
-            set._positions[value] = set._values.length;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @dev Removes a value from a set. O(1).
-     *
-     * Returns true if the value was removed from the set, that is if it was
-     * present.
-     */
-    function _remove(Set storage set, bytes32 value) private returns (bool) {
-        // We cache the value's position to prevent multiple reads from the same storage slot
-        uint256 position = set._positions[value];
-
-        if (position != 0) {
-            // Equivalent to contains(set, value)
-            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
-            // the array, and then remove the last element (sometimes called as 'swap and pop').
-            // This modifies the order of the array, as noted in {at}.
-
-            uint256 valueIndex = position - 1;
-            uint256 lastIndex = set._values.length - 1;
-
-            if (valueIndex != lastIndex) {
-                bytes32 lastValue = set._values[lastIndex];
-
-                // Move the lastValue to the index where the value to delete is
-                set._values[valueIndex] = lastValue;
-                // Update the tracked position of the lastValue (that was just moved)
-                set._positions[lastValue] = position;
-            }
-
-            // Delete the slot where the moved value was stored
-            set._values.pop();
-
-            // Delete the tracked position for the deleted slot
-            delete set._positions[value];
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @dev Returns true if the value is in the set. O(1).
-     */
-    function _contains(Set storage set, bytes32 value) private view returns (bool) {
-        return set._positions[value] != 0;
-    }
-
-    /**
-     * @dev Returns the number of values on the set. O(1).
-     */
-    function _length(Set storage set) private view returns (uint256) {
-        return set._values.length;
-    }
-
-    /**
-     * @dev Returns the value stored at position `index` in the set. O(1).
-     *
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     */
-    function _at(Set storage set, uint256 index) private view returns (bytes32) {
-        return set._values[index];
-    }
-
-    /**
-     * @dev Return the entire set in an array
-     *
-     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
-     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
-     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
-     */
-    function _values(Set storage set) private view returns (bytes32[] memory) {
-        return set._values;
-    }
-
-    // Bytes32Set
-
-    struct Bytes32Set {
-        Set _inner;
-    }
-
-    /**
-     * @dev Add a value to a set. O(1).
-     *
-     * Returns true if the value was added to the set, that is if it was not
-     * already present.
-     */
-    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
-        return _add(set._inner, value);
-    }
-
-    /**
-     * @dev Removes a value from a set. O(1).
-     *
-     * Returns true if the value was removed from the set, that is if it was
-     * present.
-     */
-    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
-        return _remove(set._inner, value);
-    }
-
-    /**
-     * @dev Returns true if the value is in the set. O(1).
-     */
-    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
-        return _contains(set._inner, value);
-    }
-
-    /**
-     * @dev Returns the number of values in the set. O(1).
-     */
-    function length(Bytes32Set storage set) internal view returns (uint256) {
-        return _length(set._inner);
-    }
-
-    /**
-     * @dev Returns the value stored at position `index` in the set. O(1).
-     *
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     */
-    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
-        return _at(set._inner, index);
-    }
-
-    /**
-     * @dev Return the entire set in an array
-     *
-     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
-     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
-     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
-     */
-    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        bytes32[] memory result;
-
-        /// @solidity memory-safe-assembly
-        assembly {
-            result := store
-        }
-
-        return result;
-    }
-
-    // AddressSet
-
-    struct AddressSet {
-        Set _inner;
-    }
-
-    /**
-     * @dev Add a value to a set. O(1).
-     *
-     * Returns true if the value was added to the set, that is if it was not
-     * already present.
-     */
-    function add(AddressSet storage set, address value) internal returns (bool) {
-        return _add(set._inner, bytes32(uint256(uint160(value))));
-    }
-
-    /**
-     * @dev Removes a value from a set. O(1).
-     *
-     * Returns true if the value was removed from the set, that is if it was
-     * present.
-     */
-    function remove(AddressSet storage set, address value) internal returns (bool) {
-        return _remove(set._inner, bytes32(uint256(uint160(value))));
-    }
-
-    /**
-     * @dev Returns true if the value is in the set. O(1).
-     */
-    function contains(AddressSet storage set, address value) internal view returns (bool) {
-        return _contains(set._inner, bytes32(uint256(uint160(value))));
-    }
-
-    /**
-     * @dev Returns the number of values in the set. O(1).
-     */
-    function length(AddressSet storage set) internal view returns (uint256) {
-        return _length(set._inner);
-    }
-
-    /**
-     * @dev Returns the value stored at position `index` in the set. O(1).
-     *
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     */
-    function at(AddressSet storage set, uint256 index) internal view returns (address) {
-        return address(uint160(uint256(_at(set._inner, index))));
-    }
-
-    /**
-     * @dev Return the entire set in an array
-     *
-     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
-     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
-     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
-     */
-    function values(AddressSet storage set) internal view returns (address[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        address[] memory result;
-
-        /// @solidity memory-safe-assembly
-        assembly {
-            result := store
-        }
-
-        return result;
-    }
-
-    // UintSet
-
-    struct UintSet {
-        Set _inner;
-    }
-
-    /**
-     * @dev Add a value to a set. O(1).
-     *
-     * Returns true if the value was added to the set, that is if it was not
-     * already present.
-     */
-    function add(UintSet storage set, uint256 value) internal returns (bool) {
-        return _add(set._inner, bytes32(value));
-    }
-
-    /**
-     * @dev Removes a value from a set. O(1).
-     *
-     * Returns true if the value was removed from the set, that is if it was
-     * present.
-     */
-    function remove(UintSet storage set, uint256 value) internal returns (bool) {
-        return _remove(set._inner, bytes32(value));
-    }
-
-    /**
-     * @dev Returns true if the value is in the set. O(1).
-     */
-    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
-        return _contains(set._inner, bytes32(value));
-    }
-
-    /**
-     * @dev Returns the number of values in the set. O(1).
-     */
-    function length(UintSet storage set) internal view returns (uint256) {
-        return _length(set._inner);
-    }
-
-    /**
-     * @dev Returns the value stored at position `index` in the set. O(1).
-     *
-     * Note that there are no guarantees on the ordering of values inside the
-     * array, and it may change when more values are added or removed.
-     *
-     * Requirements:
-     *
-     * - `index` must be strictly less than {length}.
-     */
-    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
-        return uint256(_at(set._inner, index));
-    }
-
-    /**
-     * @dev Return the entire set in an array
-     *
-     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
-     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
-     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
-     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
-     */
-    function values(UintSet storage set) internal view returns (uint256[] memory) {
-        bytes32[] memory store = _values(set._inner);
-        uint256[] memory result;
-
-        /// @solidity memory-safe-assembly
-        assembly {
-            result := store
-        }
-
-        return result;
-    }
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/hooks/libs/StandardHookMetadata.sol
-
-/*@@@@@@@       @@@@@@@@@
- @@@@@@@@@       @@@@@@@@@
-  @@@@@@@@@       @@@@@@@@@
-   @@@@@@@@@       @@@@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@
-     @@@@@  HYPERLANE  @@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@
-   @@@@@@@@@       @@@@@@@@@
-  @@@@@@@@@       @@@@@@@@@
- @@@@@@@@@       @@@@@@@@@
-@@@@@@@@@       @@@@@@@@*/
-
-/**
- * Format of metadata:
- *
- * [0:2] variant
- * [2:34] msg.value
- * [34:66] Gas limit for message (IGP)
- * [66:86] Refund address for message (IGP)
- * [86:] Custom metadata
- */
-library StandardHookMetadata {
-    struct Metadata {
-        uint16 variant;
-        uint256 msgValue;
-        uint256 gasLimit;
-        address refundAddress;
-    }
-
-    uint8 private constant VARIANT_OFFSET = 0;
-    uint8 private constant MSG_VALUE_OFFSET = 2;
-    uint8 private constant GAS_LIMIT_OFFSET = 34;
-    uint8 private constant REFUND_ADDRESS_OFFSET = 66;
-    uint256 private constant MIN_METADATA_LENGTH = 86;
-
-    uint16 public constant VARIANT = 1;
-
-    /**
-     * @notice Returns the variant of the metadata.
-     * @param _metadata ABI encoded standard hook metadata.
-     * @return variant of the metadata as uint8.
-     */
-    function variant(bytes calldata _metadata) internal pure returns (uint16) {
-        if (_metadata.length < VARIANT_OFFSET + 2) return 0;
-        return uint16(bytes2(_metadata[VARIANT_OFFSET:VARIANT_OFFSET + 2]));
-    }
-
-    /**
-     * @notice Returns the specified value for the message.
-     * @param _metadata ABI encoded standard hook metadata.
-     * @param _default Default fallback value.
-     * @return Value for the message as uint256.
-     */
-    function msgValue(bytes calldata _metadata, uint256 _default) internal pure returns (uint256) {
-        if (_metadata.length < MSG_VALUE_OFFSET + 32) return _default;
-        return uint256(bytes32(_metadata[MSG_VALUE_OFFSET:MSG_VALUE_OFFSET + 32]));
-    }
-
-    /**
-     * @notice Returns the specified gas limit for the message.
-     * @param _metadata ABI encoded standard hook metadata.
-     * @param _default Default fallback gas limit.
-     * @return Gas limit for the message as uint256.
-     */
-    function gasLimit(bytes calldata _metadata, uint256 _default) internal pure returns (uint256) {
-        if (_metadata.length < GAS_LIMIT_OFFSET + 32) return _default;
-        return uint256(bytes32(_metadata[GAS_LIMIT_OFFSET:GAS_LIMIT_OFFSET + 32]));
-    }
-
-    /**
-     * @notice Returns the specified refund address for the message.
-     * @param _metadata ABI encoded standard hook metadata.
-     * @param _default Default fallback refund address.
-     * @return Refund address for the message as address.
-     */
-    function refundAddress(bytes calldata _metadata, address _default) internal pure returns (address) {
-        if (_metadata.length < REFUND_ADDRESS_OFFSET + 20) return _default;
-        return address(bytes20(_metadata[REFUND_ADDRESS_OFFSET:REFUND_ADDRESS_OFFSET + 20]));
-    }
-
-    /**
-     * @notice Returns any custom metadata.
-     * @param _metadata ABI encoded standard hook metadata.
-     * @return Custom metadata.
-     */
-    function getCustomMetadata(bytes calldata _metadata) internal pure returns (bytes calldata) {
-        if (_metadata.length < MIN_METADATA_LENGTH) return _metadata[0:0];
-        return _metadata[MIN_METADATA_LENGTH:];
-    }
-
-    /**
-     * @notice Formats the specified gas limit and refund address into standard hook metadata.
-     * @param _msgValue msg.value for the message.
-     * @param _gasLimit Gas limit for the message.
-     * @param _refundAddress Refund address for the message.
-     * @param _customMetadata Additional metadata to include in the standard hook metadata.
-     * @return ABI encoded standard hook metadata.
-     */
-    function formatMetadata(uint256 _msgValue, uint256 _gasLimit, address _refundAddress, bytes memory _customMetadata)
-        internal
-        pure
-        returns (bytes memory)
-    {
-        return abi.encodePacked(VARIANT, _msgValue, _gasLimit, _refundAddress, _customMetadata);
-    }
-
-    /**
-     * @notice Formats the specified gas limit and refund address into standard hook metadata.
-     * @param _msgValue msg.value for the message.
-     * @return ABI encoded standard hook metadata.
-     */
-    function overrideMsgValue(uint256 _msgValue) internal view returns (bytes memory) {
-        return formatMetadata(_msgValue, uint256(0), msg.sender, '');
-    }
-
-    /**
-     * @notice Formats the specified gas limit and refund address into standard hook metadata.
-     * @param _gasLimit Gas limit for the message.
-     * @return ABI encoded standard hook metadata.
-     */
-    function overrideGasLimit(uint256 _gasLimit) internal view returns (bytes memory) {
-        return formatMetadata(uint256(0), _gasLimit, msg.sender, '');
-    }
-
-    /**
-     * @notice Formats the specified refund address into standard hook metadata.
-     * @param _refundAddress Refund address for the message.
-     * @return ABI encoded standard hook metadata.
-     */
-    function overrideRefundAddress(address _refundAddress) internal pure returns (bytes memory) {
-        return formatMetadata(uint256(0), uint256(0), _refundAddress, '');
-    }
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol
-
-interface IInterchainSecurityModule {
-    enum Types {
-        UNUSED,
-        ROUTING,
-        AGGREGATION,
-        LEGACY_MULTISIG,
-        MERKLE_ROOT_MULTISIG,
-        MESSAGE_ID_MULTISIG,
-        NULL, // used with relayer carrying no metadata
-        CCIP_READ,
-        ARB_L2_TO_L1
-    }
-
-    /**
-     * @notice Returns an enum that represents the type of security model
-     * encoded by this ISM.
-     * @dev Relayers infer how to fetch and format metadata.
-     */
-    function moduleType() external view returns (uint8);
-
-    /**
-     * @notice Defines a security model responsible for verifying interchain
-     * messages based on the provided metadata.
-     * @param _metadata Off-chain metadata provided by a relayer, specific to
-     * the security model encoded by the module (e.g. validator signatures)
-     * @param _message Hyperlane encoded interchain message
-     * @return True if the message was verified
-     */
-    function verify(bytes calldata _metadata, bytes calldata _message) external returns (bool);
-}
-
-interface ISpecifiesInterchainSecurityModule_0 {
-    function interchainSecurityModule() external view returns (IInterchainSecurityModule);
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol
-
-interface IMessageRecipient {
-    function handle(uint32 _origin, bytes32 _sender, bytes calldata _message) external payable;
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/interfaces/hooks/IPostDispatchHook.sol
-
-/*@@@@@@@       @@@@@@@@@
- @@@@@@@@@       @@@@@@@@@
-  @@@@@@@@@       @@@@@@@@@
-   @@@@@@@@@       @@@@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@
-     @@@@@  HYPERLANE  @@@@@@@
-    @@@@@@@@@@@@@@@@@@@@@@@@@
-   @@@@@@@@@       @@@@@@@@@
-  @@@@@@@@@       @@@@@@@@@
- @@@@@@@@@       @@@@@@@@@
-@@@@@@@@@       @@@@@@@@*/
-
-interface IPostDispatchHook {
-    enum Types {
-        UNUSED,
-        ROUTING,
-        AGGREGATION,
-        MERKLE_TREE,
-        INTERCHAIN_GAS_PAYMASTER,
-        FALLBACK_ROUTING,
-        ID_AUTH_ISM,
-        PAUSABLE,
-        PROTOCOL_FEE,
-        LAYER_ZERO_V1,
-        RATE_LIMITED,
-        ARB_L2_TO_L1
-    }
-
-    /**
-     * @notice Returns an enum that represents the type of hook
-     */
-    function hookType() external view returns (uint8);
-
-    /**
-     * @notice Returns whether the hook supports metadata
-     * @param metadata metadata
-     * @return Whether the hook supports metadata
-     */
-    function supportsMetadata(bytes calldata metadata) external view returns (bool);
-
-    /**
-     * @notice Post action after a message is dispatched via the Mailbox
-     * @param metadata The metadata required for the hook
-     * @param message The message passed from the Mailbox.dispatch() call
-     */
-    function postDispatch(bytes calldata metadata, bytes calldata message) external payable;
-
-    /**
-     * @notice Compute the payment required by the postDispatch call
-     * @param metadata The metadata required for the hook
-     * @param message The message passed from the Mailbox.dispatch() call
-     * @return Quoted payment for the postDispatch call
-     */
-    function quoteDispatch(bytes calldata metadata, bytes calldata message) external view returns (uint256);
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/libs/Indexed.sol
-
-contract Indexed {
-    uint256 public immutable deployedBlock;
-
-    constructor() {
-        deployedBlock = block.number;
-    }
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/libs/TypeCasts.sol
-
-library TypeCasts {
-    // alignment preserving cast
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
-    }
-
-    // alignment preserving cast
-    function bytes32ToAddress(bytes32 _buf) internal pure returns (address) {
-        return address(uint160(uint256(_buf)));
-    }
-}
-
-// node_modules/@hyperlane-xyz/core/contracts/upgrade/Versioned.sol
-
-/**
- * @title Versioned
- * @notice Version getter for contracts
- *
- */
-contract Versioned {
-    uint8 public constant VERSION = 3;
 }
 
 // node_modules/@openzeppelin/contracts/utils/Address.sol
@@ -2083,160 +640,6 @@ library AddressUpgradeable {
     }
 }
 
-// src/interfaces/bridge/IDomainRegistry.sol
-
-interface IDomainRegistry {
-    error AlreadyRegistered();
-    error NotRegistered();
-    error InvalidDomain();
-
-    event DomainRegistered(uint32 indexed _domain);
-    event DomainDeregistered(uint32 indexed _domain);
-
-    /// @notice Returns set of all registered domains
-    /// @return An array of all registered domains
-    function domains() external view returns (uint256[] memory);
-
-    /// @notice Checks if a domain is registered
-    /// @param _domain The domain to check
-    /// @return True if the domain is registered, false otherwise
-    function contains(uint32 _domain) external view returns (bool);
-
-    /// @notice Registers a new domain
-    /// @dev Only callable by the owner, allows messages to the registered domain
-    /// @param _domain The domain to register
-    function registerDomain(uint32 _domain) external;
-
-    /// @notice Deregisters a domain
-    /// @dev Only callable by the owner, disallows messages to the deregistered domain
-    /// @param _domain The domain to deregister
-    function deregisterDomain(uint32 _domain) external;
-}
-
-// src/interfaces/external/IFactoryRegistry.sol
-
-interface IFactoryRegistry {
-    error FallbackFactory();
-    error InvalidFactoriesToPoolFactory();
-    error PathAlreadyApproved();
-    error PathNotApproved();
-    error SameAddress();
-    error ZeroAddress();
-
-    event Approve(address indexed poolFactory, address indexed votingRewardsFactory, address indexed gaugeFactory);
-    event Unapprove(address indexed poolFactory, address indexed votingRewardsFactory, address indexed gaugeFactory);
-    event SetManagedRewardsFactory(address indexed _newRewardsFactory);
-
-    /// @notice Approve a set of factories used in Velodrome Protocol.
-    ///         Router.sol is able to swap any poolFactories currently approved.
-    ///         Cannot approve address(0) factories.
-    ///         Cannot approve path that is already approved.
-    ///         Each poolFactory has one unique set and maintains state.  In the case a poolFactory is unapproved
-    ///             and then re-approved, the same set of factories must be used.  In other words, you cannot overwrite
-    ///             the factories tied to a poolFactory address.
-    ///         VotingRewardsFactories and GaugeFactories may use the same address across multiple poolFactories.
-    /// @dev Callable by onlyOwner
-    /// @param poolFactory .
-    /// @param votingRewardsFactory .
-    /// @param gaugeFactory .
-    function approve(address poolFactory, address votingRewardsFactory, address gaugeFactory) external;
-
-    /// @notice Get the factories correlated to a poolFactory.
-    ///         Once set, this can never be modified.
-    ///         Returns the correlated factories even after an approved poolFactory is unapproved.
-    function factoriesToPoolFactory(address poolFactory)
-        external
-        view
-        returns (address votingRewardsFactory, address gaugeFactory);
-
-    /// @notice Check if a PoolFactory is approved within the factory registry.  Router uses this method to
-    ///         ensure a pool swapped from is approved.
-    /// @param poolFactory .
-    /// @return True if PoolFactory is approved, else false
-    function isPoolFactoryApproved(address poolFactory) external view returns (bool);
-}
-
-// src/interfaces/root/bridge/IMessageSender.sol
-
-interface IMessageSender {
-    error NotBridge();
-
-    event SentMessage(
-        uint32 indexed _destination, bytes32 indexed _recipient, uint256 _value, string _message, string _metadata
-    );
-
-    /// @notice Sends a message to the destination module
-    /// @dev All message modules must implement this function
-    /// @param _chainid The chain id of the destination chain
-    /// @param _message The message
-    function sendMessage(uint256 _chainid, bytes calldata _message) external payable;
-
-    /// @notice Quotes the amount of native token required to dispatch a message
-    /// @param _destinationDomain The chain id of the destination chain
-    /// @param _messageBody The message body to be dispatched
-    /// @return The amount of native token required to dispatch the message
-    function quote(uint256 _destinationDomain, bytes calldata _messageBody) external view returns (uint256);
-}
-
-// src/interfaces/root/bridge/hyperlane/IPaymaster.sol
-
-interface IPaymaster {
-    error InvalidAddress();
-    error NotPaymasterVault();
-
-    event PaymasterVaultSet(address indexed _newPaymaster);
-    event WhitelistSet(address indexed _account, bool indexed _state);
-
-    /// @notice Returns the address of the paymaster vault, used to sponsor x-chain transactions
-    function paymasterVault() external view returns (address);
-
-    /// @notice Returns the list of addresses whitelisted for transaction sponsorship
-    /// @return Array of whitelisted addresses
-    function whitelist() external view returns (address[] memory);
-
-    /// @notice Check if an account is whitelisted for transaction sponsorship
-    /// @return Whether the account is whitelisted or not
-    function isWhitelisted(address _account) external view returns (bool);
-
-    /// @notice Get the number of addresses whitelisted for sponsorship
-    /// @return Length of whitelisted addresses
-    function whitelistLength() external view returns (uint256);
-
-    /// @notice Whitelists/unwhitelists an address for x-chain transaction sponsorship
-    /// @dev Only callable by the whitelist manager
-    /// @param _account The address of the account to be whitelisted
-    /// @param _state Whether the `_account` should be whitelisted or not
-    function whitelistForSponsorship(address _account, bool _state) external;
-
-    /// @notice Sets the address of the paymaster vault that will be used to sponsor x-chain transactions
-    /// @dev Only callable by the whitelist manager
-    /// @param _paymasterVault The address of the new paymaster vault
-    function setPaymasterVault(address _paymasterVault) external;
-}
-
-// src/interfaces/root/bridge/hyperlane/IPaymasterVault.sol
-
-interface IPaymasterVault {
-    error ETHTransferFailed();
-    error NotVaultManager();
-    error ZeroAddress();
-
-    event FundsWithdrawn(address indexed _recipient, uint256 _amount);
-
-    /// @notice Returns the address of the vault manager
-    function vaultManager() external view returns (address);
-
-    /// @notice Withdraw ETH balance from the vault
-    /// @dev Only callable by the owner
-    /// @param _recipient The address of the recipient
-    /// @param _amount The amount of tokens to withdraw
-    function withdrawFunds(address _recipient, uint256 _amount) external;
-
-    /// @notice Fund vault manager with ETH for transaction sponsoring
-    /// @param _value The amount of funding required for the transaction
-    function sponsorTransaction(uint256 _value) external;
-}
-
 // src/libraries/Commands.sol
 
 /// @notice Commands for x-chain interactions
@@ -2384,102 +787,1572 @@ library Commands {
     }
 }
 
-// lib/openzeppelin-contracts/contracts/access/Ownable.sol
+// lib/openzeppelin-contracts/contracts/utils/Context.sol
 
-// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)
+// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)
 
 /**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
  *
- * The initial owner is set to the address provided by the deployer. This can
- * later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
+ * This contract is only required for intermediate, library-like contracts.
  */
-abstract contract Ownable is Context {
-    address private _owner;
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
 
-    /**
-     * @dev The caller account is not authorized to perform an operation.
-     */
-    error OwnableUnauthorizedAccount(address account);
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
 
-    /**
-     * @dev The owner is not a valid owner account. (eg. `address(0)`)
-     */
-    error OwnableInvalidOwner(address owner);
+    function _contextSuffixLength() internal view virtual returns (uint256) {
+        return 0;
+    }
+}
 
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+// lib/openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol
 
-    /**
-     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.
-     */
-    constructor(address initialOwner) {
-        if (initialOwner == address(0)) {
-            revert OwnableInvalidOwner(address(0));
-        }
-        _transferOwnership(initialOwner);
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/structs/EnumerableSet.sol)
+// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.
+
+/**
+ * @dev Library for managing
+ * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
+ * types.
+ *
+ * Sets have the following properties:
+ *
+ * - Elements are added, removed, and checked for existence in constant time
+ * (O(1)).
+ * - Elements are enumerated in O(n). No guarantees are made on the ordering.
+ *
+ * ```solidity
+ * contract Example {
+ *     // Add the library methods
+ *     using EnumerableSet for EnumerableSet.AddressSet;
+ *
+ *     // Declare a set state variable
+ *     EnumerableSet.AddressSet private mySet;
+ * }
+ * ```
+ *
+ * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
+ * and `uint256` (`UintSet`) are supported.
+ *
+ * [WARNING]
+ * ====
+ * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure
+ * unusable.
+ * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ *
+ * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an
+ * array of EnumerableSet.
+ * ====
+ */
+library EnumerableSet {
+    // To implement this library for multiple types with as little code
+    // repetition as possible, we write it in terms of a generic Set type with
+    // bytes32 values.
+    // The Set implementation uses private functions, and user-facing
+    // implementations (such as AddressSet) are just wrappers around the
+    // underlying Set.
+    // This means that we can only create new EnumerableSets for types that fit
+    // in bytes32.
+
+    struct Set {
+        // Storage of set values
+        bytes32[] _values;
+        // Position is the index of the value in the `values` array plus 1.
+        // Position 0 is used to mean a value is not in the set.
+        mapping(bytes32 value => uint256) _positions;
     }
 
     /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        _checkOwner();
-        _;
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if the sender is not the owner.
-     */
-    function _checkOwner() internal view virtual {
-        if (owner() != _msgSender()) {
-            revert OwnableUnauthorizedAccount(_msgSender());
-        }
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions. Can only be called by the current owner.
+     * @dev Add a value to a set. O(1).
      *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby disabling any functionality that is only available to the owner.
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
      */
-    function renounceOwnership() public virtual onlyOwner {
-        _transferOwnership(address(0));
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        if (newOwner == address(0)) {
-            revert OwnableInvalidOwner(address(0));
+    function _add(Set storage set, bytes32 value) private returns (bool) {
+        if (!_contains(set, value)) {
+            set._values.push(value);
+            // The value is stored at length-1, but we add 1 to all indexes
+            // and use 0 as a sentinel value
+            set._positions[value] = set._values.length;
+            return true;
+        } else {
+            return false;
         }
-        _transferOwnership(newOwner);
     }
 
     /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Internal function without access restriction.
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
      */
-    function _transferOwnership(address newOwner) internal virtual {
-        address oldOwner = _owner;
-        _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
+    function _remove(Set storage set, bytes32 value) private returns (bool) {
+        // We cache the value's position to prevent multiple reads from the same storage slot
+        uint256 position = set._positions[value];
+
+        if (position != 0) {
+            // Equivalent to contains(set, value)
+            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
+            // the array, and then remove the last element (sometimes called as 'swap and pop').
+            // This modifies the order of the array, as noted in {at}.
+
+            uint256 valueIndex = position - 1;
+            uint256 lastIndex = set._values.length - 1;
+
+            if (valueIndex != lastIndex) {
+                bytes32 lastValue = set._values[lastIndex];
+
+                // Move the lastValue to the index where the value to delete is
+                set._values[valueIndex] = lastValue;
+                // Update the tracked position of the lastValue (that was just moved)
+                set._positions[lastValue] = position;
+            }
+
+            // Delete the slot where the moved value was stored
+            set._values.pop();
+
+            // Delete the tracked position for the deleted slot
+            delete set._positions[value];
+
+            return true;
+        } else {
+            return false;
+        }
     }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function _contains(Set storage set, bytes32 value) private view returns (bool) {
+        return set._positions[value] != 0;
+    }
+
+    /**
+     * @dev Returns the number of values on the set. O(1).
+     */
+    function _length(Set storage set) private view returns (uint256) {
+        return set._values.length;
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _at(Set storage set, uint256 index) private view returns (bytes32) {
+        return set._values[index];
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function _values(Set storage set) private view returns (bytes32[] memory) {
+        return set._values;
+    }
+
+    // Bytes32Set
+
+    struct Bytes32Set {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+        return _add(set._inner, value);
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+        return _remove(set._inner, value);
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
+        return _contains(set._inner, value);
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(Bytes32Set storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
+        return _at(set._inner, index);
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        bytes32[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+
+    // AddressSet
+
+    struct AddressSet {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(AddressSet storage set, address value) internal returns (bool) {
+        return _add(set._inner, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(AddressSet storage set, address value) internal returns (bool) {
+        return _remove(set._inner, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(AddressSet storage set, address value) internal view returns (bool) {
+        return _contains(set._inner, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(AddressSet storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(AddressSet storage set, uint256 index) internal view returns (address) {
+        return address(uint160(uint256(_at(set._inner, index))));
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(AddressSet storage set) internal view returns (address[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        address[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+
+    // UintSet
+
+    struct UintSet {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(UintSet storage set, uint256 value) internal returns (bool) {
+        return _add(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(UintSet storage set, uint256 value) internal returns (bool) {
+        return _remove(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
+        return _contains(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(UintSet storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
+        return uint256(_at(set._inner, index));
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(UintSet storage set) internal view returns (uint256[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        uint256[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+}
+
+// src/interfaces/bridge/IDomainRegistry.sol
+
+interface IDomainRegistry {
+    error AlreadyRegistered();
+    error NotRegistered();
+    error InvalidDomain();
+
+    event DomainRegistered(uint32 indexed _domain);
+    event DomainDeregistered(uint32 indexed _domain);
+
+    /// @notice Returns set of all registered domains
+    /// @return An array of all registered domains
+    function domains() external view returns (uint256[] memory);
+
+    /// @notice Returns the address of the mailbox contract
+    function mailbox() external view returns (address);
+
+    /// @notice Checks if a domain is registered
+    /// @param _domain The domain to check
+    /// @return True if the domain is registered, false otherwise
+    function contains(uint32 _domain) external view returns (bool);
+
+    /// @notice Registers a new domain
+    /// @dev Only callable by the owner, allows messages to the registered domain
+    /// @param _domain The domain to register
+    function registerDomain(uint32 _domain) external;
+
+    /// @notice Deregisters a domain
+    /// @dev Only callable by the owner, disallows messages to the deregistered domain
+    /// @param _domain The domain to deregister
+    function deregisterDomain(uint32 _domain) external;
+}
+
+// lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol
+
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/introspection/IERC165.sol)
+
+/**
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
+ */
+interface IERC165 {
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+// lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol
+
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/IERC20.sol)
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    /**
+     * @dev Returns the value of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the value of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves a `value` amount of tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 value) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the
+     * caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 value) external returns (bool);
+
+    /**
+     * @dev Moves a `value` amount of tokens from `from` to `to` using the
+     * allowance mechanism. `value` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 value) external returns (bool);
+}
+
+// lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Permit.sol
+
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/extensions/IERC20Permit.sol)
+
+/**
+ * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+ *
+ * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+ * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
+ * need to send a transaction, and thus is not required to hold Ether at all.
+ *
+ * ==== Security Considerations
+ *
+ * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
+ * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
+ * considered as an intention to spend the allowance in any specific way. The second is that because permits have
+ * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
+ * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
+ * generally recommended is:
+ *
+ * ```solidity
+ * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
+ *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
+ *     doThing(..., value);
+ * }
+ *
+ * function doThing(..., uint256 value) public {
+ *     token.safeTransferFrom(msg.sender, address(this), value);
+ *     ...
+ * }
+ * ```
+ *
+ * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
+ * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
+ * {SafeERC20-safeTransferFrom}).
+ *
+ * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
+ * contracts should have entry points that don't rely on permit.
+ */
+interface IERC20Permit {
+    /**
+     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+     * given ``owner``'s signed approval.
+     *
+     * IMPORTANT: The same issues {IERC20-approve} has related to transaction
+     * ordering also apply here.
+     *
+     * Emits an {Approval} event.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     * - `deadline` must be a timestamp in the future.
+     * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
+     * over the EIP712-formatted function arguments.
+     * - the signature must use ``owner``'s current nonce (see {nonces}).
+     *
+     * For more information on the signature format, see the
+     * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
+     * section].
+     *
+     * CAUTION: See Security Considerations above.
+     */
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external;
+
+    /**
+     * @dev Returns the current nonce for `owner`. This value must be
+     * included whenever a signature is generated for {permit}.
+     *
+     * Every successful call to {permit} increases ``owner``'s nonce by one. This
+     * prevents a signature from being used multiple times.
+     */
+    function nonces(address owner) external view returns (uint256);
+
+    /**
+     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
+}
+
+// src/interfaces/root/bridge/hyperlane/IHookGasEstimator.sol
+
+interface IHookGasEstimator {
+    /// @notice Returns the estimated gas limit for token bridging
+    function estimateSendTokenGas() external view returns (uint256);
+
+    /// @notice Returns the estimated gas limit for token bridging with locking
+    function estimateSendTokenAndLockGas() external view returns (uint256);
+
+    /// @notice Returns the estimated gas limit for a given command
+    /// @param _command The identifier of the command to estimate gas for
+    function estimateGas(uint256 _command) external view returns (uint256);
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/interfaces/IInterchainSecurityModule.sol
+
+interface IInterchainSecurityModule {
+    enum Types {
+        UNUSED,
+        ROUTING,
+        AGGREGATION,
+        LEGACY_MULTISIG,
+        MERKLE_ROOT_MULTISIG,
+        MESSAGE_ID_MULTISIG,
+        NULL, // used with relayer carrying no metadata
+        CCIP_READ,
+        ARB_L2_TO_L1,
+        WEIGHTED_MERKLE_ROOT_MULTISIG,
+        WEIGHTED_MESSAGE_ID_MULTISIG,
+        OP_L2_TO_L1
+    }
+
+    /**
+     * @notice Returns an enum that represents the type of security model
+     * encoded by this ISM.
+     * @dev Relayers infer how to fetch and format metadata.
+     */
+    function moduleType() external view returns (uint8);
+
+    /**
+     * @notice Defines a security model responsible for verifying interchain
+     * messages based on the provided metadata.
+     * @param _metadata Off-chain metadata provided by a relayer, specific to
+     * the security model encoded by the module (e.g. validator signatures)
+     * @param _message Hyperlane encoded interchain message
+     * @return True if the message was verified
+     */
+    function verify(bytes calldata _metadata, bytes calldata _message) external returns (bool);
+}
+
+interface ISpecifiesInterchainSecurityModule_0 {
+    function interchainSecurityModule() external view returns (IInterchainSecurityModule);
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/interfaces/IMessageRecipient.sol
+
+interface IMessageRecipient {
+    function handle(uint32 _origin, bytes32 _sender, bytes calldata _message) external payable;
+}
+
+// src/interfaces/root/bridge/hyperlane/IPaymaster.sol
+
+interface IPaymaster {
+    error InvalidAddress();
+    error NotPaymasterVault();
+
+    event PaymasterVaultSet(address indexed _newPaymaster);
+    event WhitelistSet(address indexed _account, bool indexed _state);
+
+    /// @notice Returns the address of the paymaster vault, used to sponsor x-chain transactions
+    function paymasterVault() external view returns (address);
+
+    /// @notice Returns the list of addresses whitelisted for transaction sponsorship
+    /// @return Array of whitelisted addresses
+    function whitelist() external view returns (address[] memory);
+
+    /// @notice Check if an account is whitelisted for transaction sponsorship
+    /// @return Whether the account is whitelisted or not
+    function isWhitelisted(address _account) external view returns (bool);
+
+    /// @notice Get the number of addresses whitelisted for sponsorship
+    /// @return Length of whitelisted addresses
+    function whitelistLength() external view returns (uint256);
+
+    /// @notice Whitelists/unwhitelists an address for x-chain transaction sponsorship
+    /// @dev Only callable by the whitelist manager
+    /// @param _account The address of the account to be whitelisted
+    /// @param _state Whether the `_account` should be whitelisted or not
+    function whitelistForSponsorship(address _account, bool _state) external;
+
+    /// @notice Sets the address of the paymaster vault that will be used to sponsor x-chain transactions
+    /// @dev Only callable by the whitelist manager
+    /// @param _paymasterVault The address of the new paymaster vault
+    function setPaymasterVault(address _paymasterVault) external;
+}
+
+// src/interfaces/root/bridge/hyperlane/IPaymasterVault.sol
+
+interface IPaymasterVault {
+    error ETHTransferFailed();
+    error NotVaultManager();
+    error ZeroAddress();
+
+    event FundsWithdrawn(address indexed _recipient, uint256 _amount);
+
+    /// @notice Returns the address of the vault manager
+    function vaultManager() external view returns (address);
+
+    /// @notice Withdraw ETH balance from the vault
+    /// @dev Only callable by the owner
+    /// @param _recipient The address of the recipient
+    /// @param _amount The amount of tokens to withdraw
+    function withdrawFunds(address _recipient, uint256 _amount) external;
+
+    /// @notice Fund vault manager with ETH for transaction sponsoring
+    /// @param _value The amount of funding required for the transaction
+    function sponsorTransaction(uint256 _value) external;
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/interfaces/hooks/IPostDispatchHook.sol
+
+/*@@@@@@@       @@@@@@@@@
+ @@@@@@@@@       @@@@@@@@@
+  @@@@@@@@@       @@@@@@@@@
+   @@@@@@@@@       @@@@@@@@@
+    @@@@@@@@@@@@@@@@@@@@@@@@@
+     @@@@@  HYPERLANE  @@@@@@@
+    @@@@@@@@@@@@@@@@@@@@@@@@@
+   @@@@@@@@@       @@@@@@@@@
+  @@@@@@@@@       @@@@@@@@@
+ @@@@@@@@@       @@@@@@@@@
+@@@@@@@@@       @@@@@@@@*/
+
+interface IPostDispatchHook {
+    enum Types {
+        UNUSED,
+        ROUTING,
+        AGGREGATION,
+        MERKLE_TREE,
+        INTERCHAIN_GAS_PAYMASTER,
+        FALLBACK_ROUTING,
+        ID_AUTH_ISM,
+        PAUSABLE,
+        PROTOCOL_FEE,
+        LAYER_ZERO_V1,
+        RATE_LIMITED,
+        ARB_L2_TO_L1,
+        OP_L2_TO_L1,
+        MAILBOX_DEFAULT_HOOK,
+        AMOUNT_ROUTING
+    }
+
+    /**
+     * @notice Returns an enum that represents the type of hook
+     */
+    function hookType() external view returns (uint8);
+
+    /**
+     * @notice Returns whether the hook supports metadata
+     * @param metadata metadata
+     * @return Whether the hook supports metadata
+     */
+    function supportsMetadata(bytes calldata metadata) external view returns (bool);
+
+    /**
+     * @notice Post action after a message is dispatched via the Mailbox
+     * @param metadata The metadata required for the hook
+     * @param message The message passed from the Mailbox.dispatch() call
+     */
+    function postDispatch(bytes calldata metadata, bytes calldata message) external payable;
+
+    /**
+     * @notice Compute the payment required by the postDispatch call
+     * @param metadata The metadata required for the hook
+     * @param message The message passed from the Mailbox.dispatch() call
+     * @return Quoted payment for the postDispatch call
+     */
+    function quoteDispatch(bytes calldata metadata, bytes calldata message) external view returns (uint256);
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/libs/Indexed.sol
+
+contract Indexed {
+    uint256 public immutable deployedBlock;
+
+    constructor() {
+        deployedBlock = block.number;
+    }
+}
+
+// lib/openzeppelin-contracts/contracts/utils/math/Math.sol
+
+// OpenZeppelin Contracts (last updated v5.0.0) (utils/math/Math.sol)
+
+/**
+ * @dev Standard math utilities missing in the Solidity language.
+ */
+library Math {
+    /**
+     * @dev Muldiv operation overflow.
+     */
+    error MathOverflowedMulDiv();
+
+    enum Rounding {
+        Floor, // Toward negative infinity
+        Ceil, // Toward positive infinity
+        Trunc, // Toward zero
+        Expand // Away from zero
+
+    }
+
+    /**
+     * @dev Returns the addition of two unsigned integers, with an overflow flag.
+     */
+    function tryAdd(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            uint256 c = a + b;
+            if (c < a) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the subtraction of two unsigned integers, with an overflow flag.
+     */
+    function trySub(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b > a) return (false, 0);
+            return (true, a - b);
+        }
+    }
+
+    /**
+     * @dev Returns the multiplication of two unsigned integers, with an overflow flag.
+     */
+    function tryMul(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
+            // benefit is lost if 'b' is also tested.
+            // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+
+    /**
+     * @dev Returns the division of two unsigned integers, with a division by zero flag.
+     */
+    function tryDiv(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a / b);
+        }
+    }
+
+    /**
+     * @dev Returns the remainder of dividing two unsigned integers, with a division by zero flag.
+     */
+    function tryMod(uint256 a, uint256 b) internal pure returns (bool, uint256) {
+        unchecked {
+            if (b == 0) return (false, 0);
+            return (true, a % b);
+        }
+    }
+
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two numbers. The result is rounded towards
+     * zero.
+     */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow.
+        return (a & b) + (a ^ b) / 2;
+    }
+
+    /**
+     * @dev Returns the ceiling of the division of two numbers.
+     *
+     * This differs from standard division with `/` in that it rounds towards infinity instead
+     * of rounding towards zero.
+     */
+    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (b == 0) {
+            // Guarantee the same behavior as in a regular Solidity division.
+            return a / b;
+        }
+
+        // (a + b - 1) / b can overflow on addition, so we distribute.
+        return a == 0 ? 0 : (a - 1) / b + 1;
+    }
+
+    /**
+     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or
+     * denominator == 0.
+     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv) with further edits by
+     * Uniswap Labs also under MIT license.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
+        unchecked {
+            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
+            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // variables such that product = prod1 * 2^256 + prod0.
+            uint256 prod0 = x * y; // Least significant 256 bits of the product
+            uint256 prod1; // Most significant 256 bits of the product
+            assembly {
+                let mm := mulmod(x, y, not(0))
+                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
+            }
+
+            // Handle non-overflow cases, 256 by 256 division.
+            if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
+                return prod0 / denominator;
+            }
+
+            // Make sure the result is less than 2^256. Also prevents denominator == 0.
+            if (denominator <= prod1) {
+                revert MathOverflowedMulDiv();
+            }
+
+            ///////////////////////////////////////////////
+            // 512 by 256 division.
+            ///////////////////////////////////////////////
+
+            // Make division exact by subtracting the remainder from [prod1 prod0].
+            uint256 remainder;
+            assembly {
+                // Compute remainder using mulmod.
+                remainder := mulmod(x, y, denominator)
+
+                // Subtract 256 bit number from 512 bit number.
+                prod1 := sub(prod1, gt(remainder, prod0))
+                prod0 := sub(prod0, remainder)
+            }
+
+            // Factor powers of two out of denominator and compute largest power of two divisor of denominator.
+            // Always >= 1. See https://cs.stackexchange.com/q/138556/92363.
+
+            uint256 twos = denominator & (0 - denominator);
+            assembly {
+                // Divide denominator by twos.
+                denominator := div(denominator, twos)
+
+                // Divide [prod1 prod0] by twos.
+                prod0 := div(prod0, twos)
+
+                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                twos := add(div(sub(0, twos), twos), 1)
+            }
+
+            // Shift in bits from prod1 into prod0.
+            prod0 |= prod1 * twos;
+
+            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
+            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
+            // four bits. That is, denominator * inv = 1 mod 2^4.
+            uint256 inverse = (3 * denominator) ^ 2;
+
+            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also
+            // works in modular arithmetic, doubling the correct bits in each step.
+            inverse *= 2 - denominator * inverse; // inverse mod 2^8
+            inverse *= 2 - denominator * inverse; // inverse mod 2^16
+            inverse *= 2 - denominator * inverse; // inverse mod 2^32
+            inverse *= 2 - denominator * inverse; // inverse mod 2^64
+            inverse *= 2 - denominator * inverse; // inverse mod 2^128
+            inverse *= 2 - denominator * inverse; // inverse mod 2^256
+
+            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
+            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
+            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
+            // is no longer required.
+            result = prod0 * inverse;
+            return result;
+        }
+    }
+
+    /**
+     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
+        uint256 result = mulDiv(x, y, denominator);
+        if (unsignedRoundsUp(rounding) && mulmod(x, y, denominator) > 0) {
+            result += 1;
+        }
+        return result;
+    }
+
+    /**
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded
+     * towards zero.
+     *
+     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+     */
+    function sqrt(uint256 a) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        //
+        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
+        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
+        //
+        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
+        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
+        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
+        //
+        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
+        uint256 result = 1 << (log2(a) >> 1);
+
+        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
+        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
+        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
+        // into the expected uint128 result.
+        unchecked {
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            return min(result, a / result);
+        }
+    }
+
+    /**
+     * @notice Calculates sqrt(a), following the selected rounding direction.
+     */
+    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = sqrt(a);
+            return result + (unsignedRoundsUp(rounding) && result * result < a ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 2 of a positive value rounded towards zero.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 128;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 64;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 32;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 16;
+            }
+            if (value >> 8 > 0) {
+                value >>= 8;
+                result += 8;
+            }
+            if (value >> 4 > 0) {
+                value >>= 4;
+                result += 4;
+            }
+            if (value >> 2 > 0) {
+                value >>= 2;
+                result += 2;
+            }
+            if (value >> 1 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log2(value);
+            return result + (unsignedRoundsUp(rounding) && 1 << result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 10 of a positive value rounded towards zero.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log10(value);
+            return result + (unsignedRoundsUp(rounding) && 10 ** result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 256 of a positive value rounded towards zero.
+     * Returns 0 if given 0.
+     *
+     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
+     */
+    function log256(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 16;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 8;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 4;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 2;
+            }
+            if (value >> 8 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log256(value);
+            return result + (unsignedRoundsUp(rounding) && 1 << (result << 3) < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Returns whether a provided rounding mode is considered rounding up for unsigned integers.
+     */
+    function unsignedRoundsUp(Rounding rounding) internal pure returns (bool) {
+        return uint8(rounding) % 2 == 1;
+    }
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/PackageVersioned.sol
+
+/**
+ * @title PackageVersioned
+ * @notice Package version getter for contracts
+ *
+ */
+abstract contract PackageVersioned {
+    // GENERATED CODE - DO NOT EDIT
+    string public constant PACKAGE_VERSION = '5.12.0';
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/hooks/libs/StandardHookMetadata.sol
+
+/*@@@@@@@       @@@@@@@@@
+ @@@@@@@@@       @@@@@@@@@
+  @@@@@@@@@       @@@@@@@@@
+   @@@@@@@@@       @@@@@@@@@
+    @@@@@@@@@@@@@@@@@@@@@@@@@
+     @@@@@  HYPERLANE  @@@@@@@
+    @@@@@@@@@@@@@@@@@@@@@@@@@
+   @@@@@@@@@       @@@@@@@@@
+  @@@@@@@@@       @@@@@@@@@
+ @@@@@@@@@       @@@@@@@@@
+@@@@@@@@@       @@@@@@@@*/
+
+/**
+ * Format of metadata:
+ *
+ * [0:2] variant
+ * [2:34] msg.value
+ * [34:66] Gas limit for message (IGP)
+ * [66:86] Refund address for message (IGP)
+ * [86:] Custom metadata
+ */
+library StandardHookMetadata {
+    struct Metadata {
+        uint16 variant;
+        uint256 msgValue;
+        uint256 gasLimit;
+        address refundAddress;
+    }
+
+    uint8 private constant VARIANT_OFFSET = 0;
+    uint8 private constant MSG_VALUE_OFFSET = 2;
+    uint8 private constant GAS_LIMIT_OFFSET = 34;
+    uint8 private constant REFUND_ADDRESS_OFFSET = 66;
+    uint256 private constant MIN_METADATA_LENGTH = 86;
+
+    uint16 public constant VARIANT = 1;
+
+    /**
+     * @notice Returns the variant of the metadata.
+     * @param _metadata ABI encoded standard hook metadata.
+     * @return variant of the metadata as uint8.
+     */
+    function variant(bytes calldata _metadata) internal pure returns (uint16) {
+        if (_metadata.length < VARIANT_OFFSET + 2) return 0;
+        return uint16(bytes2(_metadata[VARIANT_OFFSET:VARIANT_OFFSET + 2]));
+    }
+
+    /**
+     * @notice Returns the specified value for the message.
+     * @param _metadata ABI encoded standard hook metadata.
+     * @param _default Default fallback value.
+     * @return Value for the message as uint256.
+     */
+    function msgValue(bytes calldata _metadata, uint256 _default) internal pure returns (uint256) {
+        if (_metadata.length < MSG_VALUE_OFFSET + 32) return _default;
+        return uint256(bytes32(_metadata[MSG_VALUE_OFFSET:MSG_VALUE_OFFSET + 32]));
+    }
+
+    /**
+     * @notice Returns the specified gas limit for the message.
+     * @param _metadata ABI encoded standard hook metadata.
+     * @param _default Default fallback gas limit.
+     * @return Gas limit for the message as uint256.
+     */
+    function gasLimit(bytes calldata _metadata, uint256 _default) internal pure returns (uint256) {
+        if (_metadata.length < GAS_LIMIT_OFFSET + 32) return _default;
+        return uint256(bytes32(_metadata[GAS_LIMIT_OFFSET:GAS_LIMIT_OFFSET + 32]));
+    }
+
+    /**
+     * @notice Returns the specified refund address for the message.
+     * @param _metadata ABI encoded standard hook metadata.
+     * @param _default Default fallback refund address.
+     * @return Refund address for the message as address.
+     */
+    function refundAddress(bytes calldata _metadata, address _default) internal pure returns (address) {
+        if (_metadata.length < REFUND_ADDRESS_OFFSET + 20) return _default;
+        return address(bytes20(_metadata[REFUND_ADDRESS_OFFSET:REFUND_ADDRESS_OFFSET + 20]));
+    }
+
+    /**
+     * @notice Returns any custom metadata.
+     * @param _metadata ABI encoded standard hook metadata.
+     * @return Custom metadata.
+     */
+    function getCustomMetadata(bytes calldata _metadata) internal pure returns (bytes calldata) {
+        if (_metadata.length < MIN_METADATA_LENGTH) return _metadata[0:0];
+        return _metadata[MIN_METADATA_LENGTH:];
+    }
+
+    /**
+     * @notice Formats the specified gas limit and refund address into standard hook metadata.
+     * @param _msgValue msg.value for the message.
+     * @param _gasLimit Gas limit for the message.
+     * @param _refundAddress Refund address for the message.
+     * @param _customMetadata Additional metadata to include in the standard hook metadata.
+     * @return ABI encoded standard hook metadata.
+     */
+    function formatMetadata(uint256 _msgValue, uint256 _gasLimit, address _refundAddress, bytes memory _customMetadata)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodePacked(VARIANT, _msgValue, _gasLimit, _refundAddress, _customMetadata);
+    }
+
+    /**
+     * @notice Formats the specified gas limit and refund address into standard hook metadata.
+     * @param _msgValue msg.value for the message.
+     * @return ABI encoded standard hook metadata.
+     */
+    function overrideMsgValue(uint256 _msgValue) internal view returns (bytes memory) {
+        return formatMetadata(_msgValue, uint256(0), msg.sender, '');
+    }
+
+    /**
+     * @notice Formats the specified gas limit and refund address into standard hook metadata.
+     * @param _gasLimit Gas limit for the message.
+     * @return ABI encoded standard hook metadata.
+     */
+    function overrideGasLimit(uint256 _gasLimit) internal view returns (bytes memory) {
+        return formatMetadata(uint256(0), _gasLimit, msg.sender, '');
+    }
+
+    /**
+     * @notice Formats the specified refund address into standard hook metadata.
+     * @param _refundAddress Refund address for the message.
+     * @return ABI encoded standard hook metadata.
+     */
+    function overrideRefundAddress(address _refundAddress) internal pure returns (bytes memory) {
+        return formatMetadata(uint256(0), uint256(0), _refundAddress, '');
+    }
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/libs/TypeCasts.sol
+
+library TypeCasts {
+    // alignment preserving cast
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    // alignment preserving cast
+    function bytes32ToAddress(bytes32 _buf) internal pure returns (address) {
+        require(uint256(_buf) <= uint256(type(uint160).max), 'TypeCasts: bytes32ToAddress overflow');
+        return address(uint160(uint256(_buf)));
+    }
+}
+
+// node_modules/@hyperlane-xyz/core/contracts/upgrade/Versioned.sol
+
+/**
+ * @title Versioned
+ * @notice Version getter for contracts
+ *
+ */
+contract Versioned {
+    uint8 public constant VERSION = 3;
+}
+
+// lib/openzeppelin-contracts/contracts/interfaces/draft-IERC6093.sol
+
+// OpenZeppelin Contracts (last updated v5.0.0) (interfaces/draft-IERC6093.sol)
+
+/**
+ * @dev Standard ERC20 Errors
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC20 tokens.
+ */
+interface IERC20Errors {
+    /**
+     * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param balance Current balance for the interacting account.
+     * @param needed Minimum amount required to perform a transfer.
+     */
+    error ERC20InsufficientBalance(address sender, uint256 balance, uint256 needed);
+
+    /**
+     * @dev Indicates a failure with the token `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     */
+    error ERC20InvalidSender(address sender);
+
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC20InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the `spender`’s `allowance`. Used in transfers.
+     * @param spender Address that may be allowed to operate on tokens without being their owner.
+     * @param allowance Amount of tokens a `spender` is allowed to operate with.
+     * @param needed Minimum amount required to perform a transfer.
+     */
+    error ERC20InsufficientAllowance(address spender, uint256 allowance, uint256 needed);
+
+    /**
+     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @param approver Address initiating an approval operation.
+     */
+    error ERC20InvalidApprover(address approver);
+
+    /**
+     * @dev Indicates a failure with the `spender` to be approved. Used in approvals.
+     * @param spender Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC20InvalidSpender(address spender);
+}
+
+/**
+ * @dev Standard ERC721 Errors
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC721 tokens.
+ */
+interface IERC721Errors {
+    /**
+     * @dev Indicates that an address can't be an owner. For example, `address(0)` is a forbidden owner in EIP-20.
+     * Used in balance queries.
+     * @param owner Address of the current owner of a token.
+     */
+    error ERC721InvalidOwner(address owner);
+
+    /**
+     * @dev Indicates a `tokenId` whose `owner` is the zero address.
+     * @param tokenId Identifier number of a token.
+     */
+    error ERC721NonexistentToken(uint256 tokenId);
+
+    /**
+     * @dev Indicates an error related to the ownership over a particular token. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param tokenId Identifier number of a token.
+     * @param owner Address of the current owner of a token.
+     */
+    error ERC721IncorrectOwner(address sender, uint256 tokenId, address owner);
+
+    /**
+     * @dev Indicates a failure with the token `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     */
+    error ERC721InvalidSender(address sender);
+
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC721InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     * @param tokenId Identifier number of a token.
+     */
+    error ERC721InsufficientApproval(address operator, uint256 tokenId);
+
+    /**
+     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @param approver Address initiating an approval operation.
+     */
+    error ERC721InvalidApprover(address approver);
+
+    /**
+     * @dev Indicates a failure with the `operator` to be approved. Used in approvals.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC721InvalidOperator(address operator);
+}
+
+/**
+ * @dev Standard ERC1155 Errors
+ * Interface of the https://eips.ethereum.org/EIPS/eip-6093[ERC-6093] custom errors for ERC1155 tokens.
+ */
+interface IERC1155Errors {
+    /**
+     * @dev Indicates an error related to the current `balance` of a `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     * @param balance Current balance for the interacting account.
+     * @param needed Minimum amount required to perform a transfer.
+     * @param tokenId Identifier number of a token.
+     */
+    error ERC1155InsufficientBalance(address sender, uint256 balance, uint256 needed, uint256 tokenId);
+
+    /**
+     * @dev Indicates a failure with the token `sender`. Used in transfers.
+     * @param sender Address whose tokens are being transferred.
+     */
+    error ERC1155InvalidSender(address sender);
+
+    /**
+     * @dev Indicates a failure with the token `receiver`. Used in transfers.
+     * @param receiver Address to which tokens are being transferred.
+     */
+    error ERC1155InvalidReceiver(address receiver);
+
+    /**
+     * @dev Indicates a failure with the `operator`’s approval. Used in transfers.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     * @param owner Address of the current owner of a token.
+     */
+    error ERC1155MissingApprovalForAll(address operator, address owner);
+
+    /**
+     * @dev Indicates a failure with the `approver` of a token to be approved. Used in approvals.
+     * @param approver Address initiating an approval operation.
+     */
+    error ERC1155InvalidApprover(address approver);
+
+    /**
+     * @dev Indicates a failure with the `operator` to be approved. Used in approvals.
+     * @param operator Address that may be allowed to operate on tokens without being their owner.
+     */
+    error ERC1155InvalidOperator(address operator);
+
+    /**
+     * @dev Indicates an array length mismatch between ids and values in a safeBatchTransferFrom operation.
+     * Used in batch transfers.
+     * @param idsLength Length of the array of token identifiers
+     * @param valuesLength Length of the array of token amounts
+     */
+    error ERC1155InvalidArrayLength(uint256 idsLength, uint256 valuesLength);
 }
 
 // lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol
@@ -2639,137 +2512,82 @@ interface IERC721 is IERC165 {
     function isApprovedForAll(address owner, address operator) external view returns (bool);
 }
 
-// node_modules/@hyperlane-xyz/core/contracts/libs/Message.sol
+// src/interfaces/bridge/hyperlane/IHLHandler.sol
 
-/**
- * @title Hyperlane Message Library
- * @notice Library for formatted messages used by Mailbox
- *
- */
-library Message {
-    using TypeCasts for bytes32;
+interface IHLHandler is IMessageRecipient {
+    error NotMailbox();
+    error NotRoot();
 
-    uint256 private constant VERSION_OFFSET = 0;
-    uint256 private constant NONCE_OFFSET = 1;
-    uint256 private constant ORIGIN_OFFSET = 5;
-    uint256 private constant SENDER_OFFSET = 9;
-    uint256 private constant DESTINATION_OFFSET = 41;
-    uint256 private constant RECIPIENT_OFFSET = 45;
-    uint256 private constant BODY_OFFSET = 77;
+    event ReceivedMessage(uint32 indexed _origin, bytes32 indexed _sender, uint256 _value, string _message);
 
-    /**
-     * @notice Returns formatted (packed) Hyperlane message with provided fields
-     * @dev This function should only be used in memory message construction.
-     * @param _version The version of the origin and destination Mailboxes
-     * @param _nonce A nonce to uniquely identify the message on its origin chain
-     * @param _originDomain Domain of origin chain
-     * @param _sender Address of sender as bytes32
-     * @param _destinationDomain Domain of destination chain
-     * @param _recipient Address of recipient on destination chain as bytes32
-     * @param _messageBody Raw bytes of message body
-     * @return Formatted message
-     */
-    function formatMessage(
-        uint8 _version,
-        uint32 _nonce,
-        uint32 _originDomain,
-        bytes32 _sender,
-        uint32 _destinationDomain,
-        bytes32 _recipient,
-        bytes calldata _messageBody
-    ) internal pure returns (bytes memory) {
-        return abi.encodePacked(_version, _nonce, _originDomain, _sender, _destinationDomain, _recipient, _messageBody);
-    }
+    /// @notice Callback function used by the mailbox contract to handle incoming messages
+    /// @param _origin The domain from which the message originates
+    /// @param _sender The address of the sender of the message
+    /// @param _message The message payload
+    function handle(uint32 _origin, bytes32 _sender, bytes calldata _message) external payable override;
+}
 
-    /**
-     * @notice Returns the message ID.
-     * @param _message ABI encoded Hyperlane message.
-     * @return ID of `_message`
-     */
-    function id(bytes memory _message) internal pure returns (bytes32) {
-        return keccak256(_message);
-    }
+// src/interfaces/external/ISpecifiesInterchainSecurityModule.sol
 
-    /**
-     * @notice Returns the message version.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Version of `_message`
-     */
-    function version(bytes calldata _message) internal pure returns (uint8) {
-        return uint8(bytes1(_message[VERSION_OFFSET:NONCE_OFFSET]));
-    }
+interface ISpecifiesInterchainSecurityModule_1 {
+    event InterchainSecurityModuleSet(address indexed _new);
 
-    /**
-     * @notice Returns the message nonce.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Nonce of `_message`
-     */
-    function nonce(bytes calldata _message) internal pure returns (uint32) {
-        return uint32(bytes4(_message[NONCE_OFFSET:ORIGIN_OFFSET]));
-    }
+    // @notice The currently set InterchainSecurityModule.
+    function interchainSecurityModule() external view returns (IInterchainSecurityModule);
 
-    /**
-     * @notice Returns the message origin domain.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Origin domain of `_message`
-     */
-    function origin(bytes calldata _message) internal pure returns (uint32) {
-        return uint32(bytes4(_message[ORIGIN_OFFSET:SENDER_OFFSET]));
-    }
+    // @notice Sets the new InterchainSecurityModule.
+    /// @dev Throws if not called by owner.
+    /// @param _ism .
+    function setInterchainSecurityModule(address _ism) external;
+}
 
-    /**
-     * @notice Returns the message sender as bytes32.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Sender of `_message` as bytes32
-     */
-    function sender(bytes calldata _message) internal pure returns (bytes32) {
-        return bytes32(_message[SENDER_OFFSET:DESTINATION_OFFSET]);
-    }
+// src/interfaces/bridge/ITokenBridge.sol
 
-    /**
-     * @notice Returns the message sender as address.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Sender of `_message` as address
-     */
-    function senderAddress(bytes calldata _message) internal pure returns (address) {
-        return sender(_message).bytes32ToAddress();
-    }
+interface ITokenBridge {
+    error NotBridge();
+    error ZeroAmount();
+    error ZeroAddress();
 
-    /**
-     * @notice Returns the message destination domain.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Destination domain of `_message`
-     */
-    function destination(bytes calldata _message) internal pure returns (uint32) {
-        return uint32(bytes4(_message[DESTINATION_OFFSET:RECIPIENT_OFFSET]));
-    }
+    event HookSet(address indexed _newHook);
+    event SentMessage(
+        uint32 indexed _destination, bytes32 indexed _recipient, uint256 _value, string _message, string _metadata
+    );
 
-    /**
-     * @notice Returns the message recipient as bytes32.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Recipient of `_message` as bytes32
-     */
-    function recipient(bytes calldata _message) internal pure returns (bytes32) {
-        return bytes32(_message[RECIPIENT_OFFSET:BODY_OFFSET]);
-    }
+    /// @notice Max gas limit for token bridging transactions
+    /// @dev Can set a different gas limit by using a custom hook
+    function GAS_LIMIT() external view returns (uint256);
 
-    /**
-     * @notice Returns the message recipient as address.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Recipient of `_message` as address
-     */
-    function recipientAddress(bytes calldata _message) internal pure returns (address) {
-        return recipient(_message).bytes32ToAddress();
-    }
+    /// @notice Returns the address of the xERC20 token that is bridged by this contract
+    function xerc20() external view returns (address);
 
-    /**
-     * @notice Returns the message body.
-     * @param _message ABI encoded Hyperlane message.
-     * @return Body of `_message`
-     */
-    function body(bytes calldata _message) internal pure returns (bytes calldata) {
-        return bytes(_message[BODY_OFFSET:]);
-    }
+    /// @notice Returns the address of the hook contract used after dispatching a message
+    /// @dev If set to zero address, default hook will be used instead
+    function hook() external view returns (address);
+
+    /// @notice Returns the address of the security module contract used by the bridge
+    function securityModule() external view returns (IInterchainSecurityModule);
+
+    /// @notice Sets the address of the hook contract that will be used in bridging
+    /// @dev Can use default hook by setting to zero address
+    /// @param _hook The address of the new hook contract
+    function setHook(address _hook) external;
+
+    /// @notice Burns xERC20 tokens from the sender and triggers a x-chain transfer
+    /// @dev If bridging from/to Root, ERC20 tokens are wrapped into xERC20 for bridging and unwrapped back when received.
+    /// @dev Refunds go to msg.sender
+    /// @param _recipient The address of the recipient on the destination chain
+    /// @param _amount The amount of xERC20 tokens to send
+    /// @param _domain The domain of the destination chain
+    function sendToken(address _recipient, uint256 _amount, uint32 _domain) external payable;
+
+    /// @notice Burns xERC20 tokens from the sender and triggers a x-chain transfer
+    /// @dev If bridging from/to Root, ERC20 tokens are wrapped into xERC20 for bridging and unwrapped back when received.
+    /// @dev Refunds go to the specified _refundAddress
+    /// @param _recipient The address of the recipient on the destination chain
+    /// @param _amount The amount of xERC20 tokens to send
+    /// @param _domain The domain of the destination chain
+    /// @param _refundAddress The address to send the excess eth to
+    function sendToken(address _recipient, uint256 _amount, uint32 _domain, address _refundAddress) external payable;
 }
 
 // node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol
@@ -2936,229 +2754,235 @@ abstract contract Initializable {
     }
 }
 
-// src/interfaces/bridge/ITokenBridge.sol
+// node_modules/@hyperlane-xyz/core/contracts/libs/Message.sol
 
-interface ITokenBridge {
-    error NotBridge();
-    error ZeroAmount();
-    error ZeroAddress();
-    error InsufficientBalance();
+/**
+ * @title Hyperlane Message Library
+ * @notice Library for formatted messages used by Mailbox
+ *
+ */
+library Message {
+    using TypeCasts for bytes32;
 
-    event HookSet(address indexed _newHook);
-    event SentMessage(
-        uint32 indexed _destination, bytes32 indexed _recipient, uint256 _value, string _message, string _metadata
-    );
+    uint256 private constant VERSION_OFFSET = 0;
+    uint256 private constant NONCE_OFFSET = 1;
+    uint256 private constant ORIGIN_OFFSET = 5;
+    uint256 private constant SENDER_OFFSET = 9;
+    uint256 private constant DESTINATION_OFFSET = 41;
+    uint256 private constant RECIPIENT_OFFSET = 45;
+    uint256 private constant BODY_OFFSET = 77;
 
-    /// @notice Max gas limit for token bridging transactions
-    /// @dev Can set a different gas limit by using a custom hook
-    function GAS_LIMIT() external view returns (uint256);
+    /**
+     * @notice Returns formatted (packed) Hyperlane message with provided fields
+     * @dev This function should only be used in memory message construction.
+     * @param _version The version of the origin and destination Mailboxes
+     * @param _nonce A nonce to uniquely identify the message on its origin chain
+     * @param _originDomain Domain of origin chain
+     * @param _sender Address of sender as bytes32
+     * @param _destinationDomain Domain of destination chain
+     * @param _recipient Address of recipient on destination chain as bytes32
+     * @param _messageBody Raw bytes of message body
+     * @return Formatted message
+     */
+    function formatMessage(
+        uint8 _version,
+        uint32 _nonce,
+        uint32 _originDomain,
+        bytes32 _sender,
+        uint32 _destinationDomain,
+        bytes32 _recipient,
+        bytes calldata _messageBody
+    ) internal pure returns (bytes memory) {
+        return abi.encodePacked(_version, _nonce, _originDomain, _sender, _destinationDomain, _recipient, _messageBody);
+    }
 
-    /// @notice Returns the address of the xERC20 token that is bridged by this contract
-    function xerc20() external view returns (address);
+    /**
+     * @notice Returns the message ID.
+     * @param _message ABI encoded Hyperlane message.
+     * @return ID of `_message`
+     */
+    function id(bytes memory _message) internal pure returns (bytes32) {
+        return keccak256(_message);
+    }
 
-    /// @notice Returns the address of the mailbox contract that is used to bridge by this contract
-    function mailbox() external view returns (address);
+    /**
+     * @notice Returns the message version.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Version of `_message`
+     */
+    function version(bytes calldata _message) internal pure returns (uint8) {
+        return uint8(bytes1(_message[VERSION_OFFSET:NONCE_OFFSET]));
+    }
 
-    /// @notice Returns the address of the hook contract used after dispatching a message
-    /// @dev If set to zero address, default hook will be used instead
-    function hook() external view returns (address);
+    /**
+     * @notice Returns the message nonce.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Nonce of `_message`
+     */
+    function nonce(bytes calldata _message) internal pure returns (uint32) {
+        return uint32(bytes4(_message[NONCE_OFFSET:ORIGIN_OFFSET]));
+    }
 
-    /// @notice Returns the address of the security module contract used by the bridge
-    function securityModule() external view returns (IInterchainSecurityModule);
+    /**
+     * @notice Returns the message origin domain.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Origin domain of `_message`
+     */
+    function origin(bytes calldata _message) internal pure returns (uint32) {
+        return uint32(bytes4(_message[ORIGIN_OFFSET:SENDER_OFFSET]));
+    }
 
-    /// @notice Sets the address of the hook contract that will be used in bridging
-    /// @dev Can use default hook by setting to zero address
-    /// @param _hook The address of the new hook contract
-    function setHook(address _hook) external;
+    /**
+     * @notice Returns the message sender as bytes32.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Sender of `_message` as bytes32
+     */
+    function sender(bytes calldata _message) internal pure returns (bytes32) {
+        return bytes32(_message[SENDER_OFFSET:DESTINATION_OFFSET]);
+    }
 
-    /// @notice Burns xERC20 tokens from the sender and triggers a x-chain transfer
-    /// @dev If bridging from/to Root, ERC20 tokens are wrapped into xERC20 for bridging and unwrapped back when received.
-    /// @dev Refunds go to msg.sender
-    /// @param _recipient The address of the recipient on the destination chain
-    /// @param _amount The amount of xERC20 tokens to send
-    /// @param _domain The domain of the destination chain
-    function sendToken(address _recipient, uint256 _amount, uint32 _domain) external payable;
+    /**
+     * @notice Returns the message sender as address.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Sender of `_message` as address
+     */
+    function senderAddress(bytes calldata _message) internal pure returns (address) {
+        return sender(_message).bytes32ToAddress();
+    }
 
-    /// @notice Burns xERC20 tokens from the sender and triggers a x-chain transfer
-    /// @dev If bridging from/to Root, ERC20 tokens are wrapped into xERC20 for bridging and unwrapped back when received.
-    /// @dev Refunds go to the specified _refundAddress
-    /// @param _recipient The address of the recipient on the destination chain
-    /// @param _amount The amount of xERC20 tokens to send
-    /// @param _domain The domain of the destination chain
-    /// @param _refundAddress The address to send the excess eth to
-    function sendToken(address _recipient, uint256 _amount, uint32 _domain, address _refundAddress) external payable;
+    /**
+     * @notice Returns the message destination domain.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Destination domain of `_message`
+     */
+    function destination(bytes calldata _message) internal pure returns (uint32) {
+        return uint32(bytes4(_message[DESTINATION_OFFSET:RECIPIENT_OFFSET]));
+    }
+
+    /**
+     * @notice Returns the message recipient as bytes32.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Recipient of `_message` as bytes32
+     */
+    function recipient(bytes calldata _message) internal pure returns (bytes32) {
+        return bytes32(_message[RECIPIENT_OFFSET:BODY_OFFSET]);
+    }
+
+    /**
+     * @notice Returns the message recipient as address.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Recipient of `_message` as address
+     */
+    function recipientAddress(bytes calldata _message) internal pure returns (address) {
+        return recipient(_message).bytes32ToAddress();
+    }
+
+    /**
+     * @notice Returns the message body.
+     * @param _message ABI encoded Hyperlane message.
+     * @return Body of `_message`
+     */
+    function body(bytes calldata _message) internal pure returns (bytes calldata) {
+        return bytes(_message[BODY_OFFSET:]);
+    }
 }
 
-// src/interfaces/bridge/hyperlane/IHLHandler.sol
+// lib/openzeppelin-contracts/contracts/access/Ownable.sol
 
-interface IHLHandler is IMessageRecipient {
-    error NotMailbox();
-    error NotRoot();
+// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)
 
-    event ReceivedMessage(uint32 indexed _origin, bytes32 indexed _sender, uint256 _value, string _message);
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * The initial owner is set to the address provided by the deployer. This can
+ * later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract Ownable is Context {
+    address private _owner;
 
-    /// @notice Callback function used by the mailbox contract to handle incoming messages
-    /// @param _origin The domain from which the message originates
-    /// @param _sender The address of the sender of the message
-    /// @param _message The message payload
-    function handle(uint32 _origin, bytes32 _sender, bytes calldata _message) external payable override;
-}
+    /**
+     * @dev The caller account is not authorized to perform an operation.
+     */
+    error OwnableUnauthorizedAccount(address account);
 
-// src/interfaces/external/ISpecifiesInterchainSecurityModule.sol
+    /**
+     * @dev The owner is not a valid owner account. (eg. `address(0)`)
+     */
+    error OwnableInvalidOwner(address owner);
 
-interface ISpecifiesInterchainSecurityModule_1 {
-    event InterchainSecurityModuleSet(address indexed _new);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    // @notice The currently set InterchainSecurityModule.
-    function interchainSecurityModule() external view returns (IInterchainSecurityModule);
+    /**
+     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.
+     */
+    constructor(address initialOwner) {
+        if (initialOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
+        _transferOwnership(initialOwner);
+    }
 
-    // @notice Sets the new InterchainSecurityModule.
-    /// @dev Throws if not called by owner.
-    /// @param _ism .
-    function setInterchainSecurityModule(address _ism) external;
-}
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
 
-// src/interfaces/external/IVoter.sol
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
 
-interface IVoter {
-    error AlreadyVotedOrDeposited();
-    error DistributeWindow();
-    error GaugeAlreadyKilled();
-    error GaugeAlreadyRevived();
-    error NotEmergencyCouncil();
-    error ZeroAddress();
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        if (owner() != _msgSender()) {
+            revert OwnableUnauthorizedAccount(_msgSender());
+        }
+    }
 
-    event GaugeKilled(address indexed gauge);
-    event GaugeRevived(address indexed gauge);
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
 
-    /// @dev Gauge => Amount claimable
-    function claimable(address gauge) external view returns (uint256);
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        if (newOwner == address(0)) {
+            revert OwnableInvalidOwner(address(0));
+        }
+        _transferOwnership(newOwner);
+    }
 
-    /// @notice Address of Minter.sol
-    function minter() external view returns (address);
-
-    /// @notice Set new emergency council.
-    /// @dev Throws if not called by emergency council.
-    /// @param _emergencyCouncil .
-    function setEmergencyCouncil(address _emergencyCouncil) external;
-
-    function vote(uint256 _tokenId, address[] calldata _poolVote, uint256[] calldata _weights) external;
-
-    function gauges(address _pool) external view returns (address);
-
-    function isGauge(address _gauge) external view returns (bool);
-
-    function gaugeToFees(address _gauge) external view returns (address);
-
-    function gaugeToBribe(address _gauge) external view returns (address);
-
-    function poolForGauge(address _gauge) external view returns (address);
-
-    /// @dev Nft => Timestamp of last vote (ensures single vote per epoch)
-    function lastVoted(uint256 tokenId) external view returns (uint256);
-
-    function createGauge(address _poolFactory, address _pool) external returns (address);
-
-    function factoryRegistry() external view returns (address);
-
-    /// @dev Utility to distribute to gauges of pools in array.
-    /// @param _gauges Array of gauges to distribute to.
-    function distribute(address[] memory _gauges) external;
-
-    function isAlive(address _gauge) external view returns (bool);
-
-    function killGauge(address _gauge) external;
-
-    /// @notice Revives a killed gauge. Gauge will can receive emissions and deposits again.
-    /// @dev Throws if not called by emergency council.
-    ///      Throws if gauge is not killed.
-    /// @param _gauge .
-    function reviveGauge(address _gauge) external;
-
-    function isWhitelistedToken(address _token) external view returns (bool);
-
-    function emergencyCouncil() external view returns (address);
-
-    function ve() external view returns (address);
-
-    /// @notice Claim emissions from gauges.
-    /// @param _gauges Array of gauges to collect emissions from.
-    // function claimRewards(address[] memory _gauges) external;
-
-    /// @notice Claim fees for a given NFT.
-    /// @dev Utility to help batch fee claims.
-    /// @param _fees    Array of FeesVotingReward contracts to collect from.
-    /// @param _tokens  Array of tokens that are used as fees.
-    /// @param _tokenId Id of veNFT that you wish to claim fees for.
-    function claimFees(address[] memory _fees, address[][] memory _tokens, uint256 _tokenId) external;
-
-    /// @notice Called by users to update voting balances in voting rewards contracts.
-    /// @param _tokenId Id of veNFT whose balance you wish to update.
-    function poke(uint256 _tokenId) external;
-
-    /// @notice Called by users to reset voting state. Required if you wish to make changes to
-    ///         veNFT state (e.g. merge, split, deposit into managed etc).
-    ///         Cannot reset in the same epoch that you voted in.
-    ///         Can vote or deposit into a managed NFT again after reset.
-    /// @param _tokenId Id of veNFT you are reseting.
-    function reset(uint256 _tokenId) external;
-
-    /// @notice Standard OZ IGovernor using ve for vote weights.
-    function governor() external view returns (address);
-
-    /// @notice Whitelist (or unwhitelist) token for use in incentives.
-    /// @dev Throws if not called by governor.
-    /// @param _token .
-    /// @param _bool .
-    function whitelistToken(address _token, bool _bool) external;
-}
-
-// src/interfaces/root/bridge/hyperlane/IRootHLMessageModule.sol
-
-interface IRootHLMessageModule is IMessageSender {
-    error AlreadyVotedOrDeposited();
-    error SpecialVotingWindow();
-    error DistributeWindow();
-    error NotBridgeOwner();
-    error DomainAlreadyAssigned();
-    error InvalidChainID();
-
-    event HookSet(address indexed _newHook);
-    event DomainSet(uint256 indexed _chainid, uint32 _domain);
-
-    /// @notice Returns the domain of the given chain id
-    /// @param _chainid The chain id to get the domain for
-    function domains(uint256 _chainid) external view returns (uint32);
-
-    /// @notice Returns the chain id of the given domain
-    /// @param _domain The domain to get the chain id for
-    function chains(uint32 _domain) external view returns (uint256);
-
-    /// @notice Returns the address of the bridge contract that this module is associated with
-    function bridge() external view returns (address);
-
-    /// @notice Returns the address of the xERC20 token that is bridged by this contract
-    function xerc20() external view returns (address);
-
-    /// @notice Returns the address of the mailbox contract that is used to bridge by this contract
-    function mailbox() external view returns (address);
-
-    /// @notice Returns the address of the voter contract that sets voting power
-    function voter() external view returns (address);
-
-    /// @notice Returns the address of the hook contract used after dispatching a message
-    /// @dev If set to zero address, default hook will be used instead
-    function hook() external view returns (address);
-
-    /// @notice Sets the address of the hook contract that will be used in x-chain messages
-    /// @dev Can use default hook by setting to zero address
-    /// @param _hook The address of the new hook contract
-    function setHook(address _hook) external;
-
-    /// @notice Sets the domain of the given chain id
-    /// @param _domain The domain to set
-    /// @param _chainid The chain id to set the domain for
-    function setDomain(uint256 _chainid, uint32 _domain) external;
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
 }
 
 // src/libraries/rateLimits/RateLimitMidpointCommonLibrary.sol
@@ -3266,6 +3090,45 @@ library RateLimitMidpointCommonLibrary {
     }
 }
 
+// node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.4) (utils/Context.sol)
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract ContextUpgradeable is Initializable {
+    function __Context_init() internal onlyInitializing {}
+
+    function __Context_init_unchained() internal onlyInitializing {}
+
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+
+    function _contextSuffixLength() internal view virtual returns (uint256) {
+        return 0;
+    }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[50] private __gap;
+}
+
 // node_modules/@hyperlane-xyz/core/contracts/interfaces/IMailbox.sol
 
 interface IMailbox {
@@ -3354,45 +3217,6 @@ interface IMailbox {
     function process(bytes calldata metadata, bytes calldata message) external payable;
 
     function recipientIsm(address recipient) external view returns (IInterchainSecurityModule module);
-}
-
-// node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol
-
-// OpenZeppelin Contracts (last updated v4.9.4) (utils/Context.sol)
-
-/**
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
-abstract contract ContextUpgradeable is Initializable {
-    function __Context_init() internal onlyInitializing {}
-
-    function __Context_init_unchained() internal onlyInitializing {}
-
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
-    }
-
-    function _contextSuffixLength() internal view virtual returns (uint256) {
-        return 0;
-    }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[50] private __gap;
 }
 
 // src/interfaces/external/IVotingEscrow.sol
@@ -3488,276 +3312,6 @@ library RateLimitedMidpointLibrary {
         limit.bufferStored = newBufferStored;
 
         emit BufferReplenished(amount, newBufferStored);
-    }
-}
-
-// lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol
-
-// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/utils/SafeERC20.sol)
-
-/**
- * @title SafeERC20
- * @dev Wrappers around ERC20 operations that throw on failure (when the token
- * contract returns false). Tokens that return no value (and instead revert or
- * throw on failure) are also supported, non-reverting calls are assumed to be
- * successful.
- * To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,
- * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
- */
-library SafeERC20 {
-    using Address_0 for address;
-
-    /**
-     * @dev An operation with an ERC20 token failed.
-     */
-    error SafeERC20FailedOperation(address token);
-
-    /**
-     * @dev Indicates a failed `decreaseAllowance` request.
-     */
-    error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
-
-    /**
-     * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
-     * non-reverting calls are assumed to be successful.
-     */
-    function safeTransfer(IERC20 token, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
-    }
-
-    /**
-     * @dev Transfer `value` amount of `token` from `from` to `to`, spending the approval given by `from` to the
-     * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
-     */
-    function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
-        _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
-    }
-
-    /**
-     * @dev Increase the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
-     * non-reverting calls are assumed to be successful.
-     */
-    function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
-        uint256 oldAllowance = token.allowance(address(this), spender);
-        forceApprove(token, spender, oldAllowance + value);
-    }
-
-    /**
-     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no
-     * value, non-reverting calls are assumed to be successful.
-     */
-    function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {
-        unchecked {
-            uint256 currentAllowance = token.allowance(address(this), spender);
-            if (currentAllowance < requestedDecrease) {
-                revert SafeERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
-            }
-            forceApprove(token, spender, currentAllowance - requestedDecrease);
-        }
-    }
-
-    /**
-     * @dev Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,
-     * non-reverting calls are assumed to be successful. Meant to be used with tokens that require the approval
-     * to be set to zero before setting it to a non-zero value, such as USDT.
-     */
-    function forceApprove(IERC20 token, address spender, uint256 value) internal {
-        bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
-
-        if (!_callOptionalReturnBool(token, approvalCall)) {
-            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
-            _callOptionalReturn(token, approvalCall);
-        }
-    }
-
-    /**
-     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
-     * on the return value: the return value is optional (but if data is returned, it must not be false).
-     * @param token The token targeted by the call.
-     * @param data The call data (encoded using abi.encode or one of its variants).
-     */
-    function _callOptionalReturn(IERC20 token, bytes memory data) private {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
-        // the target address contains contract code and also asserts for success in the low-level call.
-
-        bytes memory returndata = address(token).functionCall(data);
-        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
-            revert SafeERC20FailedOperation(address(token));
-        }
-    }
-
-    /**
-     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
-     * on the return value: the return value is optional (but if data is returned, it must not be false).
-     * @param token The token targeted by the call.
-     * @param data The call data (encoded using abi.encode or one of its variants).
-     *
-     * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
-     */
-    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
-        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
-        // we're implementing it ourselves. We cannot use {Address-functionCall} here since this should return false
-        // and not revert is the subcall reverts.
-
-        (bool success, bytes memory returndata) = address(token).call(data);
-        return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
-    }
-}
-
-// node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol
-
-// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
-
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
-    address private _owner;
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /**
-     * @dev Initializes the contract setting the deployer as the initial owner.
-     */
-    function __Ownable_init() internal onlyInitializing {
-        __Ownable_init_unchained();
-    }
-
-    function __Ownable_init_unchained() internal onlyInitializing {
-        _transferOwnership(_msgSender());
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        _checkOwner();
-        _;
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if the sender is not the owner.
-     */
-    function _checkOwner() internal view virtual {
-        require(owner() == _msgSender(), 'Ownable: caller is not the owner');
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby disabling any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        _transferOwnership(address(0));
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), 'Ownable: new owner is the zero address');
-        _transferOwnership(newOwner);
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Internal function without access restriction.
-     */
-    function _transferOwnership(address newOwner) internal virtual {
-        address oldOwner = _owner;
-        _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
-    }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[49] private __gap;
-}
-
-// src/root/bridge/hyperlane/Paymaster.sol
-
-/// @title Velodrome Superchain Paymaster Module
-/// @notice Paymaster module used to manage transaction sponsorship & whitelisted addresses
-abstract contract Paymaster is IPaymaster {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
-    /// @inheritdoc IPaymaster
-    address public paymasterVault;
-
-    /// @dev Set of addresses whitelisted for transaction sponsorship
-    EnumerableSet.AddressSet internal _whitelist;
-
-    constructor(address _paymasterVault) {
-        paymasterVault = _paymasterVault;
-    }
-
-    receive() external payable {
-        if (msg.sender != paymasterVault) revert NotPaymasterVault();
-    }
-
-    /// @dev Modifier to be overridden for custom access control
-    modifier onlyWhitelistManager() virtual;
-
-    /// @inheritdoc IPaymaster
-    function whitelistForSponsorship(address _account, bool _state) external onlyWhitelistManager {
-        if (_account == address(0)) revert InvalidAddress();
-        if (_state) {
-            _whitelist.add({value: _account});
-        } else {
-            _whitelist.remove({value: _account});
-        }
-
-        emit WhitelistSet({_account: _account, _state: _state});
-    }
-
-    /// @inheritdoc IPaymaster
-    function setPaymasterVault(address _paymasterVault) external onlyWhitelistManager {
-        if (_paymasterVault == address(0)) revert InvalidAddress();
-        paymasterVault = _paymasterVault;
-        emit PaymasterVaultSet({_newPaymaster: _paymasterVault});
-    }
-
-    /// @dev Helper to pull vault funds for transaction sponsoring
-    function _sponsorTransaction(uint256 _fee) internal {
-        IPaymasterVault(paymasterVault).sponsorTransaction({_value: _fee});
-    }
-
-    /// @inheritdoc IPaymaster
-    function whitelist() external view returns (address[] memory) {
-        return _whitelist.values();
-    }
-
-    /// @inheritdoc IPaymaster
-    function whitelistLength() external view returns (uint256) {
-        return _whitelist.length();
-    }
-
-    /// @inheritdoc IPaymaster
-    function isWhitelisted(address _account) external view returns (bool) {
-        return _whitelist.contains(_account);
     }
 }
 
@@ -3917,6 +3471,276 @@ abstract contract MintLimits {
     /// @notice the minimum buffer cap, non inclusive
     /// must be overridden by child contract
     function minBufferCap() public pure virtual returns (uint112);
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    function __Ownable_init() internal onlyInitializing {
+        __Ownable_init_unchained();
+    }
+
+    function __Ownable_init_unchained() internal onlyInitializing {
+        _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        require(owner() == _msgSender(), 'Ownable: caller is not the owner');
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), 'Ownable: new owner is the zero address');
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[49] private __gap;
+}
+
+// src/root/bridge/hyperlane/Paymaster.sol
+
+/// @title Velodrome Superchain Paymaster Module
+/// @notice Paymaster module used to manage transaction sponsorship & whitelisted addresses
+abstract contract Paymaster is IPaymaster {
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    /// @inheritdoc IPaymaster
+    address public paymasterVault;
+
+    /// @dev Set of addresses whitelisted for transaction sponsorship
+    EnumerableSet.AddressSet internal _whitelist;
+
+    constructor(address _paymasterVault) {
+        paymasterVault = _paymasterVault;
+    }
+
+    receive() external payable {
+        if (msg.sender != paymasterVault) revert NotPaymasterVault();
+    }
+
+    /// @dev Modifier to be overridden for custom access control
+    modifier onlyWhitelistManager() virtual;
+
+    /// @inheritdoc IPaymaster
+    function whitelistForSponsorship(address _account, bool _state) external onlyWhitelistManager {
+        if (_account == address(0)) revert InvalidAddress();
+        if (_state) {
+            _whitelist.add({value: _account});
+        } else {
+            _whitelist.remove({value: _account});
+        }
+
+        emit WhitelistSet({_account: _account, _state: _state});
+    }
+
+    /// @inheritdoc IPaymaster
+    function setPaymasterVault(address _paymasterVault) external onlyWhitelistManager {
+        if (_paymasterVault == address(0)) revert InvalidAddress();
+        paymasterVault = _paymasterVault;
+        emit PaymasterVaultSet({_newPaymaster: _paymasterVault});
+    }
+
+    /// @dev Helper to pull vault funds for transaction sponsoring
+    function _sponsorTransaction(uint256 _fee) internal {
+        IPaymasterVault(paymasterVault).sponsorTransaction({_value: _fee});
+    }
+
+    /// @inheritdoc IPaymaster
+    function whitelist() external view returns (address[] memory) {
+        return _whitelist.values();
+    }
+
+    /// @inheritdoc IPaymaster
+    function whitelistLength() external view returns (uint256) {
+        return _whitelist.length();
+    }
+
+    /// @inheritdoc IPaymaster
+    function isWhitelisted(address _account) external view returns (bool) {
+        return _whitelist.contains(_account);
+    }
+}
+
+// lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol
+
+// OpenZeppelin Contracts (last updated v5.0.0) (token/ERC20/utils/SafeERC20.sol)
+
+/**
+ * @title SafeERC20
+ * @dev Wrappers around ERC20 operations that throw on failure (when the token
+ * contract returns false). Tokens that return no value (and instead revert or
+ * throw on failure) are also supported, non-reverting calls are assumed to be
+ * successful.
+ * To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,
+ * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.
+ */
+library SafeERC20 {
+    using Address_0 for address;
+
+    /**
+     * @dev An operation with an ERC20 token failed.
+     */
+    error SafeERC20FailedOperation(address token);
+
+    /**
+     * @dev Indicates a failed `decreaseAllowance` request.
+     */
+    error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);
+
+    /**
+     * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,
+     * non-reverting calls are assumed to be successful.
+     */
+    function safeTransfer(IERC20 token, address to, uint256 value) internal {
+        _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));
+    }
+
+    /**
+     * @dev Transfer `value` amount of `token` from `from` to `to`, spending the approval given by `from` to the
+     * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.
+     */
+    function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {
+        _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));
+    }
+
+    /**
+     * @dev Increase the calling contract's allowance toward `spender` by `value`. If `token` returns no value,
+     * non-reverting calls are assumed to be successful.
+     */
+    function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {
+        uint256 oldAllowance = token.allowance(address(this), spender);
+        forceApprove(token, spender, oldAllowance + value);
+    }
+
+    /**
+     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no
+     * value, non-reverting calls are assumed to be successful.
+     */
+    function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {
+        unchecked {
+            uint256 currentAllowance = token.allowance(address(this), spender);
+            if (currentAllowance < requestedDecrease) {
+                revert SafeERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);
+            }
+            forceApprove(token, spender, currentAllowance - requestedDecrease);
+        }
+    }
+
+    /**
+     * @dev Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,
+     * non-reverting calls are assumed to be successful. Meant to be used with tokens that require the approval
+     * to be set to zero before setting it to a non-zero value, such as USDT.
+     */
+    function forceApprove(IERC20 token, address spender, uint256 value) internal {
+        bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));
+
+        if (!_callOptionalReturnBool(token, approvalCall)) {
+            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));
+            _callOptionalReturn(token, approvalCall);
+        }
+    }
+
+    /**
+     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
+     * on the return value: the return value is optional (but if data is returned, it must not be false).
+     * @param token The token targeted by the call.
+     * @param data The call data (encoded using abi.encode or one of its variants).
+     */
+    function _callOptionalReturn(IERC20 token, bytes memory data) private {
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We use {Address-functionCall} to perform this call, which verifies that
+        // the target address contains contract code and also asserts for success in the low-level call.
+
+        bytes memory returndata = address(token).functionCall(data);
+        if (returndata.length != 0 && !abi.decode(returndata, (bool))) {
+            revert SafeERC20FailedOperation(address(token));
+        }
+    }
+
+    /**
+     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement
+     * on the return value: the return value is optional (but if data is returned, it must not be false).
+     * @param token The token targeted by the call.
+     * @param data The call data (encoded using abi.encode or one of its variants).
+     *
+     * This is a variant of {_callOptionalReturn} that silents catches all reverts and returns a bool instead.
+     */
+    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {
+        // We need to perform a low level call here, to bypass Solidity's return data size checking mechanism, since
+        // we're implementing it ourselves. We cannot use {Address-functionCall} here since this should return false
+        // and not revert is the subcall reverts.
+
+        (bool success, bytes memory returndata) = address(token).call(data);
+        return success && (returndata.length == 0 || abi.decode(returndata, (bool))) && address(token).code.length > 0;
+    }
 }
 
 // lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol
@@ -4230,44 +4054,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     }
 }
 
-// src/bridge/DomainRegistry.sol
-
-/// @title Domain Registry
-/// @notice Contains logic for managing registered domain from which messages can be sent to or received from
-abstract contract DomainRegistry is IDomainRegistry, Ownable {
-    using EnumerableSet for EnumerableSet.UintSet;
-
-    /// @dev Stores list of trusted domains
-    EnumerableSet.UintSet internal _domains;
-
-    constructor(address _owner) Ownable(_owner) {}
-
-    /// @inheritdoc IDomainRegistry
-    function registerDomain(uint32 _domain) external onlyOwner {
-        if (_domain == block.chainid) revert InvalidDomain();
-        if (_domains.contains({value: _domain})) revert AlreadyRegistered();
-        _domains.add({value: _domain});
-        emit DomainRegistered({_domain: _domain});
-    }
-
-    /// @inheritdoc IDomainRegistry
-    function deregisterDomain(uint32 _domain) external onlyOwner {
-        if (!_domains.contains({value: _domain})) revert NotRegistered();
-        _domains.remove({value: _domain});
-        emit DomainDeregistered({_domain: _domain});
-    }
-
-    /// @inheritdoc IDomainRegistry
-    function domains() external view returns (uint256[] memory) {
-        return _domains.values();
-    }
-
-    /// @inheritdoc IDomainRegistry
-    function contains(uint32 _domain) external view returns (bool) {
-        return _domains.contains({value: _domain});
-    }
-}
-
 // src/interfaces/xerc20/IXERC20.sol
 
 interface IXERC20 {
@@ -4367,74 +4153,16 @@ interface IXERC20Lockbox {
     function withdraw(uint256 _amount) external;
 }
 
-// src/bridge/BaseTokenBridge.sol
+// src/interfaces/root/bridge/IRootTokenBridge.sol
 
-/// @title Velodrome Superchain Base Token Bridge
-/// @notice Base Token Bridge contract to be extended in Root & Leaf implementations
-abstract contract BaseTokenBridge is ITokenBridge, IHLHandler, ISpecifiesInterchainSecurityModule_1, DomainRegistry {
-    /// @inheritdoc ITokenBridge
-    address public immutable xerc20;
-    /// @inheritdoc ITokenBridge
-    address public immutable mailbox;
-    /// @inheritdoc ITokenBridge
-    address public hook;
-    /// @inheritdoc ITokenBridge
-    IInterchainSecurityModule public securityModule;
+interface IRootTokenBridge is ITokenBridge {
+    error Whitelisted();
 
-    constructor(address _owner, address _xerc20, address _mailbox, address _ism) DomainRegistry(_owner) {
-        xerc20 = _xerc20;
-        mailbox = _mailbox;
-        securityModule = IInterchainSecurityModule(_ism);
-        emit InterchainSecurityModuleSet({_new: _ism});
-    }
+    /// @notice The lockbox contract used to wrap and unwrap erc20
+    function lockbox() external view returns (IXERC20Lockbox);
 
-    /// @inheritdoc ISpecifiesInterchainSecurityModule_1
-    function interchainSecurityModule() external view returns (IInterchainSecurityModule) {
-        return securityModule;
-    }
-
-    /// @inheritdoc ISpecifiesInterchainSecurityModule_1
-    function setInterchainSecurityModule(address _ism) external onlyOwner {
-        securityModule = IInterchainSecurityModule(_ism);
-        emit InterchainSecurityModuleSet({_new: _ism});
-    }
-
-    /// @inheritdoc ITokenBridge
-    function setHook(address _hook) external onlyOwner {
-        hook = _hook;
-        emit HookSet({_newHook: _hook});
-    }
-
-    /// @inheritdoc ITokenBridge
-    function sendToken(address _recipient, uint256 _amount, uint32 _domain) external payable virtual;
-
-    /// @inheritdoc ITokenBridge
-    function sendToken(address _recipient, uint256 _amount, uint32 _domain, address _refundAddress)
-        external
-        payable
-        virtual;
-
-    /// @inheritdoc IHLHandler
-    function handle(uint32 _origin, bytes32 _sender, bytes calldata _message) external payable virtual;
-
-    function _generateGasMetadata(address _hook, uint256 _value, address _refundAddress, bytes memory _message)
-        internal
-        view
-        virtual
-        returns (bytes memory)
-    {
-        return StandardHookMetadata.formatMetadata({
-            _msgValue: _value,
-            _gasLimit: GAS_LIMIT(),
-            _refundAddress: _refundAddress,
-            _customMetadata: ''
-        });
-    }
-
-    /// @inheritdoc ITokenBridge
-    function GAS_LIMIT() public pure virtual returns (uint256) {
-        return 200_000;
-    }
+    /// @notice The underlying ERC20 token of the lockbox
+    function erc20() external view returns (IERC20);
 }
 
 // node_modules/@hyperlane-xyz/core/contracts/Mailbox.sol
@@ -4443,7 +4171,7 @@ abstract contract BaseTokenBridge is ITokenBridge, IHLHandler, ISpecifiesInterch
 
 // ============ External Imports ============
 
-contract Mailbox is IMailbox, Indexed, Versioned, OwnableUpgradeable {
+contract Mailbox is IMailbox, Indexed, Versioned, OwnableUpgradeable, PackageVersioned {
     // ============ Libraries ============
 
     using Message for bytes;
@@ -4784,18 +4512,6 @@ contract Mailbox is IMailbox, Indexed, Versioned, OwnableUpgradeable {
     }
 }
 
-// src/interfaces/root/bridge/IRootTokenBridge.sol
-
-interface IRootTokenBridge is ITokenBridge {
-    error Whitelisted();
-
-    /// @notice The lockbox contract used to wrap and unwrap erc20
-    function lockbox() external view returns (IXERC20Lockbox);
-
-    /// @notice The underlying ERC20 token of the lockbox
-    function erc20() external view returns (IERC20);
-}
-
 // src/interfaces/root/bridge/IRootEscrowTokenBridge.sol
 
 interface IRootEscrowTokenBridge is IRootTokenBridge {
@@ -4803,6 +4519,118 @@ interface IRootEscrowTokenBridge is IRootTokenBridge {
 
     /// @notice The voting escrow contract used to lock velo
     function escrow() external view returns (IVotingEscrow);
+}
+
+// src/bridge/DomainRegistry.sol
+
+/// @title Domain Registry
+/// @notice Contains logic for managing registered domains from which messages can be sent to or received from
+abstract contract DomainRegistry is IDomainRegistry, Ownable {
+    using EnumerableSet for EnumerableSet.UintSet;
+
+    /// @dev Stores list of trusted domains
+    EnumerableSet.UintSet internal _domains;
+
+    /// @inheritdoc IDomainRegistry
+    address public immutable mailbox;
+
+    constructor(address _owner, address _mailbox) Ownable(_owner) {
+        mailbox = _mailbox;
+    }
+
+    /// @inheritdoc IDomainRegistry
+    function registerDomain(uint32 _domain) external onlyOwner {
+        if (_domain == Mailbox(mailbox).localDomain()) revert InvalidDomain();
+        if (_domains.contains({value: _domain})) revert AlreadyRegistered();
+        _domains.add({value: _domain});
+        emit DomainRegistered({_domain: _domain});
+    }
+
+    /// @inheritdoc IDomainRegistry
+    function deregisterDomain(uint32 _domain) external onlyOwner {
+        if (!_domains.contains({value: _domain})) revert NotRegistered();
+        _domains.remove({value: _domain});
+        emit DomainDeregistered({_domain: _domain});
+    }
+
+    /// @inheritdoc IDomainRegistry
+    function domains() external view returns (uint256[] memory) {
+        return _domains.values();
+    }
+
+    /// @inheritdoc IDomainRegistry
+    function contains(uint32 _domain) external view returns (bool) {
+        return _domains.contains({value: _domain});
+    }
+}
+
+// src/bridge/BaseTokenBridge.sol
+
+/// @title Velodrome Superchain Base Token Bridge
+/// @notice Base Token Bridge contract to be extended in Root & Leaf implementations
+abstract contract BaseTokenBridge is ITokenBridge, IHLHandler, ISpecifiesInterchainSecurityModule_1, DomainRegistry {
+    /// @inheritdoc ITokenBridge
+    address public immutable xerc20;
+    /// @inheritdoc ITokenBridge
+    address public hook;
+    /// @inheritdoc ITokenBridge
+    IInterchainSecurityModule public securityModule;
+
+    constructor(address _owner, address _xerc20, address _mailbox, address _ism) DomainRegistry(_owner, _mailbox) {
+        xerc20 = _xerc20;
+        securityModule = IInterchainSecurityModule(_ism);
+        emit InterchainSecurityModuleSet({_new: _ism});
+    }
+
+    /// @inheritdoc ISpecifiesInterchainSecurityModule_1
+    function interchainSecurityModule() external view returns (IInterchainSecurityModule) {
+        return securityModule;
+    }
+
+    /// @inheritdoc ISpecifiesInterchainSecurityModule_1
+    function setInterchainSecurityModule(address _ism) external onlyOwner {
+        securityModule = IInterchainSecurityModule(_ism);
+        emit InterchainSecurityModuleSet({_new: _ism});
+    }
+
+    /// @inheritdoc ITokenBridge
+    function setHook(address _hook) external onlyOwner {
+        hook = _hook;
+        emit HookSet({_newHook: _hook});
+    }
+
+    /// @inheritdoc ITokenBridge
+    function sendToken(address _recipient, uint256 _amount, uint32 _domain) external payable virtual;
+
+    /// @inheritdoc ITokenBridge
+    function sendToken(address _recipient, uint256 _amount, uint32 _domain, address _refundAddress)
+        external
+        payable
+        virtual;
+
+    /// @inheritdoc IHLHandler
+    function handle(uint32 _origin, bytes32 _sender, bytes calldata _message) external payable virtual;
+
+    function _generateGasMetadata(address _hook, address _refundAddress, bytes memory _message)
+        internal
+        view
+        virtual
+        returns (bytes memory)
+    {
+        /// @dev If custom hook is set, it should be used to estimate gas
+        uint256 gasLimit = GAS_LIMIT();
+        return StandardHookMetadata.formatMetadata({
+            _msgValue: 0,
+            _gasLimit: gasLimit,
+            _refundAddress: _refundAddress,
+            _customMetadata: ''
+        });
+    }
+
+    /// @inheritdoc ITokenBridge
+    function GAS_LIMIT() public pure virtual returns (uint256) {
+        return 76_000;
+    }
 }
 
 // src/root/bridge/RootTokenBridge.sol
@@ -4910,8 +4738,7 @@ contract RootTokenBridge is BaseTokenBridge, IRootTokenBridge, Paymaster {
 
         if (_whitelist.contains({value: msg.sender})) {
             if (msg.value != 0) revert Whitelisted();
-            metadata =
-                _generateGasMetadata({_hook: _hook, _value: fee, _refundAddress: paymasterVault, _message: message});
+            metadata = _generateGasMetadata({_hook: _hook, _refundAddress: paymasterVault, _message: message});
             fee = Mailbox(mailbox).quoteDispatch({
                 destinationDomain: _domain,
                 recipientAddress: TypeCasts.addressToBytes32(address(this)),
@@ -4920,15 +4747,10 @@ contract RootTokenBridge is BaseTokenBridge, IRootTokenBridge, Paymaster {
                 hook: IPostDispatchHook(_hook)
             });
             if (fee > 0) {
-                // update fee in metadata directly
-                assembly {
-                    mstore(add(add(metadata, 0x20), 2), fee)
-                }
                 _sponsorTransaction({_fee: fee});
             }
         } else {
-            metadata =
-                _generateGasMetadata({_hook: _hook, _value: fee, _refundAddress: _refundAddress, _message: message});
+            metadata = _generateGasMetadata({_hook: _hook, _refundAddress: _refundAddress, _message: message});
         }
         erc20.safeTransferFrom({from: msg.sender, to: address(this), value: _amount});
         erc20.safeIncreaseAllowance({spender: address(lockbox), value: _amount});
@@ -5033,10 +4855,5 @@ contract RootEscrowTokenBridge is RootTokenBridge, IRootEscrowTokenBridge {
         }
 
         emit ReceivedMessage({_origin: _origin, _sender: _sender, _value: msg.value, _message: string(_message)});
-    }
-
-    /// @inheritdoc ITokenBridge
-    function GAS_LIMIT() public pure override(BaseTokenBridge, ITokenBridge) returns (uint256) {
-        return 76_000;
     }
 }

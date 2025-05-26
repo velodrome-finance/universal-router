@@ -418,7 +418,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         _;
     }
 
-    modifier whenDestinationChainIsMODE() {
+    modifier whenDestinationChainIsMETAL() {
         inputs[0] = abi.encode(
             uint8(BridgeTypes.XVELO),
             ActionConstants.MSG_SENDER,
@@ -438,7 +438,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         /// @dev Calculate gas price so that quote is `MESSAGE_FEE`
         uint256 requiredPrice = (MESSAGE_FEE * tokenExchangeRate) / (gasLimit * exchangeRate);
 
-        // Mock the gas oracle response for domain 1000034443
+        // Mock the gas oracle response for domain 100001750
         bytes memory mockResponse = abi.encode(uint128(exchangeRate), uint128(requiredPrice));
         vm.mockCall(
             ROOT_STORAGE_GAS_ORACLE,
@@ -452,7 +452,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
     {
         // It should revert with {InvalidTokenAddress}
         inputs[0] = abi.encode(
@@ -474,7 +474,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
     {
         // It should revert with {AllowanceExpired}
         vm.expectRevert(abi.encodeWithSelector(IAllowanceTransfer.AllowanceExpired.selector, 0));
@@ -491,7 +491,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingPermit2_
     {
         // It should revert with {NotRegistered}
@@ -514,7 +514,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingPermit2_
     {
         // It should revert with {NotRegistered}
@@ -537,7 +537,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingPermit2_
     {
         // It should revert with {NotRegistered}
@@ -560,7 +560,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingPermit2_
     {
         // It should revert with "IGP: insufficient interchain gas payment"
@@ -583,7 +583,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingPermit2_
     {
         // It should bridge tokens to destination chain
@@ -619,7 +619,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingDirectApproval_
     {
         // It should revert with {NotRegistered}
@@ -642,7 +642,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingDirectApproval_
     {
         // It should revert with {NotRegistered}
@@ -665,7 +665,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingDirectApproval_
     {
         // It should revert with {NotRegistered}
@@ -688,7 +688,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingDirectApproval_
     {
         // It should revert with "IGP: insufficient interchain gas payment"
@@ -711,7 +711,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingDirectApproval_
     {
         // It should bridge tokens to destination chain
@@ -751,7 +751,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
             true
         );
 
-        (, uint96 gasOverhead) = InterchainGasPaymaster(LEAF_IGP).destinationGasConfigs(rootDomain);
+        (, uint96 gasOverhead) = InterchainGasPaymaster(LEAF_IGP_2).destinationGasConfigs(rootDomain);
         uint256 gasLimit = leafXVeloTokenBridge.GAS_LIMIT() + gasOverhead;
         uint256 exchangeRate = 15000000000;
         uint256 tokenExchangeRate = 1e10;
@@ -803,8 +803,8 @@ contract BridgeTokenTest is BaseOverrideBridge {
     }
 
     modifier whenUsingPermit2__() {
-        ERC20(XVELO_ADDRESS).approve(address(MODE_PERMIT2), type(uint256).max);
-        MODE_PERMIT2.approve(XVELO_ADDRESS, address(leafRouter_2), type(uint160).max, type(uint48).max);
+        ERC20(XVELO_ADDRESS).approve(address(METAL_PERMIT2), type(uint256).max);
+        METAL_PERMIT2.approve(XVELO_ADDRESS, address(leafRouter_2), type(uint160).max, type(uint48).max);
         _;
     }
 
@@ -960,7 +960,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
     function test_VeloChainedBridgeTokenFlow()
         external
         whenBridgeTypeIsXVELO
-        whenDestinationChainIsMODE
+        whenDestinationChainIsMETAL
         whenUsingDirectApproval_
     {
         // Encode chained bridge command after transferFrom, so that payer is Router
@@ -1100,7 +1100,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         vm.snapshotGasLastCall('BridgeRouter_HypXERC20_DirectApproval');
     }
 
-    function testGas_XVeloBridgePermit2() public whenBridgeTypeIsXVELO whenDestinationChainIsMODE {
+    function testGas_XVeloBridgePermit2() public whenBridgeTypeIsXVELO whenDestinationChainIsMETAL {
         ERC20(VELO_ADDRESS).approve(address(PERMIT2), type(uint256).max);
         PERMIT2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
 
@@ -1108,7 +1108,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         vm.snapshotGasLastCall('BridgeRouter_XVelo_Permit2');
     }
 
-    function testGas_XVeloBridgeDirectApproval() public whenBridgeTypeIsXVELO whenDestinationChainIsMODE {
+    function testGas_XVeloBridgeDirectApproval() public whenBridgeTypeIsXVELO whenDestinationChainIsMETAL {
         ERC20(VELO_ADDRESS).approve(address(router), type(uint256).max);
 
         router.execute{value: feeAmount + leftoverETH}(commands, inputs);

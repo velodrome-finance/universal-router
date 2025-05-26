@@ -63,3 +63,4 @@ jobs:
           OPTIMISM_RPC_URL: ${{ secrets.OPTIMISM_RPC_URL }}
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
           MODE_RPC_URL: ${{ secrets.MODE_RPC_URL }}
+          METAL_RPC_URL: ${{ secrets.METAL_RPC_URL }}
