@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
+import {IUniswapImmutables} from '../../interfaces/IUniswapImmutables.sol';
+
 struct UniswapParameters {
     address v2Factory;
     address v3Factory;
@@ -12,30 +14,30 @@ struct UniswapParameters {
     bytes32 veloCLInitCodeHash;
 }
 
-contract UniswapImmutables {
-    /// @notice The address of UniswapV2Factory
-    address internal immutable UNISWAP_V2_FACTORY;
+contract UniswapImmutables is IUniswapImmutables {
+    ///@inheritdoc IUniswapImmutables
+    address public immutable UNISWAP_V2_FACTORY;
 
-    /// @notice The UniswapV2Pair initcodehash
-    bytes32 internal immutable UNISWAP_V2_PAIR_INIT_CODE_HASH;
+    ///@inheritdoc IUniswapImmutables
+    bytes32 public immutable UNISWAP_V2_PAIR_INIT_CODE_HASH;
 
-    /// @notice The address of UniswapV3Factory
-    address internal immutable UNISWAP_V3_FACTORY;
+    ///@inheritdoc IUniswapImmutables
+    address public immutable UNISWAP_V3_FACTORY;
 
-    /// @notice The UniswapV3Pool initcodehash
-    bytes32 internal immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
+    ///@inheritdoc IUniswapImmutables
+    bytes32 public immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
 
-    /// @notice The address of Velodrome V2 PoolFactory
-    address internal immutable VELODROME_V2_FACTORY;
+    ///@inheritdoc IUniswapImmutables
+    address public immutable VELODROME_V2_FACTORY;
 
-    /// @notice The VelodromeV2 Pool initcodehash
-    bytes32 internal immutable VELODROME_V2_INIT_CODE_HASH;
+    ///@inheritdoc IUniswapImmutables
+    bytes32 public immutable VELODROME_V2_INIT_CODE_HASH;
 
-    /// @notice The address of Velodrome CL PoolFactory
-    address internal immutable VELODROME_CL_FACTORY;
+    ///@inheritdoc IUniswapImmutables
+    address public immutable VELODROME_CL_FACTORY;
 
-    /// @notice The Velodrome CLPool initcodehash
-    bytes32 internal immutable VELODROME_CL_POOL_INIT_CODE_HASH;
+    ///@inheritdoc IUniswapImmutables
+    bytes32 public immutable VELODROME_CL_POOL_INIT_CODE_HASH;
 
     constructor(UniswapParameters memory params) {
         UNISWAP_V2_FACTORY = params.v2Factory;

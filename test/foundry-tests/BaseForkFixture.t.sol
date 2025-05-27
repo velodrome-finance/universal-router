@@ -110,6 +110,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
     // common variables
     Users internal users;
     IWETH9 public weth;
+    address public unsupported;
 
     function setUp() public virtual {
         createUsers();
@@ -170,6 +171,18 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         router = deployRouter.router();
 
+        // check router variables
+        assertEq(address(router.WETH9()), address(WETH));
+        assertEq(address(router.PERMIT2()), address(PERMIT2));
+        assertEq(address(router.UNISWAP_V2_FACTORY()), address(UNI_V2_FACTORY));
+        assertEq(router.UNISWAP_V2_PAIR_INIT_CODE_HASH(), V2_INIT_CODE_HASH);
+        assertEq(address(router.UNISWAP_V3_FACTORY()), address(V3_FACTORY));
+        assertEq(router.UNISWAP_V3_POOL_INIT_CODE_HASH(), V3_INIT_CODE_HASH);
+        assertEq(address(router.VELODROME_V2_FACTORY()), address(VELO_V2_FACTORY));
+        assertEq(router.VELODROME_V2_INIT_CODE_HASH(), VELO_V2_INIT_CODE_HASH);
+        assertEq(address(router.VELODROME_CL_FACTORY()), address(CL_FACTORY));
+        assertEq(router.VELODROME_CL_POOL_INIT_CODE_HASH(), CL_POOL_INIT_CODE_HASH);
+
         // deploy root contracts
         /// @dev some tests require lower block number to execute properly
         if (rootForkBlockNumber >= 132196376) {
@@ -209,6 +222,29 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         leafRouter = deployRouter.router();
 
+        // check router variables
+        assertEq(address(leafRouter.WETH9()), address(WETH));
+        assertEq(address(leafRouter.PERMIT2()), 0x000000000022D473030F116dDEE9F6B43aC78BA3);
+        assertEq(address(leafRouter.UNISWAP_V2_FACTORY()), 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6);
+        assertEq(
+            leafRouter.UNISWAP_V2_PAIR_INIT_CODE_HASH(),
+            0x96e8ac4277198ff8b6f785478aa9a39f403cb768dd02cbee326c3e7da348845f
+        );
+        assertEq(address(leafRouter.UNISWAP_V3_FACTORY()), 0x33128a8fC17869897dcE68Ed026d694621f6FDfD);
+        assertEq(
+            leafRouter.UNISWAP_V3_POOL_INIT_CODE_HASH(),
+            0xe34f199b19b2b4f47f68442619d555527d244f78a3297ea89325f843f87b8b54
+        );
+        assertEq(address(leafRouter.VELODROME_V2_FACTORY()), 0x420DD381b31aEf6683db6B902084cB0FFECe40Da);
+        assertEq(
+            leafRouter.VELODROME_V2_INIT_CODE_HASH(), 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c
+        );
+        assertEq(address(leafRouter.VELODROME_CL_FACTORY()), 0x5e7BB104d84c7CB9B682AaC2F3d509f5F406809A);
+        assertEq(
+            leafRouter.VELODROME_CL_POOL_INIT_CODE_HASH(),
+            0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30
+        );
+
         vm.selectFork({forkId: leafId_2});
 
         // deploy router on mode (values copied from DeployMode.s.sol)
@@ -230,6 +266,26 @@ abstract contract BaseForkFixture is Test, TestConstants {
         deployRouter.run();
 
         leafRouter_2 = deployRouter.router();
+
+        unsupported = deployRouter.unsupported();
+
+        // check router variables
+        assertEq(address(leafRouter_2.WETH9()), address(WETH));
+        assertEq(address(leafRouter_2.PERMIT2()), leafPermit2);
+        assertEq(address(leafRouter_2.UNISWAP_V2_FACTORY()), unsupported);
+        assertEq(leafRouter_2.UNISWAP_V2_PAIR_INIT_CODE_HASH(), bytes32(0));
+        assertEq(address(leafRouter_2.UNISWAP_V3_FACTORY()), unsupported);
+        assertEq(leafRouter_2.UNISWAP_V3_POOL_INIT_CODE_HASH(), bytes32(0));
+        assertEq(address(leafRouter_2.VELODROME_V2_FACTORY()), 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0);
+        assertEq(
+            leafRouter_2.VELODROME_V2_INIT_CODE_HASH(),
+            0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d
+        );
+        assertEq(address(leafRouter_2.VELODROME_CL_FACTORY()), 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F);
+        assertEq(
+            leafRouter_2.VELODROME_CL_POOL_INIT_CODE_HASH(),
+            0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5
+        );
 
         leafMailbox_2 = _overwriteMailbox(leafMailboxAddress_2, address(0), leafDomain_2);
 

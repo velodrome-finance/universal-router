@@ -24,7 +24,7 @@ abstract contract DeployUniversalRouter is Script {
     RouterParameters internal params;
     UniversalRouter public router;
 
-    address internal unsupported;
+    address public unsupported;
 
     address public deployer = 0x4994DacdB9C57A811aFfbF878D92E00EF2E5C4C2;
 
