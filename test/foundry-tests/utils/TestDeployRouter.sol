@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.15;
 
-import {DeployUniversalRouter, RouterParameters} from 'script/DeployUniversalRouter.s.sol';
+import {DeployUniversalRouter} from 'script/DeployUniversalRouter.s.sol';
 
 contract TestDeployRouter is DeployUniversalRouter {
-    constructor(RouterParameters memory _params_) {
-        params = _params_;
+    constructor(DeployUniversalRouter.DeploymentParameters memory _params, address _unsupported, address _permit2) {
+        params = _params;
+        unsupported = _unsupported;
+        permit2 = _permit2;
         isTest = true;
     }
 

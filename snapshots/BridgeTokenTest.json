@@ -1,6 +1,6 @@
 {
   "BridgeRouter_HypXERC20_DirectApproval": "396488",
-  "BridgeRouter_HypXERC20_Permit2": "410753",
+  "BridgeRouter_HypXERC20_Permit2": "410909",
   "BridgeRouter_XVelo_DirectApproval": "369432",
-  "BridgeRouter_XVelo_Permit2": "376830"
+  "BridgeRouter_XVelo_Permit2": "376955"
 }

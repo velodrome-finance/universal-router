@@ -2,7 +2,6 @@
 pragma solidity >=0.8.19 <0.9.0;
 
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
-import {IPermit2} from 'permit2/src/interfaces/IPermit2.sol';
 import {IUniswapV2Factory} from '@uniswap/v2-core/contracts/interfaces/IUniswapV2Factory.sol';
 import {IUniswapV3Factory} from '@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol';
 import {INonfungiblePositionManager} from '@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol';
@@ -50,8 +49,6 @@ abstract contract TestConstants {
     address public constant XVELO_MODE_MAILBOX_ADDRESS = 0x2f2aFaE1139Ce54feFC03593FeE8AB2aDF4a85A7;
     address public constant XVELO_METAL_MAILBOX_ADDRESS = 0x730f8a4128Fa8c53C777B62Baa1abeF94cAd34a9;
     address public constant ROOT_HL_MESSAGE_MODULE_ADDRESS = 0x2BbA7515F7cF114B45186274981888D8C2fBA15E;
-    address public constant MODE_PERMIT2_ADDRESS = 0xbF055A2D7450b55c194c32e285deDb956416CAF3;
-    address public constant METAL_PERMIT2_ADDRESS = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
 
     // common
     address public constant ROOT_STORAGE_GAS_ORACLE = 0x27e88AeB8EA4B159d81df06355Ea3d20bEB1de38;
@@ -59,7 +56,6 @@ abstract contract TestConstants {
     address public constant ROOT_IGP = 0xD8A76C4D91fCbB7Cc8eA795DFDF870E48368995C;
     address public constant LEAF_IGP = 0x931dFCc8c1141D6F532FD023bd87DAe0080c835d;
     address public constant LEAF_IGP_2 = 0x2b79328DA089E89A9E9c08732b56dd31F01011Db;
-    address public constant PERMIT2_ADDRESS = 0x000000000022D473030F116dDEE9F6B43aC78BA3;
     address public constant WETH9_ADDRESS = 0x4200000000000000000000000000000000000006;
     address public constant bUSDC_ADDRESS = 0x7F5c764cBc14f9669B88837ca1490cCa17c31607;
     address public constant UNI_V2_FACTORY_ADDRESS = 0x0c3c1c532F1e39EdF36BE9Fe0bE1410313E074Bf;
@@ -79,9 +75,6 @@ abstract contract TestConstants {
     uint256 constant AMOUNT = 1 ether;
     address constant FROM = address(1234);
 
-    IPermit2 constant PERMIT2 = IPermit2(PERMIT2_ADDRESS);
-    IPermit2 constant MODE_PERMIT2 = IPermit2(MODE_PERMIT2_ADDRESS);
-    IPermit2 constant METAL_PERMIT2 = IPermit2(METAL_PERMIT2_ADDRESS);
     ERC20 constant bUSDC = ERC20(bUSDC_ADDRESS);
 
     // Uni specific

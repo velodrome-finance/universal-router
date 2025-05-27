@@ -12,6 +12,7 @@ import {TestIsm} from '@hyperlane/core/contracts/test/TestIsm.sol';
 import {TestPostDispatchHook} from '@hyperlane/core/contracts/test/TestPostDispatchHook.sol';
 import {IMailbox} from '@hyperlane/core/contracts/interfaces/IMailbox.sol';
 import {IAllowanceTransfer} from 'permit2/src/interfaces/IAllowanceTransfer.sol';
+import {IPermit2} from 'permit2/src/interfaces/IPermit2.sol';
 import {IWETH9} from '@uniswap/v4-periphery/src/interfaces/external/IWETH9.sol';
 
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
@@ -25,18 +26,18 @@ import {Commands} from '../../contracts/libraries/Commands.sol';
 
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
-import {TestDeployRouter, RouterParameters} from '../foundry-tests/utils/TestDeployRouter.sol';
+import {TestDeployRouter, DeployUniversalRouter} from '../foundry-tests/utils/TestDeployRouter.sol';
+import {TestDeployPermit2AndUnsupported} from '../foundry-tests/utils/TestDeployPermit2AndUnsupported.sol';
 import {IXERC20, MintLimits} from '../foundry-tests/mock/XERC20/IXERC20.sol';
 import {IPool} from 'contracts/interfaces/external/IPool.sol';
-import {
-    TestConstants, IPermit2, ERC20, IUniswapV2Factory, IPoolFactory
-} from '../foundry-tests/utils/TestConstants.t.sol';
+import {TestConstants, ERC20, IUniswapV2Factory, IPoolFactory} from '../foundry-tests/utils/TestConstants.t.sol';
 
 abstract contract BaseForkFixture is Test, TestConstants {
     using SafeCast for uint256;
 
+    TestDeployPermit2AndUnsupported public deployPermit2AndUnsupported;
     TestDeployRouter public deployRouter;
-    RouterParameters public params;
+    DeployUniversalRouter.DeploymentParameters public params;
 
     // anything prefixed with root is deployed on the root chain
     // anything prefixed with leaf is deployed on the leaf chain
@@ -53,6 +54,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     // root router
     UniversalRouter public router;
+    // root permit2
+    IPermit2 public rootPermit2;
 
     // root contracts
     IXERC20 public rootOpenUSDT = IXERC20(OPEN_USDT_ADDRESS);
@@ -74,6 +77,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     // leaf router
     UniversalRouter public leafRouter;
+    // leaf permit2
+    IPermit2 public leafPermit2;
 
     // leaf contracts
     IXERC20 public leafOpenUSDT = IXERC20(OPEN_USDT_ADDRESS);
@@ -91,7 +96,6 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     // leaf deployment variables
     // values copied from DeployMode.s.sol
-    address public leafPermit2 = MODE_PERMIT2_ADDRESS;
     address public leafVeloV2Factory = 0x31832f2a97Fd20664D76Cc421207669b55CE4BC0;
     address public leafVeloCLFactory = 0x04625B046C69577EfC40e6c0Bb83CDBAfab5a55F;
     bytes32 public leafVeloV2InitCodeHash = 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d;
@@ -100,6 +104,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
     // leaf router
     UniversalRouter public leafRouter_2;
+    // leaf permit2
+    IPermit2 public leafPermit2_2;
 
     // leaf contracts
     IXERC20 public leafXVelo = IXERC20(XVELO_ADDRESS);
@@ -151,9 +157,14 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.selectFork({forkId: rootId});
         deployRootDependencies();
 
+        deployPermit2AndUnsupported = new TestDeployPermit2AndUnsupported();
+        deployPermit2AndUnsupported.run();
+
+        rootPermit2 = IPermit2(deployPermit2AndUnsupported.permit2());
+        address unsupported = deployPermit2AndUnsupported.unsupported();
+
         // deploy router
-        params = RouterParameters({
-            permit2: address(PERMIT2),
+        params = DeployUniversalRouter.DeploymentParameters({
             weth9: address(WETH),
             v2Factory: address(UNI_V2_FACTORY),
             v3Factory: address(V3_FACTORY),
@@ -166,14 +177,15 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloCLInitCodeHash: CL_POOL_INIT_CODE_HASH
         });
 
-        deployRouter = new TestDeployRouter(params);
+        deployRouter =
+            new TestDeployRouter({_params: params, _unsupported: unsupported, _permit2: address(rootPermit2)});
         deployRouter.run();
 
         router = deployRouter.router();
 
         // check router variables
         assertEq(address(router.WETH9()), address(WETH));
-        assertEq(address(router.PERMIT2()), address(PERMIT2));
+        assertEq(address(router.PERMIT2()), address(rootPermit2));
         assertEq(address(router.UNISWAP_V2_FACTORY()), address(UNI_V2_FACTORY));
         assertEq(router.UNISWAP_V2_PAIR_INIT_CODE_HASH(), V2_INIT_CODE_HASH);
         assertEq(address(router.UNISWAP_V3_FACTORY()), address(V3_FACTORY));
@@ -202,9 +214,14 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         leafMailbox = _overwriteMailbox(OPEN_USDT_BASE_MAILBOX_ADDRESS, OPEN_USDT_BASE_ISM_ADDRESS, leafDomain);
 
+        deployPermit2AndUnsupported = new TestDeployPermit2AndUnsupported();
+        deployPermit2AndUnsupported.run();
+
+        leafPermit2 = IPermit2(deployPermit2AndUnsupported.permit2());
+        address unsupported = deployPermit2AndUnsupported.unsupported();
+
         // deploy router on base
-        params = RouterParameters({
-            permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
+        params = DeployUniversalRouter.DeploymentParameters({
             weth9: address(WETH),
             v2Factory: 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6,
             v3Factory: 0x33128a8fC17869897dcE68Ed026d694621f6FDfD,
@@ -217,14 +234,15 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloCLInitCodeHash: 0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30
         });
 
-        deployRouter = new TestDeployRouter(params);
+        deployRouter =
+            new TestDeployRouter({_params: params, _unsupported: unsupported, _permit2: address(leafPermit2)});
         deployRouter.run();
 
         leafRouter = deployRouter.router();
 
         // check router variables
         assertEq(address(leafRouter.WETH9()), address(WETH));
-        assertEq(address(leafRouter.PERMIT2()), 0x000000000022D473030F116dDEE9F6B43aC78BA3);
+        assertEq(address(leafRouter.PERMIT2()), address(leafPermit2));
         assertEq(address(leafRouter.UNISWAP_V2_FACTORY()), 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6);
         assertEq(
             leafRouter.UNISWAP_V2_PAIR_INIT_CODE_HASH(),
@@ -247,9 +265,14 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         vm.selectFork({forkId: leafId_2});
 
+        deployPermit2AndUnsupported = new TestDeployPermit2AndUnsupported();
+        deployPermit2AndUnsupported.run();
+
+        leafPermit2_2 = IPermit2(deployPermit2AndUnsupported.permit2());
+        unsupported = deployPermit2AndUnsupported.unsupported();
+
         // deploy router on mode (values copied from DeployMode.s.sol)
-        params = RouterParameters({
-            permit2: leafPermit2,
+        params = DeployUniversalRouter.DeploymentParameters({
             weth9: address(WETH),
             v2Factory: address(0),
             v3Factory: address(0),
@@ -262,7 +285,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
             veloCLInitCodeHash: leafVeloCLInitCodeHash
         });
 
-        deployRouter = new TestDeployRouter(params);
+        deployRouter =
+            new TestDeployRouter({_params: params, _unsupported: unsupported, _permit2: address(leafPermit2_2)});
         deployRouter.run();
 
         leafRouter_2 = deployRouter.router();
@@ -271,7 +295,7 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         // check router variables
         assertEq(address(leafRouter_2.WETH9()), address(WETH));
-        assertEq(address(leafRouter_2.PERMIT2()), leafPermit2);
+        assertEq(address(leafRouter_2.PERMIT2()), address(leafPermit2_2));
         assertEq(address(leafRouter_2.UNISWAP_V2_FACTORY()), unsupported);
         assertEq(leafRouter_2.UNISWAP_V2_PAIR_INIT_CODE_HASH(), bytes32(0));
         assertEq(address(leafRouter_2.UNISWAP_V3_FACTORY()), unsupported);

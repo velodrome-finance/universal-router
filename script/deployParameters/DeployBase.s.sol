@@ -2,12 +2,10 @@
 pragma solidity ^0.8.24;
 
 import {DeployUniversalRouter} from '../DeployUniversalRouter.s.sol';
-import {RouterParameters} from 'contracts/types/RouterParameters.sol';
 
 contract DeployBase is DeployUniversalRouter {
     function setUp() public override {
-        params = RouterParameters({
-            permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
+        params = DeploymentParameters({
             weth9: 0x4200000000000000000000000000000000000006,
             v2Factory: 0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6,
             v3Factory: 0x33128a8fC17869897dcE68Ed026d694621f6FDfD,
@@ -19,7 +17,5 @@ contract DeployBase is DeployUniversalRouter {
             veloV2InitCodeHash: 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c,
             veloCLInitCodeHash: 0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30
         });
-
-        unsupported = 0x9E18Efb3BE848940b0C92D300504Fb08C287FE85;
     }
 }

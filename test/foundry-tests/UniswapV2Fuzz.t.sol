@@ -32,10 +32,10 @@ abstract contract UniswapV2FuzzTest is BaseForkFixture {
         deal(FROM, BALANCE2);
         deal(token0(), FROM, BALANCE2);
         deal(token1(), FROM, BALANCE2);
-        ERC20(token0()).approve(address(PERMIT2), type(uint256).max);
-        ERC20(token1()).approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(token0(), address(router), type(uint160).max, type(uint48).max);
-        PERMIT2.approve(token1(), address(router), type(uint160).max, type(uint48).max);
+        ERC20(token0()).approve(address(rootPermit2), type(uint256).max);
+        ERC20(token1()).approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(token0(), address(router), type(uint160).max, type(uint48).max);
+        rootPermit2.approve(token1(), address(router), type(uint160).max, type(uint48).max);
     }
 
     function setPair(uint256 reserve0, uint256 reserve1) internal {

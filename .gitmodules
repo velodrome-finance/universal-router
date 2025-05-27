@@ -3,7 +3,7 @@
 	url = https://github.com/transmissions11/solmate
 [submodule "lib/permit2"]
 	path = lib/permit2
-	url = https://github.com/Uniswap/permit2
+	url = https://github.com/velodrome-finance/permit2
 [submodule "lib/v3-periphery"]
 	path = lib/v3-periphery
 	url = https://github.com/uniswap/v3-periphery

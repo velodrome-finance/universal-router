@@ -200,8 +200,8 @@ contract BridgeTokenTest is BaseOverrideBridge {
     }
 
     modifier whenUsingPermit2() {
-        ERC20(OPEN_USDT_ADDRESS).approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(OPEN_USDT_ADDRESS, address(router), type(uint160).max, type(uint48).max);
+        ERC20(OPEN_USDT_ADDRESS).approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(OPEN_USDT_ADDRESS, address(router), type(uint160).max, type(uint48).max);
         _;
     }
 
@@ -298,7 +298,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         // Assert excess fee was refunded
         assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
-        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(PERMIT2)), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS), 0);
     }
 
@@ -410,7 +410,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         // Assert excess fee was refunded
         assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
-        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(PERMIT2)), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS), 0);
     }
 
@@ -482,8 +482,8 @@ contract BridgeTokenTest is BaseOverrideBridge {
     }
 
     modifier whenUsingPermit2_() {
-        ERC20(VELO_ADDRESS).approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
+        ERC20(VELO_ADDRESS).approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
         _;
     }
 
@@ -606,7 +606,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: rootId});
-        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(PERMIT2)), 0);
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
         assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootXVeloTokenBridge)), 0);
     }
 
@@ -733,7 +733,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: rootId});
-        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(PERMIT2)), 0);
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
         assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootXVeloTokenBridge)), 0);
     }
 
@@ -803,8 +803,8 @@ contract BridgeTokenTest is BaseOverrideBridge {
     }
 
     modifier whenUsingPermit2__() {
-        ERC20(XVELO_ADDRESS).approve(address(METAL_PERMIT2), type(uint256).max);
-        METAL_PERMIT2.approve(XVELO_ADDRESS, address(leafRouter_2), type(uint160).max, type(uint48).max);
+        ERC20(XVELO_ADDRESS).approve(address(leafPermit2_2), type(uint256).max);
+        leafPermit2_2.approve(XVELO_ADDRESS, address(leafRouter_2), type(uint160).max, type(uint48).max);
         _;
     }
 
@@ -857,7 +857,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: leafId_2});
-        assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(PERMIT2)), 0);
+        assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafPermit2_2)), 0);
         assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafXVeloTokenBridge)), 0);
     }
 
@@ -915,7 +915,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: leafId_2});
-        assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(PERMIT2)), 0);
+        assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafPermit2_2)), 0);
         assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafXVeloTokenBridge)), 0);
     }
 
@@ -953,7 +953,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: rootId});
-        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(PERMIT2)), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
         assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS), 0);
     }
 
@@ -995,7 +995,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: rootId});
-        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(PERMIT2)), 0);
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
         assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootXVeloTokenBridge)), 0);
     }
 
@@ -1037,7 +1037,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
         // Assert no dangling ERC20 approvals
         vm.selectFork({forkId: leafId_2});
-        assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(PERMIT2)), 0);
+        assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafPermit2_2)), 0);
         assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafXVeloTokenBridge)), 0);
     }
 
@@ -1086,8 +1086,8 @@ contract BridgeTokenTest is BaseOverrideBridge {
     /// GAS CHECKS ///
 
     function testGas_HypXERC20BridgePermit2() public whenBridgeTypeIsHYP_XERC20 {
-        ERC20(OPEN_USDT_ADDRESS).approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(OPEN_USDT_ADDRESS, address(router), type(uint160).max, type(uint48).max);
+        ERC20(OPEN_USDT_ADDRESS).approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(OPEN_USDT_ADDRESS, address(router), type(uint160).max, type(uint48).max);
 
         router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_HypXERC20_Permit2');
@@ -1101,8 +1101,8 @@ contract BridgeTokenTest is BaseOverrideBridge {
     }
 
     function testGas_XVeloBridgePermit2() public whenBridgeTypeIsXVELO whenDestinationChainIsMETAL {
-        ERC20(VELO_ADDRESS).approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
+        ERC20(VELO_ADDRESS).approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
 
         router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_XVelo_Permit2');

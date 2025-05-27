@@ -6,10 +6,10 @@ import './BaseV3Fixture.t.sol';
 contract UniswapV3Test is BaseV3Fixture {
     function setUp() public override {
         super.setUp();
-        OP.approve(address(PERMIT2), type(uint256).max);
-        WETH.approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(address(OP), address(router), type(uint160).max, type(uint48).max);
-        PERMIT2.approve(address(WETH), address(router), type(uint160).max, type(uint48).max);
+        OP.approve(address(rootPermit2), type(uint256).max);
+        WETH.approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(address(OP), address(router), type(uint160).max, type(uint48).max);
+        rootPermit2.approve(address(WETH), address(router), type(uint160).max, type(uint48).max);
     }
 
     function testExactInputERC20ToWETH() public {

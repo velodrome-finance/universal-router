@@ -3,28 +3,39 @@ pragma solidity ^0.8.24;
 
 import 'forge-std/console2.sol';
 import 'forge-std/Script.sol';
+import {Permit2} from 'permit2/src/Permit2.sol';
 import {RouterParameters} from 'contracts/types/RouterParameters.sol';
 import {UnsupportedProtocol} from 'contracts/deploy/UnsupportedProtocol.sol';
 import {UniversalRouter} from 'contracts/UniversalRouter.sol';
 import {ICreateX} from 'contracts/interfaces/external/ICreateX.sol';
 import {CreateXLibrary} from 'contracts/libraries/CreateXLibrary.sol';
+import {Constants} from 'script/Constants.sol';
 
-bytes32 constant SALT = bytes32(uint256(0x00000000000000000000000000000000000000005eb67581652632000a6cbedf));
-
-bytes11 constant UNIVERSAL_ROUTER_ENTROPY = 0x0000000000000000000060; // used previously, no longer usable
-bytes11 constant UNIVERSAL_ROUTER_ENTROPY_V2 = 0x0000000000000000000061;
-
-abstract contract DeployUniversalRouter is Script {
+abstract contract DeployUniversalRouter is Script, Constants {
     using CreateXLibrary for bytes11;
 
     error InvalidAddress(address expected, address output);
     error InvalidOutputFilename();
-    error Permit2NotDeployed();
 
-    RouterParameters internal params;
+    struct DeploymentParameters {
+        address weth9;
+        address v2Factory;
+        address v3Factory;
+        bytes32 pairInitCodeHash;
+        bytes32 poolInitCodeHash;
+        address v4PoolManager;
+        address veloV2Factory;
+        address veloCLFactory;
+        bytes32 veloV2InitCodeHash;
+        bytes32 veloCLInitCodeHash;
+    }
+
+    DeploymentParameters internal params;
+    RouterParameters internal routerParams;
     UniversalRouter public router;
 
-    address public unsupported;
+    address public unsupported = 0x61fF070AD105D5aa6d8F9eA21212CB574EeFCAd5;
+    address public permit2 = 0x494bbD8A3302AcA833D307D11838f18DbAdA9C25;
 
     address public deployer = 0x4994DacdB9C57A811aFfbF878D92E00EF2E5C4C2;
 
@@ -42,17 +53,8 @@ abstract contract DeployUniversalRouter is Script {
     function run() external {
         vm.startBroadcast(deployer);
 
-        // deploy permit2 if it isnt yet deployed
-        if (params.permit2 == address(0)) revert Permit2NotDeployed();
-
-        // only deploy unsupported if this chain doesn't already have one
-        if (unsupported == address(0)) {
-            unsupported = address(new UnsupportedProtocol());
-            console2.log('UnsupportedProtocol deployed:', unsupported);
-        }
-
-        params = RouterParameters({
-            permit2: mapUnsupported(params.permit2),
+        routerParams = RouterParameters({
+            permit2: permit2,
             weth9: mapUnsupported(params.weth9),
             v2Factory: mapUnsupported(params.v2Factory),
             v3Factory: mapUnsupported(params.v3Factory),
@@ -79,7 +81,7 @@ abstract contract DeployUniversalRouter is Script {
             payable(
                 cx.deployCreate3({
                     salt: UNIVERSAL_ROUTER_ENTROPY_V2.calculateSalt({_deployer: deployer}),
-                    initCode: abi.encodePacked(type(UniversalRouter).creationCode, abi.encode(params))
+                    initCode: abi.encodePacked(type(UniversalRouter).creationCode, abi.encode(routerParams))
                 })
             )
         );
@@ -89,7 +91,7 @@ abstract contract DeployUniversalRouter is Script {
 
     function logParams() internal view {
         if (isTest) return;
-        console2.log('permit2:', params.permit2);
+        console2.log('permit2:', permit2);
         console2.log('weth9:', params.weth9);
         console2.log('v2Factory:', params.v2Factory);
         console2.log('v3Factory:', params.v3Factory);
@@ -133,7 +135,7 @@ abstract contract DeployUniversalRouter is Script {
         string memory path = string(abi.encodePacked(root, '/deployment-addresses/', outputFilename));
         if (keccak256(bytes(outputFilename)) == keccak256(bytes(''))) revert InvalidOutputFilename();
         /// @dev This might overwrite an existing output file
-        vm.writeJson(vm.serializeAddress('', 'Permit2', params.permit2), path);
+        vm.writeJson(vm.serializeAddress('', 'Permit2', permit2), path);
         vm.writeJson(vm.serializeAddress('', 'UniversalRouter', address(router)), path);
         vm.writeJson(vm.serializeAddress('', 'UnsupportedProtocol', unsupported), path);
     }

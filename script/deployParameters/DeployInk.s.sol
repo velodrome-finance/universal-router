@@ -2,12 +2,10 @@
 pragma solidity ^0.8.24;
 
 import {DeployUniversalRouter} from '../DeployUniversalRouter.s.sol';
-import {RouterParameters} from 'contracts/types/RouterParameters.sol';
 
 contract DeployInk is DeployUniversalRouter {
     function setUp() public override {
-        params = RouterParameters({
-            permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
+        params = DeploymentParameters({
             weth9: 0x4200000000000000000000000000000000000006,
             v2Factory: 0xfe57A6BA1951F69aE2Ed4abe23e0f095DF500C04,
             v3Factory: 0x640887A9ba3A9C53Ed27D0F7e8246A4F933f3424,

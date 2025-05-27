@@ -38,7 +38,6 @@ abstract contract BaseOverrideBridge is BaseForkFixture {
         leafDomain_2 = 1000001750; // metal domain
         leafForkBlockNumber_2 = 18047714;
 
-        leafPermit2 = METAL_PERMIT2_ADDRESS;
         leafMailboxAddress_2 = XVELO_METAL_MAILBOX_ADDRESS;
 
         super.setUp();

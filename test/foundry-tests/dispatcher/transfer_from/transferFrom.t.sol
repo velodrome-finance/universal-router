@@ -67,8 +67,8 @@ contract TransferFromTest is BaseForkFixture {
         uint256 oldBal = weth.balanceOf(RECIPIENT);
         uint256 bridgeAmount = weth.balanceOf(address(this));
 
-        WETH.approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(address(WETH), address(router), type(uint160).max, type(uint48).max);
+        WETH.approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(address(WETH), address(router), type(uint160).max, type(uint48).max);
         router.execute(commands, inputs);
 
         assertEq(weth.balanceOf(RECIPIENT), oldBal + bridgeAmount);
@@ -127,8 +127,8 @@ contract TransferFromTest is BaseForkFixture {
         uint256 oldBal = weth.balanceOf(RECIPIENT);
         uint256 oldPayerBal = weth.balanceOf(address(this));
 
-        WETH.approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(address(WETH), address(router), type(uint160).max, type(uint48).max);
+        WETH.approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(address(WETH), address(router), type(uint160).max, type(uint48).max);
         router.execute(commands, inputs);
 
         assertEq(weth.balanceOf(RECIPIENT), oldBal + amount);

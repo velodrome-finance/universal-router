@@ -45,10 +45,10 @@ abstract contract UniswapV2MultiHopTest is BaseForkFixture {
         deal(FROM, BALANCE);
         deal(token0(), FROM, BALANCE);
         deal(token1(), FROM, BALANCE);
-        ERC20(token0()).approve(address(PERMIT2), type(uint256).max);
-        ERC20(token1()).approve(address(PERMIT2), type(uint256).max);
-        PERMIT2.approve(token0(), address(router), type(uint160).max, type(uint48).max);
-        PERMIT2.approve(token1(), address(router), type(uint160).max, type(uint48).max);
+        ERC20(token0()).approve(address(rootPermit2), type(uint256).max);
+        ERC20(token1()).approve(address(rootPermit2), type(uint256).max);
+        rootPermit2.approve(token0(), address(router), type(uint160).max, type(uint48).max);
+        rootPermit2.approve(token1(), address(router), type(uint160).max, type(uint48).max);
     }
 
     function testMultiHopExactInput0For1() public {

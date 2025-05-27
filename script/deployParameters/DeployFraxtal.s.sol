@@ -2,12 +2,10 @@
 pragma solidity ^0.8.24;
 
 import {DeployUniversalRouter} from '../DeployUniversalRouter.s.sol';
-import {RouterParameters} from 'contracts/types/RouterParameters.sol';
 
 contract DeployFraxtal is DeployUniversalRouter {
     function setUp() public override {
-        params = RouterParameters({
-            permit2: 0x000000000022D473030F116dDEE9F6B43aC78BA3,
+        params = DeploymentParameters({
             weth9: 0xFC00000000000000000000000000000000000006,
             v2Factory: address(0),
             v3Factory: address(0),
