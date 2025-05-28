@@ -122,7 +122,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -139,7 +139,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -262,7 +262,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -279,7 +279,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -402,7 +402,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -419,7 +419,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -542,7 +542,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -559,7 +559,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -683,7 +683,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -700,7 +700,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -837,7 +837,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -854,7 +854,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -1013,7 +1013,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -1030,7 +1030,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -1187,7 +1187,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -1204,7 +1204,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     new bytes(0),
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -1352,7 +1352,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE + leftoverETH, // fee to dispatch x-chain message
             IPostDispatchHook(address(rootIcaRouter.hook())), // post dispatch hook
@@ -1371,7 +1371,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
                 (
                     leafDomain,
                     rootIcaRouter.routers(leafDomain),
-                    rootIcaRouter.isms(leafDomain),
+                    bytes32(0),
                     hookMetadata,
                     IPostDispatchHook(address(rootIcaRouter.hook())),
                     TypeCasts.addressToBytes32(users.alice),
@@ -1488,7 +1488,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             MESSAGE_FEE, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
@@ -1715,7 +1715,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
             leafDomain, // destination domain
             address(rootIcaRouter), // origin ica router
             rootIcaRouter.routers(leafDomain), // destination ica router
-            rootIcaRouter.isms(leafDomain), // destination ism
+            bytes32(0), // destination ism
             commitment, // commitment of the calls to be made
             _msgFee + _leftoverETH, // fee to dispatch x-chain message
             rootIcaRouter.hook(), // post dispatch hook
