@@ -50,7 +50,9 @@ abstract contract BaseForkFixture is Test, TestConstants {
     uint32 public rootDomain = 10; // root domain
     uint256 public rootId; // root fork id (used by foundry)
     uint256 public rootStartTime; // root fork start time (set to start of epoch for simplicity)
-    uint256 public rootForkBlockNumber = 133333333; // creation of oUSDT is at blk 132196375
+    // creation of oUSDT is at blk 132196375
+    // ica router is deployed a bit before blk 136140000
+    uint256 public rootForkBlockNumber = 136140000;
 
     // root router
     UniversalRouter public router;
@@ -73,7 +75,9 @@ abstract contract BaseForkFixture is Test, TestConstants {
     uint32 public leafDomain = 8453; // leaf domain
     uint256 public leafId; // leaf fork id (used by foundry)
     uint256 public leafStartTime; // leaf fork start time (set to start of epoch for simplicity)
-    uint256 public leafForkBlockNumber = 28700000; // creation of oUSDT is at blk 26601142
+    // creation of oUSDT is at blk 26601142
+    // ica router is deployed a bit before blk 30540000
+    uint256 public leafForkBlockNumber = 30540000;
 
     // leaf router
     UniversalRouter public leafRouter;

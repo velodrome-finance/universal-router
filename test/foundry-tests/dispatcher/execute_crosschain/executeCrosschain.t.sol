@@ -28,25 +28,9 @@ contract ExecuteCrossChainTest is BaseForkFixture {
 
         deal(address(users.alice), 1 ether);
         rootIcaRouter = InterchainAccountRouter(OPTIMISM_ROUTER_ICA_ADDRESS);
-        address hook = address(rootIcaRouter.hook());
-        address owner = rootIcaRouter.owner();
-        // @dev value used in HL tests
-        uint256 commitGasUsage = 20_000;
-        deployCodeTo(
-            'InterchainAccountRouter.sol:InterchainAccountRouter',
-            abi.encode(address(rootMailbox), hook, owner, commitGasUsage),
-            address(rootIcaRouter)
-        );
 
         vm.selectFork({forkId: leafId});
         leafIcaRouter = InterchainAccountRouter(BASE_ROUTER_ICA_ADDRESS);
-        hook = address(leafIcaRouter.hook());
-        owner = leafIcaRouter.owner();
-        deployCodeTo(
-            'InterchainAccountRouter.sol:InterchainAccountRouter',
-            abi.encode(address(leafMailbox), hook, owner, commitGasUsage),
-            address(leafIcaRouter)
-        );
 
         createAndSeedPair(baseUSDC, OPEN_USDT_ADDRESS, false);
 
@@ -330,7 +314,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
         assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(userICA), 0);
-        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 99599); //leftover from swap is sent to user
+        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 100014); //leftover from swap is sent to user
         assertEq(ERC20(baseUSDC).balanceOf(users.alice), amountOut);
         assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(userICA, address(leafRouter)), 0);
     }
@@ -772,8 +756,8 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         swapInputs[0] = abi.encode(ActionConstants.ADDRESS_THIS, v3AmountIn, v3AmountOutMin, v3Path, true, false);
 
         // V2 Swap Inputs
-        uint256 v2AmountIn = v3AmountOutMin;
-        uint256 v2AmountOutMin = 606500898800000;
+        uint256 v2AmountIn = ActionConstants.CONTRACT_BALANCE; // Use all available baseUSDC from V3 swap
+        uint256 v2AmountOutMin = 3e13; // More realistic minimum output for available liquidity
         bytes memory v2Path = abi.encodePacked(baseUSDC, false, WETH9_ADDRESS);
         swapInputs[1] = abi.encode(users.alice, v2AmountIn, v2AmountOutMin, v2Path, false, false);
 
@@ -910,7 +894,7 @@ contract ExecuteCrossChainTest is BaseForkFixture {
         vm.expectEmit(address(leafRouter));
         emit Dispatcher.UniversalRouterSwap({sender: userICA, recipient: address(leafRouter)});
         vm.expectEmit(address(leafRouter));
-        emit Dispatcher.UniversalRouterSwap(userICA, users.alice);
+        emit Dispatcher.UniversalRouterSwap({sender: userICA, recipient: users.alice});
         vm.startPrank({msgSender: users.alice});
         OwnableMulticall(userICA).revealAndExecute({calls: calls, salt: TypeCasts.addressToBytes32(users.alice)});
 
