@@ -349,6 +349,7 @@ abstract contract Dispatcher is Payments, V2SwapRouter, V3SwapRouter, V4SwapRout
                     address sender = msgSender();
                     address payer = payerIsUser ? sender : address(this);
                     recipient = recipient == ActionConstants.MSG_SENDER ? sender : recipient;
+                    if (amount == ActionConstants.CONTRACT_BALANCE) amount = ERC20(token).balanceOf(address(this));
                     bridgeToken({
                         bridgeType: bridgeType,
                         sender: sender,

@@ -9,7 +9,10 @@ import './BaseOverrideBridge.sol';
 
 contract BridgeTokenTest is BaseOverrideBridge {
     uint256 public openUsdtBridgeAmount = USDC_1 * 1000;
+    uint256 public openUsdtInitialBal = openUsdtBridgeAmount * 2;
+
     uint256 public xVeloBridgeAmount = TOKEN_1 * 1000;
+    uint256 public xVeloInitialBal = xVeloBridgeAmount * 2;
 
     uint256 mockDomainId = 111;
 
@@ -25,13 +28,14 @@ contract BridgeTokenTest is BaseOverrideBridge {
         super.setUp();
 
         deal(address(users.alice), 1 ether);
-        deal(OPEN_USDT_ADDRESS, users.alice, openUsdtBridgeAmount);
+        deal(OPEN_USDT_ADDRESS, users.alice, openUsdtInitialBal);
         deal(VELO_ADDRESS, users.alice, xVeloBridgeAmount);
 
         vm.selectFork(leafId_2);
-        deal(XVELO_ADDRESS, users.alice, xVeloBridgeAmount);
+        deal(XVELO_ADDRESS, users.alice, xVeloInitialBal);
 
         vm.selectFork(rootId);
+        deal(VELO_ADDRESS, users.alice, xVeloInitialBal);
 
         inputs = new bytes[](1);
 
@@ -277,8 +281,66 @@ contract BridgeTokenTest is BaseOverrideBridge {
         router.execute{value: 0}(commands, inputs);
     }
 
-    function test_WhenAllChecksPass() external whenBasicValidationsPass whenBridgeTypeIsHYP_XERC20 whenUsingPermit2 {
-        // It should bridge tokens to destination chain
+    modifier whenAllChecksPass() {
+        _;
+    }
+
+    modifier whenAmountIsContractBalanceHYP_XERC20() {
+        commands = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)), bytes1(uint8(Commands.BRIDGE_TOKEN)));
+        inputs = new bytes[](2);
+        inputs[0] = abi.encode(OPEN_USDT_ADDRESS, address(router), Constants.TOTAL_BALANCE);
+        inputs[1] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            ActionConstants.MSG_SENDER,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            ActionConstants.CONTRACT_BALANCE,
+            feeAmount + leftoverETH,
+            leafDomain,
+            false
+        );
+        _;
+    }
+
+    function test_WhenAmountIsEqualToContractBalanceConstant()
+        external
+        whenBasicValidationsPass
+        whenBridgeTypeIsHYP_XERC20
+        whenUsingPermit2
+        whenAllChecksPass
+        whenAmountIsContractBalanceHYP_XERC20
+    {
+        // It should bridge the total router balance to destination chain
+        // It should return excess fee if any
+        // It should leave no dangling ERC20 approvals
+        // It should emit {UniversalRouterBridge} event
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(
+            users.alice, users.alice, OPEN_USDT_ADDRESS, openUsdtInitialBal, leafDomain
+        );
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertOUsdt({_bridgeAmount: openUsdtInitialBal});
+
+        // Assert excess fee was refunded
+        assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        // Assert no dangling ERC20 approvals
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS), 0);
+    }
+
+    function test_WhenAmountIsNotEqualToContractBalanceConstant()
+        external
+        whenBasicValidationsPass
+        whenBridgeTypeIsHYP_XERC20
+        whenUsingPermit2
+        whenAllChecksPass
+    {
+        // It should bridge the amount to destination chain
         // It should return excess fee if any
         // It should leave no dangling ERC20 approvals
         // It should emit {UniversalRouterBridge} event
@@ -293,7 +355,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertOUsdt();
+        _assertOUsdt({_bridgeAmount: openUsdtBridgeAmount});
 
         // Assert excess fee was refunded
         assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
@@ -384,13 +446,49 @@ contract BridgeTokenTest is BaseOverrideBridge {
         router.execute{value: 0}(commands, inputs);
     }
 
-    function test_WhenAllChecksPass_()
+    modifier whenAllChecksPass_() {
+        _;
+    }
+
+    function test_WhenAmountIsEqualToContractBalanceConstant_()
         external
         whenBasicValidationsPass
         whenBridgeTypeIsHYP_XERC20
         whenUsingDirectApproval
+        whenAllChecksPass_
+        whenAmountIsContractBalanceHYP_XERC20
     {
-        // It should bridge tokens to destination chain
+        // It should bridge the total router balance to destination chain
+        // It should return excess fee if any
+        // It should leave no dangling ERC20 approvals
+        // It should emit {UniversalRouterBridge} event
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(
+            users.alice, users.alice, OPEN_USDT_ADDRESS, openUsdtInitialBal, leafDomain
+        );
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertOUsdt({_bridgeAmount: openUsdtInitialBal});
+
+        // Assert excess fee was refunded
+        assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
+        // Assert no dangling ERC20 approvals
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
+        assertEq(ERC20(OPEN_USDT_ADDRESS).allowance(address(router), OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS), 0);
+    }
+
+    function test_WhenAmountIsNotEqualToContractBalanceConstant_()
+        external
+        whenBasicValidationsPass
+        whenBridgeTypeIsHYP_XERC20
+        whenUsingDirectApproval
+        whenAllChecksPass_
+    {
+        // It should bridge the amount to destination chain
         // It should return excess fee if any
         // It should leave no dangling ERC20 approvals
         // It should emit {UniversalRouterBridge} event
@@ -405,7 +503,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertOUsdt();
+        _assertOUsdt({_bridgeAmount: openUsdtBridgeAmount});
 
         // Assert excess fee was refunded
         assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
@@ -579,14 +677,68 @@ contract BridgeTokenTest is BaseOverrideBridge {
         router.execute{value: 0}(commands, inputs);
     }
 
-    function test_WhenAllChecksPass__()
+    modifier whenAllChecksPass__() {
+        _;
+    }
+
+    modifier whenAmountIsContractBalanceXVELORoot() {
+        commands = abi.encodePacked(bytes1(uint8(Commands.TRANSFER_FROM)), bytes1(uint8(Commands.BRIDGE_TOKEN)));
+        inputs = new bytes[](2);
+        inputs[0] = abi.encode(VELO_ADDRESS, address(router), Constants.TOTAL_BALANCE);
+        inputs[1] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            VELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            ActionConstants.CONTRACT_BALANCE,
+            feeAmount + leftoverETH,
+            leafDomain_2,
+            false
+        );
+        _;
+    }
+
+    function test_WhenAmountIsEqualToContractBalanceConstant__()
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
         whenDestinationChainIsMETAL
         whenUsingPermit2_
+        whenAllChecksPass__
+        whenAmountIsContractBalanceXVELORoot
     {
-        // It should bridge tokens to destination chain
+        // It should bridge the total router balance to destination chain
+        // It should return excess fee if any
+        // It should leave no dangling ERC20 approvals
+        // It should emit {UniversalRouterBridge} event
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, VELO_ADDRESS, xVeloInitialBal, leafDomain_2);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertXVelo({_bridgeAmount: xVeloInitialBal});
+
+        // Assert excess fee was refunded
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
+        // Assert no dangling ERC20 approvals
+        vm.selectFork({forkId: rootId});
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootXVeloTokenBridge)), 0);
+    }
+
+    function test_WhenAmountIsNotEqualToContractBalanceConstant__()
+        external
+        whenBasicValidationsPass
+        whenBridgeTypeIsXVELO
+        whenDestinationChainIsMETAL
+        whenUsingPermit2_
+        whenAllChecksPass__
+    {
+        // It should bridge the amount to destination chain
         // It should return excess fee if any
         // It should leave no dangling ERC20 approvals
         // It should emit {UniversalRouterBridge} event
@@ -599,7 +751,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertXVelo();
+        _assertXVelo({_bridgeAmount: xVeloBridgeAmount});
 
         // Assert excess fee was refunded
         // @dev Allow delta to account for rounding
@@ -707,14 +859,51 @@ contract BridgeTokenTest is BaseOverrideBridge {
         router.execute{value: 0}(commands, inputs);
     }
 
-    function test_WhenAllChecksPass___()
+    modifier whenAllChecksPass___() {
+        _;
+    }
+
+    function test_WhenAmountIsEqualToContractBalanceConstant___()
         external
         whenBasicValidationsPass
         whenBridgeTypeIsXVELO
         whenDestinationChainIsMETAL
         whenUsingDirectApproval_
+        whenAllChecksPass___
+        whenAmountIsContractBalanceXVELORoot
     {
-        // It should bridge tokens to destination chain
+        // It should bridge the total router balance to destination chain
+        // It should return excess fee if any
+        // It should leave no dangling ERC20 approvals
+        // It should emit {UniversalRouterBridge} event
+        uint256 balanceBefore = address(users.alice).balance;
+
+        vm.expectEmit(address(router));
+        emit Dispatcher.UniversalRouterBridge(users.alice, users.alice, VELO_ADDRESS, xVeloInitialBal, leafDomain_2);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+
+        uint256 balanceAfter = address(users.alice).balance;
+
+        _assertXVelo({_bridgeAmount: xVeloInitialBal});
+
+        // Assert excess fee was refunded
+        // @dev Allow delta to account for rounding
+        assertApproxEqAbs(balanceAfter, balanceBefore - feeAmount, 1e6, 'Excess fee not refunded');
+        // Assert no dangling ERC20 approvals
+        vm.selectFork({forkId: rootId});
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootPermit2)), 0);
+        assertEq(ERC20(VELO_ADDRESS).allowance(address(router), address(rootXVeloTokenBridge)), 0);
+    }
+
+    function test_WhenAmountIsNotEqualToContractBalanceConstant___()
+        external
+        whenBasicValidationsPass
+        whenBridgeTypeIsXVELO
+        whenDestinationChainIsMETAL
+        whenUsingDirectApproval_
+        whenAllChecksPass___
+    {
+        // It should bridge the amount to destination chain
         // It should return excess fee if any
         // It should leave no dangling ERC20 approvals
         // It should emit {UniversalRouterBridge} event
@@ -726,7 +915,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertXVelo();
+        _assertXVelo({_bridgeAmount: xVeloBridgeAmount});
 
         // Assert excess fee was refunded
         // @dev Allow delta to account for rounding
@@ -838,7 +1027,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         whenDestinationChainIsOPTIMISM
         whenUsingPermit2__
     {
-        // It should bridge tokens to destination chain
+        // It should bridge the amount to destination chain
         // It should return excess fee if any
         // It should leave no dangling ERC20 approvals
         // It should emit {UniversalRouterBridge} event
@@ -850,7 +1039,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertXVelo();
+        _assertXVelo({_bridgeAmount: xVeloBridgeAmount});
 
         // Assert excess fee was refunded
         // @dev Allow delta to account for rounding
@@ -896,7 +1085,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
         whenDestinationChainIsOPTIMISM
         whenUsingDirectApproval__
     {
-        // It should bridge tokens to destination chain
+        // It should bridge the amount to destination chain
         // It should return excess fee if any
         // It should leave no dangling ERC20 approvals
         // It should emit {UniversalRouterBridge} event
@@ -908,7 +1097,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertXVelo();
+        _assertXVelo({_bridgeAmount: xVeloBridgeAmount});
 
         // Assert excess fee was refunded
         // @dev Allow delta to account for rounding
@@ -947,7 +1136,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertOUsdt();
+        _assertOUsdt({_bridgeAmount: openUsdtBridgeAmount});
 
         // Assert excess fee was refunded
         assertEq(balanceAfter, balanceBefore - feeAmount, 'Excess fee not refunded');
@@ -988,7 +1177,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertXVelo();
+        _assertXVelo({_bridgeAmount: xVeloBridgeAmount});
 
         // Assert excess fee was refunded
         // @dev Allow delta to account for rounding
@@ -1030,7 +1219,7 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         uint256 balanceAfter = address(users.alice).balance;
 
-        _assertXVelo();
+        _assertXVelo({_bridgeAmount: xVeloBridgeAmount});
 
         // Assert excess fee was refunded
         // @dev Allow delta to account for rounding
@@ -1041,44 +1230,56 @@ contract BridgeTokenTest is BaseOverrideBridge {
         assertEq(ERC20(XVELO_ADDRESS).allowance(address(leafRouter_2), address(leafXVeloTokenBridge)), 0);
     }
 
-    function _assertOUsdt() private {
+    function _assertOUsdt(uint256 _bridgeAmount) private {
         // Verify token transfer occurred
-        assertEq(ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice), 0, 'oUSDT balance should be 0 on root after bridge');
+        assertEq(
+            ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice),
+            openUsdtInitialBal - _bridgeAmount,
+            'oUSDT balance should only contain leftover on root after bridge'
+        );
 
         vm.selectFork(leafId);
         leafMailbox.processNextInboundMessage();
 
         assertEq(
             ERC20(OPEN_USDT_ADDRESS).balanceOf(users.alice),
-            openUsdtBridgeAmount,
-            'oUSDT balance should be 1000 on leaf after bridge'
+            _bridgeAmount,
+            'oUSDT balance should match the bridge amount on leaf after bridge'
         );
     }
 
-    function _assertXVelo() private {
+    function _assertXVelo(uint256 _bridgeAmount) private {
         if (vm.activeFork() == rootId) {
             // Verify token transfer occurred
-            assertEq(ERC20(VELO_ADDRESS).balanceOf(users.alice), 0, 'VELO balance should be 0 on root after bridge');
+            assertEq(
+                ERC20(VELO_ADDRESS).balanceOf(users.alice),
+                xVeloInitialBal - _bridgeAmount,
+                'VELO balance should only contain leftover on root after bridge'
+            );
 
             vm.selectFork(leafId_2);
             leafMailbox_2.processNextInboundMessage();
 
             assertEq(
-                ERC20(XVELO_ADDRESS).balanceOf(users.alice) - xVeloBridgeAmount, // we minted 1000 XVELO on leaf in the setup
-                xVeloBridgeAmount,
-                'XVELO balance should be 1000 on leaf after bridge'
+                ERC20(XVELO_ADDRESS).balanceOf(users.alice) - xVeloInitialBal, // account for initial balance minted in setup
+                _bridgeAmount,
+                'XVELO balance should match the bridge amount on leaf after bridge'
             );
         } else {
             // Verify token transfer occurred
-            assertEq(ERC20(XVELO_ADDRESS).balanceOf(users.alice), 0, 'XVELO balance should be 0 on leaf after bridge');
+            assertEq(
+                ERC20(XVELO_ADDRESS).balanceOf(users.alice),
+                xVeloInitialBal - _bridgeAmount,
+                'XVELO balance only contain leftover on leaf after bridge'
+            );
 
             vm.selectFork(rootId);
             rootMailbox.processNextInboundMessage();
 
             assertEq(
-                ERC20(VELO_ADDRESS).balanceOf(users.alice) - xVeloBridgeAmount, // we minted 1000 VELO on root in the setup
-                xVeloBridgeAmount,
-                'VELO balance should be 1000 on root after bridge'
+                ERC20(VELO_ADDRESS).balanceOf(users.alice) - xVeloInitialBal, // account for initial balance minted in setup
+                _bridgeAmount,
+                'VELO balance should match the bridge amount on root after bridge'
             );
         }
     }
@@ -1100,6 +1301,23 @@ contract BridgeTokenTest is BaseOverrideBridge {
         vm.snapshotGasLastCall('BridgeRouter_HypXERC20_DirectApproval');
     }
 
+    function testGas_HypXERC20BridgeRouterBalance() public whenBridgeTypeIsHYP_XERC20 {
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.HYP_XERC20),
+            ActionConstants.MSG_SENDER,
+            OPEN_USDT_ADDRESS,
+            OPEN_USDT_OPTIMISM_BRIDGE_ADDRESS,
+            ActionConstants.CONTRACT_BALANCE,
+            feeAmount + leftoverETH,
+            leafDomain,
+            false
+        );
+
+        deal(OPEN_USDT_ADDRESS, address(router), openUsdtBridgeAmount);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+        vm.snapshotGasLastCall('BridgeRouter_HypXERC20_RouterBalance');
+    }
+
     function testGas_XVeloBridgePermit2() public whenBridgeTypeIsXVELO whenDestinationChainIsMETAL {
         ERC20(VELO_ADDRESS).approve(address(rootPermit2), type(uint256).max);
         rootPermit2.approve(VELO_ADDRESS, address(router), type(uint160).max, type(uint48).max);
@@ -1113,5 +1331,22 @@ contract BridgeTokenTest is BaseOverrideBridge {
 
         router.execute{value: feeAmount + leftoverETH}(commands, inputs);
         vm.snapshotGasLastCall('BridgeRouter_XVelo_DirectApproval');
+    }
+
+    function testGas_XVeloBridgeRouterBalance() public whenBridgeTypeIsXVELO whenDestinationChainIsMETAL {
+        inputs[0] = abi.encode(
+            uint8(BridgeTypes.XVELO),
+            ActionConstants.MSG_SENDER,
+            VELO_ADDRESS,
+            address(rootXVeloTokenBridge),
+            ActionConstants.CONTRACT_BALANCE,
+            feeAmount + leftoverETH,
+            leafDomain_2,
+            false
+        );
+
+        deal(VELO_ADDRESS, address(router), xVeloBridgeAmount);
+        router.execute{value: feeAmount + leftoverETH}(commands, inputs);
+        vm.snapshotGasLastCall('BridgeRouter_XVelo_RouterBalance');
     }
 }

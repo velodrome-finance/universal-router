@@ -27,10 +27,16 @@ BridgeTokenTest
     │   │   ├── When fee is insufficient
     │   │   │   └── It should revert
     │   │   └── When all checks pass
-    │   │       ├── It should bridge tokens to destination chain
-    │   │       ├── It should return excess fee if any
-    │   │       ├── It should leave no dangling ERC20 approvals
-    │   │       └── It should emit {UniversalRouterBridge} event
+    │   │       ├── When amount is equal to contract balance constant
+    │   │       │   ├── It should bridge the total router balance to destination chain
+    │   │       │   ├── It should return excess fee if any
+    │   │       │   ├── It should leave no dangling ERC20 approvals
+    │   │       │   └── It should emit {UniversalRouterBridge} event
+    │   │       └── When amount is not equal to contract balance constant
+    │   │           ├── It should bridge the amount to destination chain
+    │   │           ├── It should return excess fee if any
+    │   │           ├── It should leave no dangling ERC20 approvals
+    │   │           └── It should emit {UniversalRouterBridge} event
     │   └── When using direct approval
     │       ├── When domain is zero_
     │       │   └── It should revert with "No router enrolled for domain: 0"
@@ -41,10 +47,16 @@ BridgeTokenTest
     │       ├── When fee is insufficient_
     │       │   └── It should revert
     │       └── When all checks pass_
-    │           ├── It should bridge tokens to destination chain
-    │           ├── It should return excess fee if any
-    │           ├── It should leave no dangling ERC20 approvals
-    │           └── It should emit {UniversalRouterBridge} event
+    │           ├── When amount is equal to contract balance constant_
+    │           │   ├── It should bridge the total router balance to destination chain
+    │           │   ├── It should return excess fee if any
+    │           │   ├── It should leave no dangling ERC20 approvals
+    │           │   └── It should emit {UniversalRouterBridge} event
+    │           └── When amount is not equal to contract balance constant_
+    │               ├── It should bridge the amount to destination chain
+    │               ├── It should return excess fee if any
+    │               ├── It should leave no dangling ERC20 approvals
+    │               └── It should emit {UniversalRouterBridge} event
     └── When bridge type is XVELO
         ├── When destination chain is METAL
         │   ├── When token is not the bridge token_
@@ -61,10 +73,16 @@ BridgeTokenTest
         │   │   ├── When fee is insufficient__
         │   │   │   └── It should revert with "IGP: insufficient interchain gas payment"
         │   │   └── When all checks pass__
-        │   │       ├── It should bridge tokens to destination chain
-        │   │       ├── It should return excess fee if any
-        │   │       ├── It should leave no dangling ERC20 approvals
-        │   │       └── It should emit {UniversalRouterBridge} event
+        │   │       ├── When amount is equal to contract balance constant__
+        │   │       │   ├── It should bridge the total router balance to destination chain
+        │   │       │   ├── It should return excess fee if any
+        │   │       │   ├── It should leave no dangling ERC20 approvals
+        │   │       │   └── It should emit {UniversalRouterBridge} event
+        │   │       └── When amount is not equal to contract balance constant__
+        │   │           ├── It should bridge the amount to destination chain
+        │   │           ├── It should return excess fee if any
+        │   │           ├── It should leave no dangling ERC20 approvals
+        │   │           └── It should emit {UniversalRouterBridge} event
         │   └── When using direct approval_
         │       ├── When domain is zero___
         │       │   └── It should revert with {NotRegistered}
@@ -75,10 +93,16 @@ BridgeTokenTest
         │       ├── When fee is insufficient___
         │       │   └── It should revert with "IGP: insufficient interchain gas payment"
         │       └── When all checks pass___
-        │           ├── It should bridge tokens to destination chain
-        │           ├── It should return excess fee if any
-        │           ├── It should leave no dangling ERC20 approvals
-        │           └── It should emit {UniversalRouterBridge} event
+        │           ├── When amount is equal to contract balance constant___
+        │           │   ├── It should bridge the total router balance to destination chain
+        │           │   ├── It should return excess fee if any
+        │           │   ├── It should leave no dangling ERC20 approvals
+        │           │   └── It should emit {UniversalRouterBridge} event
+        │           └── When amount is not equal to contract balance constant___
+        │               ├── It should bridge the amount to destination chain
+        │               ├── It should return excess fee if any
+        │               ├── It should leave no dangling ERC20 approvals
+        │               └── It should emit {UniversalRouterBridge} event
         └── When destination chain is OPTIMISM
             ├── When token is not the bridge token__
             │   └── It should revert with {InvalidTokenAddress}
@@ -88,15 +112,15 @@ BridgeTokenTest
             │   ├── When fee is insufficient____
             │   │   └── It should revert with "IGP: insufficient interchain gas payment"
             │   └── When all checks pass____
-            │       ├── It should bridge tokens to destination chain
+            │       ├── It should bridge the amount to destination chain
             │       ├── It should return excess fee if any
-            │       ├── It should leavea no dangling ERC20 approvals
+            │       ├── It should leave no dangling ERC20 approvals
             │       └── It should emit {UniversalRouterBridge} event
             └── When using direct approval__
                 ├── When fee is insufficient_____
                 │   └── It should revert with "IGP: insufficient interchain gas payment"
                 └── When all checks pass_____
-                    ├── It should bridge tokens to destination chain
+                    ├── It should bridge the amount to destination chain
                     ├── It should return excess fee if any
                     ├── It should leave no dangling ERC20 approvals
                     └── It should emit {UniversalRouterBridge} event
