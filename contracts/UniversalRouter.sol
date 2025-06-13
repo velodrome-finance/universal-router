@@ -3,17 +3,17 @@ pragma solidity ^0.8.24;
 
 // Command implementations
 import {Dispatcher} from './base/Dispatcher.sol';
-import {RouterParameters} from './types/RouterParameters.sol';
+import {RouterDeployParameters} from './types/RouterDeployParameters.sol';
 import {PaymentsImmutables, PaymentsParameters} from './modules/PaymentsImmutables.sol';
-import {UniswapImmutables, UniswapParameters} from './modules/uniswap/UniswapImmutables.sol';
+import {RouterImmutables, RouterParameters} from './modules/uniswap/RouterImmutables.sol';
 import {V4SwapRouter} from './modules/uniswap/v4/V4SwapRouter.sol';
 import {Commands} from './libraries/Commands.sol';
 import {IUniversalRouter} from './interfaces/IUniversalRouter.sol';
 
 contract UniversalRouter is IUniversalRouter, Dispatcher {
-    constructor(RouterParameters memory params)
-        UniswapImmutables(
-            UniswapParameters(
+    constructor(RouterDeployParameters memory params)
+        RouterImmutables(
+            RouterParameters(
                 params.v2Factory,
                 params.v3Factory,
                 params.pairInitCodeHash,

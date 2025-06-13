@@ -8,7 +8,7 @@ import {INonfungiblePositionManager} from '@uniswap/v3-periphery/contracts/inter
 
 import {Payments} from 'contracts/modules/Payments.sol';
 import {ICLPool} from 'contracts/interfaces/external/ICLPool.sol';
-import {RouterParameters} from 'contracts/types/RouterParameters.sol';
+import {RouterDeployParameters} from 'contracts/types/RouterDeployParameters.sol';
 import {UniversalRouter} from 'contracts/UniversalRouter.sol';
 import {Constants} from 'contracts/libraries/Constants.sol';
 

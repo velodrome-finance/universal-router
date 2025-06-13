@@ -9,7 +9,7 @@ import {IUniswapV2Factory} from '@uniswap/v2-core/contracts/interfaces/IUniswapV
 import {UniversalRouter} from '../../contracts/UniversalRouter.sol';
 import {Payments} from '../../contracts/modules/Payments.sol';
 import {Commands} from '../../contracts/libraries/Commands.sol';
-import {RouterParameters} from '../../contracts/types/RouterParameters.sol';
+import {RouterDeployParameters} from '../../contracts/types/RouterDeployParameters.sol';
 import {IPoolFactory} from '../../contracts/interfaces/external/IPoolFactory.sol';
 import {IPool} from '../../contracts/interfaces/external/IPool.sol';
 

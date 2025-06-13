@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import 'forge-std/console2.sol';
 import 'forge-std/Script.sol';
 import {Permit2} from 'permit2/src/Permit2.sol';
-import {RouterParameters} from 'contracts/types/RouterParameters.sol';
+import {RouterDeployParameters} from 'contracts/types/RouterDeployParameters.sol';
 import {UnsupportedProtocol} from 'contracts/deploy/UnsupportedProtocol.sol';
 import {UniversalRouter} from 'contracts/UniversalRouter.sol';
 import {ICreateX} from 'contracts/interfaces/external/ICreateX.sol';
@@ -31,7 +31,7 @@ abstract contract DeployUniversalRouter is Script, Constants {
     }
 
     DeploymentParameters internal params;
-    RouterParameters internal routerParams;
+    RouterDeployParameters internal routerParams;
     UniversalRouter public router;
 
     address public unsupported = 0x61fF070AD105D5aa6d8F9eA21212CB574EeFCAd5;
@@ -53,7 +53,7 @@ abstract contract DeployUniversalRouter is Script, Constants {
     function run() external {
         vm.startBroadcast(deployer);
 
-        routerParams = RouterParameters({
+        routerParams = RouterDeployParameters({
             permit2: permit2,
             weth9: mapUnsupported(params.weth9),
             v2Factory: mapUnsupported(params.v2Factory),

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
-interface IUniswapImmutables {
+interface IRouterImmutables {
     /// @notice The address of UniswapV2Factory
     function UNISWAP_V2_FACTORY() external returns (address);
 

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
-import {IUniswapImmutables} from '../../interfaces/IUniswapImmutables.sol';
+import {IRouterImmutables} from '../../interfaces/IRouterImmutables.sol';
 
-struct UniswapParameters {
+struct RouterParameters {
     address v2Factory;
     address v3Factory;
     bytes32 pairInitCodeHash;
@@ -14,32 +14,32 @@ struct UniswapParameters {
     bytes32 veloCLInitCodeHash;
 }
 
-contract UniswapImmutables is IUniswapImmutables {
-    ///@inheritdoc IUniswapImmutables
+contract RouterImmutables is IRouterImmutables {
+    ///@inheritdoc IRouterImmutables
     address public immutable UNISWAP_V2_FACTORY;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     bytes32 public immutable UNISWAP_V2_PAIR_INIT_CODE_HASH;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     address public immutable UNISWAP_V3_FACTORY;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     bytes32 public immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     address public immutable VELODROME_V2_FACTORY;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     bytes32 public immutable VELODROME_V2_INIT_CODE_HASH;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     address public immutable VELODROME_CL_FACTORY;
 
-    ///@inheritdoc IUniswapImmutables
+    ///@inheritdoc IRouterImmutables
     bytes32 public immutable VELODROME_CL_POOL_INIT_CODE_HASH;
 
-    constructor(UniswapParameters memory params) {
+    constructor(RouterParameters memory params) {
         UNISWAP_V2_FACTORY = params.v2Factory;
         UNISWAP_V2_PAIR_INIT_CODE_HASH = params.pairInitCodeHash;
         UNISWAP_V3_FACTORY = params.v3Factory;

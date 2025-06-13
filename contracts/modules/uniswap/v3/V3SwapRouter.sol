@@ -8,7 +8,7 @@ import {SafeCast} from '@uniswap/v3-core/contracts/libraries/SafeCast.sol';
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 
 import {ICLPool} from '../../../interfaces/external/ICLPool.sol';
-import {UniswapImmutables} from '../UniswapImmutables.sol';
+import {RouterImmutables} from '../RouterImmutables.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
 
 import {MaxInputAmount} from '../../../libraries/MaxInputAmount.sol';
@@ -16,7 +16,7 @@ import {BytesLib} from './BytesLib.sol';
 import {V3Path} from './V3Path.sol';
 
 /// @title Router for Trades on Concentrated Liquidity pools
-abstract contract V3SwapRouter is UniswapImmutables, Permit2Payments, IUniswapV3SwapCallback {
+abstract contract V3SwapRouter is RouterImmutables, Permit2Payments, IUniswapV3SwapCallback {
     using V3Path for bytes;
     using BytesLib for bytes;
     using CalldataDecoder for bytes;

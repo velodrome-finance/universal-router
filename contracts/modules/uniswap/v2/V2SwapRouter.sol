@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {ERC20} from 'solmate/src/tokens/ERC20.sol';
 
-import {UniswapImmutables} from '../UniswapImmutables.sol';
+import {RouterImmutables} from '../RouterImmutables.sol';
 import {IPool} from '../../../interfaces/external/IPool.sol';
 import {IPoolFactory} from '../../../interfaces/external/IPoolFactory.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
@@ -12,8 +12,8 @@ import {Constants} from '../../../libraries/Constants.sol';
 import {UniswapV2Library} from './UniswapV2Library.sol';
 import {V2Path} from './V2Path.sol';
 
-/// @title Router for Uniswap v2 Trades
-abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
+/// @title Router for Trades on V2 Pools
+abstract contract V2SwapRouter is RouterImmutables, Permit2Payments {
     using V2Path for bytes;
 
     error V2TooLittleReceived();
@@ -128,6 +128,66 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
         }
     }
 
+    /// @notice Performs a V2 exact input swap
+    /// @param recipient The recipient of the output tokens
+    /// @param amountIn The amount of input tokens for the trade
+    /// @param amountOutMinimum The minimum desired amount of output tokens
+    /// @param path The path of the trade as a bytes string
+    /// @param payer The address that will be paying the input
+    /// @param isUni Whether this is a Uniswap V2 path or not
+    function v2SwapExactInput(
+        address recipient,
+        uint256 amountIn,
+        uint256 amountOutMinimum,
+        bytes calldata path,
+        address payer,
+        bool isUni
+    ) internal {
+        ERC20 tokenOut = ERC20(path.getTokenOut());
+        address firstPair = isUni
+            ? pairFor({isUni: true, path: path.v2GetFirstTokens()})
+            : pairFor({isUni: false, path: path.getFirstRoute()});
+        if (
+            amountIn != Constants.ALREADY_PAID // amountIn of 0 to signal that the pair already has the tokens
+        ) {
+            payOrPermit2Transfer({token: path.decodeFirstToken(), payer: payer, recipient: firstPair, amount: amountIn});
+        }
+
+        uint256 balanceBefore = tokenOut.balanceOf(recipient);
+
+        isUni
+            ? _v2Swap({path: path, recipient: recipient, pair: firstPair})
+            : _veloSwap({routes: path, recipient: recipient, pair: firstPair});
+
+        uint256 amountOut = tokenOut.balanceOf(recipient) - balanceBefore;
+        if (amountOut < amountOutMinimum) revert V2TooLittleReceived();
+    }
+
+    /// @notice Performs a V2 exact output swap
+    /// @param recipient The recipient of the output tokens
+    /// @param amountOut The amount of output tokens to receive for the trade
+    /// @param amountInMaximum The maximum desired amount of input tokens
+    /// @param path The path of the trade as a bytes string
+    /// @param payer The address that will be paying the input
+    /// @param isUni Whether this is a Uniswap V2 path or not
+    function v2SwapExactOutput(
+        address recipient,
+        uint256 amountOut,
+        uint256 amountInMaximum,
+        bytes calldata path,
+        address payer,
+        bool isUni
+    ) internal {
+        (uint256 amountIn, address firstPair) = getAmountInMultihop({amountOut: amountOut, path: path, isUni: isUni});
+        if (amountIn > amountInMaximum) revert V2TooMuchRequested();
+
+        payOrPermit2Transfer({token: path.decodeFirstToken(), payer: payer, recipient: firstPair, amount: amountIn});
+
+        isUni
+            ? _v2Swap({path: path, recipient: recipient, pair: firstPair})
+            : _veloSwap({routes: path, recipient: recipient, pair: firstPair});
+    }
+
     /// @dev path only contains addresses
     function _v2Swap(bytes calldata path, address recipient, address pair) private {
         unchecked {
@@ -198,65 +258,5 @@ abstract contract V2SwapRouter is UniswapImmutables, Permit2Payments {
                 pair = nextPair;
             }
         }
-    }
-
-    /// @notice Performs a Uniswap v2 exact input swap
-    /// @param recipient The recipient of the output tokens
-    /// @param amountIn The amount of input tokens for the trade
-    /// @param amountOutMinimum The minimum desired amount of output tokens
-    /// @param path The path of the trade as an array of token addresses
-    /// @param payer The address that will be paying the input
-    /// @param isUni Whether this is a Uniswap V2 path or not
-    function v2SwapExactInput(
-        address recipient,
-        uint256 amountIn,
-        uint256 amountOutMinimum,
-        bytes calldata path,
-        address payer,
-        bool isUni
-    ) internal {
-        ERC20 tokenOut = ERC20(path.getTokenOut());
-        address firstPair = isUni
-            ? pairFor({isUni: true, path: path.v2GetFirstTokens()})
-            : pairFor({isUni: false, path: path.getFirstRoute()});
-        if (
-            amountIn != Constants.ALREADY_PAID // amountIn of 0 to signal that the pair already has the tokens
-        ) {
-            payOrPermit2Transfer({token: path.decodeFirstToken(), payer: payer, recipient: firstPair, amount: amountIn});
-        }
-
-        uint256 balanceBefore = tokenOut.balanceOf(recipient);
-
-        isUni
-            ? _v2Swap({path: path, recipient: recipient, pair: firstPair})
-            : _veloSwap({routes: path, recipient: recipient, pair: firstPair});
-
-        uint256 amountOut = tokenOut.balanceOf(recipient) - balanceBefore;
-        if (amountOut < amountOutMinimum) revert V2TooLittleReceived();
-    }
-
-    /// @notice Performs a Uniswap v2 exact output swap
-    /// @param recipient The recipient of the output tokens
-    /// @param amountOut The amount of output tokens to receive for the trade
-    /// @param amountInMaximum The maximum desired amount of input tokens
-    /// @param path The path of the trade as an array of token addresses
-    /// @param payer The address that will be paying the input
-    /// @param isUni Whether this is a Uniswap V2 path or not
-    function v2SwapExactOutput(
-        address recipient,
-        uint256 amountOut,
-        uint256 amountInMaximum,
-        bytes calldata path,
-        address payer,
-        bool isUni
-    ) internal {
-        (uint256 amountIn, address firstPair) = getAmountInMultihop({amountOut: amountOut, path: path, isUni: isUni});
-        if (amountIn > amountInMaximum) revert V2TooMuchRequested();
-
-        payOrPermit2Transfer({token: path.decodeFirstToken(), payer: payer, recipient: firstPair, amount: amountIn});
-
-        isUni
-            ? _v2Swap({path: path, recipient: recipient, pair: firstPair})
-            : _veloSwap({routes: path, recipient: recipient, pair: firstPair});
     }
 }

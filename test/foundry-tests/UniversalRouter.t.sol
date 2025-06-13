@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 
 import {Payments} from 'contracts/modules/Payments.sol';
 import {Permit2Payments} from 'contracts/modules/Permit2Payments.sol';
-import {RouterParameters} from 'contracts/types/RouterParameters.sol';
+import {RouterDeployParameters} from 'contracts/types/RouterDeployParameters.sol';
 import {ExampleModule} from 'contracts/test/ExampleModule.sol';
 import {UniversalRouter} from 'contracts/UniversalRouter.sol';
 import {Constants} from 'contracts/libraries/Constants.sol';
@@ -22,7 +22,7 @@ contract UniversalRouterTest is Test {
     MockERC20 erc20;
 
     function setUp() public {
-        RouterParameters memory params = RouterParameters({
+        RouterDeployParameters memory params = RouterDeployParameters({
             permit2: address(0),
             weth9: address(0),
             v2Factory: address(0),

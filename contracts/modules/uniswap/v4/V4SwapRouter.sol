@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
-import {UniswapImmutables} from '../UniswapImmutables.sol';
+import {RouterImmutables} from '../RouterImmutables.sol';
 import {Permit2Payments} from '../../Permit2Payments.sol';
 import {V4Router} from '@uniswap/v4-periphery/src/V4Router.sol';
 import {IPoolManager} from '@uniswap/v4-core/src/interfaces/IPoolManager.sol';
