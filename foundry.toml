@@ -12,12 +12,8 @@ remappings = [
   "@openzeppelin/contracts/=lib/uniswap-v4-periphery/lib/uniswap-v4-core/lib/openzeppelin-contracts/contracts/",
 ]
 
-[profile.hardhat] # we have to use 4.9.6 here because of hyperlane
-remappings = [
-  "@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
-]
+optimizer_runs = 20000
 
-optimizer_runs = 44444444
 fs_permissions = [
   { access = "read", path = "./script/deployParameters/" },
   { access = "read-write", path = "./deployment-addresses/" },
@@ -47,26 +43,27 @@ runs = 5000
 
 [rpc_endpoints]
 base = "${BASE_RPC_URL}"
+celo = "${CELO_RPC_URL}"
+fraxtal = "${FRAXTAL_RPC_URL}"
+ink = "${INK_RPC_URL}"
 lisk = "${LISK_RPC_URL}"
+metal = "${METAL_RPC_URL}"
 mode = "${MODE_RPC_URL}"
 optimism = "${OPTIMISM_RPC_URL}"
-fraxtal = "${FRAXTAL_RPC_URL}"
-metal = "${METAL_RPC_URL}"
-superseed = "${SUPERSEED_RPC_URL}"
-ink = "${INK_RPC_URL}"
 soneium = "${SONEIUM_RPC_URL}"
+superseed = "${SUPERSEED_RPC_URL}"
 swell = "${SWELL_RPC_URL}"
 unichain = "${UNICHAIN_RPC_URL}"
 
 [etherscan]
-mode = { key = "${MODE_ETHERSCAN_API_KEY}", url = "${MODE_ETHERSCAN_VERIFIER_URL}" }
-optimism = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", url = "${OPTIMISM_ETHERSCAN_VERIFIER_URL}" }
-fraxtal = { key = "${FRAXTAL_ETHERSCAN_API_KEY}", url = "${FRAXTAL_ETHERSCAN_VERIFIER_URL}" }
-metal = { key = "NA", url = "${METAL_ETHERSCAN_VERIFIER_URL}" }
-superseed = { key = "NA", url = "${SUPERSEED_ETHERSCAN_VERIFIER_URL}" }
-ink = { key = "NA", url = "${INK_ETHERSCAN_VERIFIER_URL}" }
-soneium = { key = "NA", url = "${SONEIUM_ETHERSCAN_VERIFIER_URL}" }
-swell = { key = "NA", url = "${SWELL_ETHERSCAN_VERIFIER_URL}" }
-unichain = { key = "NA", url = "${UNICHAIN_ETHERSCAN_VERIFIER_URL}" }
+base = { key = "${ETHERSCAN_API_KEY}"}
+celo = { key = "${ETHERSCAN_API_KEY}"}
+fraxtal = { key = "${ETHERSCAN_API_KEY}"}
+optimism = { key = "${ETHERSCAN_API_KEY}"}
+
+[profile.hardhat] # we have to use 4.9.6 here because of hyperlane
+remappings = [
+  "@openzeppelin/contracts/=node_modules/@hyperlane-xyz/core/node_modules/@openzeppelin/contracts/",
+]
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

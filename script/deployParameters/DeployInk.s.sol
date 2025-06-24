@@ -17,5 +17,7 @@ contract DeployInk is DeployUniversalRouter {
             veloV2InitCodeHash: 0x558be7ee0c63546b31d0773eee1d90451bd76a0167bb89653722a2bd677c002d,
             veloCLInitCodeHash: 0x7b216153c50849f664871825fa6f22b3356cdce2436e4f48734ae2a926a4c7e5
         });
+
+        outputFilename = 'ink.json';
     }
 }

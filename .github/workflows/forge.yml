@@ -64,3 +64,4 @@ jobs:
           BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
           MODE_RPC_URL: ${{ secrets.MODE_RPC_URL }}
           METAL_RPC_URL: ${{ secrets.METAL_RPC_URL }}
+          FRAXTAL_RPC_URL: ${{ secrets.FRAXTAL_RPC_URL }}

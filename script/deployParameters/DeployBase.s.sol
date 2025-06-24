@@ -17,5 +17,7 @@ contract DeployBase is DeployUniversalRouter {
             veloV2InitCodeHash: 0x6f178972b07752b522a4da1c5b71af6524e8b0bd6027ccb29e5312b0e5bcdc3c,
             veloCLInitCodeHash: 0xffb9af9ea6d9e39da47392ecc7055277b9915b8bfc9f83f105821b7791a6ae30
         });
+
+        outputFilename = 'base.json';
     }
 }

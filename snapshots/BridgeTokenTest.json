@@ -1,8 +1,8 @@
 {
-  "BridgeRouter_HypXERC20_DirectApproval": "401317",
-  "BridgeRouter_HypXERC20_Permit2": "415738",
-  "BridgeRouter_HypXERC20_RouterBalance": "388660",
-  "BridgeRouter_XVelo_DirectApproval": "369456",
-  "BridgeRouter_XVelo_Permit2": "376978",
-  "BridgeRouter_XVelo_RouterBalance": "347335"
+  "BridgeRouter_HypXERC20_DirectApproval": "400089",
+  "BridgeRouter_HypXERC20_Permit2": "414285",
+  "BridgeRouter_HypXERC20_RouterBalance": "387504",
+  "BridgeRouter_XVelo_DirectApproval": "368154",
+  "BridgeRouter_XVelo_Permit2": "375496",
+  "BridgeRouter_XVelo_RouterBalance": "346091"
 }

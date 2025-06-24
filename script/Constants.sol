@@ -10,8 +10,9 @@ abstract contract Constants {
     // 51 - 59 is reserved for use by superchain contracts
 
     // 60 - 70 is reserved for use by universal router contracts
-    bytes11 public constant UNIVERSAL_ROUTER_ENTROPY = 0x0000000000000000000060; // used previously, no longer usable
+    bytes11 public constant UNIVERSAL_ROUTER_ENTROPY = 0x0000000000000000000060;
     bytes11 public constant UNIVERSAL_ROUTER_ENTROPY_V2 = 0x0000000000000000000061;
+    bytes11 public constant UNIVERSAL_ROUTER_ENTROPY_V3 = 0x0001000000000000000060;
 
     bytes11 public constant PERMIT2_ENTROPY = 0x0000000000000000000069;
     bytes11 public constant UNSUPPORTED_PROTOCOL_ENTROPY = 0x0000000000000000000070;

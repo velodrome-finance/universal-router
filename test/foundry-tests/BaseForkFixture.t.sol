@@ -27,7 +27,7 @@ import {Commands} from '../../contracts/libraries/Commands.sol';
 import {Mailbox, MultichainMockMailbox} from '../foundry-tests/mock/MultichainMockMailbox.sol';
 import {Users} from '../foundry-tests/utils/Users.sol';
 import {TestDeployRouter, DeployUniversalRouter} from '../foundry-tests/utils/TestDeployRouter.sol';
-import {TestDeployPermit2AndUnsupported} from '../foundry-tests/utils/TestDeployPermit2AndUnsupported.sol';
+import {DeployPermit2AndUnsupported} from '../../script/DeployPermit2AndUnsupported.s.sol';
 import {IXERC20, MintLimits} from '../foundry-tests/mock/XERC20/IXERC20.sol';
 import {IPool} from 'contracts/interfaces/external/IPool.sol';
 import {TestConstants, ERC20, IUniswapV2Factory, IPoolFactory} from '../foundry-tests/utils/TestConstants.t.sol';
@@ -35,7 +35,7 @@ import {TestConstants, ERC20, IUniswapV2Factory, IPoolFactory} from '../foundry-
 abstract contract BaseForkFixture is Test, TestConstants {
     using SafeCast for uint256;
 
-    TestDeployPermit2AndUnsupported public deployPermit2AndUnsupported;
+    DeployPermit2AndUnsupported public deployPermit2AndUnsupported;
     TestDeployRouter public deployRouter;
     DeployUniversalRouter.DeploymentParameters public params;
 
@@ -161,8 +161,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
         vm.selectFork({forkId: rootId});
         deployRootDependencies();
 
-        deployPermit2AndUnsupported = new TestDeployPermit2AndUnsupported();
-        deployPermit2AndUnsupported.run();
+        deployPermit2AndUnsupported = new DeployPermit2AndUnsupported();
+        deployPermit2AndUnsupported.deploy();
 
         rootPermit2 = IPermit2(deployPermit2AndUnsupported.permit2());
         address unsupported = deployPermit2AndUnsupported.unsupported();
@@ -218,8 +218,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         leafMailbox = _overwriteMailbox(OPEN_USDT_BASE_MAILBOX_ADDRESS, OPEN_USDT_BASE_ISM_ADDRESS, leafDomain);
 
-        deployPermit2AndUnsupported = new TestDeployPermit2AndUnsupported();
-        deployPermit2AndUnsupported.run();
+        deployPermit2AndUnsupported = new DeployPermit2AndUnsupported();
+        deployPermit2AndUnsupported.deploy();
 
         leafPermit2 = IPermit2(deployPermit2AndUnsupported.permit2());
         address unsupported = deployPermit2AndUnsupported.unsupported();
@@ -269,8 +269,8 @@ abstract contract BaseForkFixture is Test, TestConstants {
 
         vm.selectFork({forkId: leafId_2});
 
-        deployPermit2AndUnsupported = new TestDeployPermit2AndUnsupported();
-        deployPermit2AndUnsupported.run();
+        deployPermit2AndUnsupported = new DeployPermit2AndUnsupported();
+        deployPermit2AndUnsupported.deploy();
 
         leafPermit2_2 = IPermit2(deployPermit2AndUnsupported.permit2());
         unsupported = deployPermit2AndUnsupported.unsupported();

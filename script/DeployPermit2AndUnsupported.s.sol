@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import 'forge-std/console2.sol';
+import 'forge-std/console.sol';
 import 'forge-std/Script.sol';
 import {Permit2} from 'permit2/src/Permit2.sol';
 import {UnsupportedProtocol} from 'contracts/deploy/UnsupportedProtocol.sol';
@@ -22,17 +22,44 @@ contract DeployPermit2AndUnsupported is Script, Constants {
 
     ICreateX public cx = ICreateX(0xba5Ed099633D3B313e4D5F7bdc1305d3c28ba5Ed);
 
-    bool public isTest = false;
-    string public outputFilename = '';
+    // All chains from foundry.toml rpc_endpoints
+    string[] public chains = [
+        'base',
+        'lisk',
+        'mode',
+        'optimism',
+        'fraxtal',
+        'metal',
+        'superseed',
+        'ink',
+        'soneium',
+        'swell',
+        'unichain',
+        'celo'
+    ];
 
     function run() external {
-        vm.startBroadcast(deployer);
+        // Deploy to all chains
+        for (uint256 i = 0; i < chains.length; i++) {
+            string memory chainName = chains[i];
+            console.log('Deploying to chain:', chainName);
 
+            vm.createSelectFork(chainName);
+            _deploy();
+
+            logOutput(chainName);
+        }
+    }
+
+    /// @dev Used only in tests
+    function deploy() external {
+        _deploy();
+    }
+
+    function _deploy() internal {
+        vm.startBroadcast(deployer);
         deployPermit2();
         deployUnsupported();
-
-        logOutput();
-
         vm.stopBroadcast();
     }
 
@@ -62,13 +89,15 @@ contract DeployPermit2AndUnsupported is Script, Constants {
         }
     }
 
-    function logOutput() internal {
-        if (isTest) return;
+    function logOutput(string memory _chainName) internal {
+        string memory filename = string(abi.encodePacked(_chainName, '.json'));
         string memory root = vm.projectRoot();
-        string memory path = string(abi.encodePacked(root, '/deployment-addresses/', outputFilename));
-        if (keccak256(bytes(outputFilename)) == keccak256(bytes(''))) revert InvalidOutputFilename();
+        string memory path = string(abi.encodePacked(root, '/deployment-addresses/', filename));
+        if (keccak256(bytes(filename)) == keccak256(bytes(''))) revert InvalidOutputFilename();
         /// @dev This might overwrite an existing output file
         vm.writeJson(vm.serializeAddress('', 'Permit2', permit2), path);
         vm.writeJson(vm.serializeAddress('', 'UnsupportedProtocol', unsupported), path);
+
+        console.log('Deployment addresses written to:', path);
     }
 }

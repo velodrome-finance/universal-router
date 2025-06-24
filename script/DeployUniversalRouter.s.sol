@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import 'forge-std/console2.sol';
+import 'forge-std/console.sol';
 import 'forge-std/Script.sol';
 import {Permit2} from 'permit2/src/Permit2.sol';
 import {RouterDeployParameters} from 'contracts/types/RouterDeployParameters.sol';
@@ -34,8 +34,8 @@ abstract contract DeployUniversalRouter is Script, Constants {
     RouterDeployParameters internal routerParams;
     UniversalRouter public router;
 
-    address public unsupported = 0x61fF070AD105D5aa6d8F9eA21212CB574EeFCAd5;
     address public permit2 = 0x494bbD8A3302AcA833D307D11838f18DbAdA9C25;
+    address public unsupported = 0x61fF070AD105D5aa6d8F9eA21212CB574EeFCAd5;
 
     address public deployer = 0x4994DacdB9C57A811aFfbF878D92E00EF2E5C4C2;
 
@@ -72,7 +72,7 @@ abstract contract DeployUniversalRouter is Script, Constants {
         logParams();
         logOutput();
 
-        console2.log('Universal Router Deployed:', address(router));
+        console.log('Universal Router Deployed:', address(router));
         vm.stopBroadcast();
     }
 
@@ -80,23 +80,23 @@ abstract contract DeployUniversalRouter is Script, Constants {
         router = UniversalRouter(
             payable(
                 cx.deployCreate3({
-                    salt: UNIVERSAL_ROUTER_ENTROPY_V2.calculateSalt({_deployer: deployer}),
+                    salt: UNIVERSAL_ROUTER_ENTROPY_V3.calculateSalt({_deployer: deployer}),
                     initCode: abi.encodePacked(type(UniversalRouter).creationCode, abi.encode(routerParams))
                 })
             )
         );
 
-        checkAddress({_entropy: UNIVERSAL_ROUTER_ENTROPY_V2, _output: address(router)});
+        checkAddress({_entropy: UNIVERSAL_ROUTER_ENTROPY_V3, _output: address(router)});
     }
 
     function logParams() internal view {
         if (isTest) return;
-        console2.log('permit2:', permit2);
-        console2.log('weth9:', params.weth9);
-        console2.log('v2Factory:', params.v2Factory);
-        console2.log('v3Factory:', params.v3Factory);
-        console2.log('v4PoolManager:', params.v4PoolManager);
-        console2.log('veloV2Factory:', params.veloV2Factory);
+        console.log('permit2:', permit2);
+        console.log('weth9:', params.weth9);
+        console.log('v2Factory:', params.v2Factory);
+        console.log('v3Factory:', params.v3Factory);
+        console.log('v4PoolManager:', params.v4PoolManager);
+        console.log('veloV2Factory:', params.veloV2Factory);
     }
 
     function mapUnsupported(address protocol) internal view returns (address) {
