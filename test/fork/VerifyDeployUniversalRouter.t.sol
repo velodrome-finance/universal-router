@@ -48,44 +48,8 @@ abstract contract VerifyDeployUniversalRouterForkTest is DeployUniversalRouter, 
         assertEq(address(router.PERMIT2()), permit2, 'PERMIT2 mismatch');
     }
 
-    function test_verifyUniswapV2Immutables() public {
-        assertEq(router.UNISWAP_V2_FACTORY(), mapUnsupported(params.v2Factory), 'V2 Factory mismatch');
-        assertEq(router.UNISWAP_V2_PAIR_INIT_CODE_HASH(), params.pairInitCodeHash, 'V2 init code hash mismatch');
-    }
-
-    function test_verifyUniswapV3Immutables() public {
-        assertEq(router.UNISWAP_V3_FACTORY(), mapUnsupported(params.v3Factory), 'V3 Factory mismatch');
-        assertEq(router.UNISWAP_V3_POOL_INIT_CODE_HASH(), params.poolInitCodeHash, 'V3 init code hash mismatch');
-    }
-
     function test_verifyV4PoolManager() public {
         assertEq(address(router.poolManager()), mapUnsupported(params.v4PoolManager), 'V4 PoolManager mismatch');
-    }
-
-    function test_verifyVelodromeV2Immutables() public {
-        assertEq(router.VELODROME_V2_FACTORY(), mapUnsupported(params.veloV2Factory), 'Velo V2 Factory mismatch');
-        assertEq(router.VELODROME_V2_INIT_CODE_HASH(), params.veloV2InitCodeHash, 'Velo V2 init code hash mismatch');
-    }
-
-    function test_verifyVelodromeCLImmutables() public {
-        assertEq(router.VELODROME_CL_FACTORY(), mapUnsupported(params.veloCLFactory), 'Velo CL Factory mismatch');
-        assertEq(
-            router.VELODROME_CL_POOL_INIT_CODE_HASH(), params.veloCLInitCodeHash, 'Velo CL init code hash mismatch'
-        );
-    }
-
-    function test_verifyVelodromeCL2Immutables() public {
-        assertEq(router.VELODROME_CL_FACTORY_2(), mapUnsupported(params.veloCLFactory2), 'Velo CL Factory 2 mismatch');
-        assertEq(
-            router.VELODROME_CL_POOL_INIT_CODE_HASH_2(), params.veloCLInitCodeHash2, 'Velo CL init code hash 2 mismatch'
-        );
-    }
-
-    function test_verifyVelodromeCL3Immutables() public {
-        assertEq(router.VELODROME_CL_FACTORY_3(), mapUnsupported(params.veloCLFactory3), 'Velo CL Factory 3 mismatch');
-        assertEq(
-            router.VELODROME_CL_POOL_INIT_CODE_HASH_3(), params.veloCLInitCodeHash3, 'Velo CL init code hash 3 mismatch'
-        );
     }
 
     // =========================================================================

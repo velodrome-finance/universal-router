@@ -8,6 +8,7 @@ import {PaymentsImmutables, PaymentsParameters} from './modules/PaymentsImmutabl
 import {RouterImmutables, RouterParameters} from './modules/uniswap/RouterImmutables.sol';
 import {V4SwapRouter} from './modules/uniswap/v4/V4SwapRouter.sol';
 import {Commands} from './libraries/Commands.sol';
+import {Locker} from './libraries/Locker.sol';
 import {IUniversalRouter} from './interfaces/IUniversalRouter.sol';
 
 contract UniversalRouter is IUniversalRouter, Dispatcher {
@@ -35,9 +36,11 @@ contract UniversalRouter is IUniversalRouter, Dispatcher {
         _;
     }
 
-    /// @notice To receive ETH from WETH
+    /// @notice To receive ETH from WETH, poolManager, or refunds from bridges/hooks during execution
     receive() external payable {
-        if (msg.sender != address(WETH9) && msg.sender != address(poolManager)) revert InvalidEthSender();
+        if (!Locker.isLocked() && msg.sender != address(WETH9) && msg.sender != address(poolManager)) {
+            revert InvalidEthSender();
+        }
     }
 
     /// @inheritdoc IUniversalRouter

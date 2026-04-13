@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.24;
 
-import {IRouterImmutables} from '../../interfaces/IRouterImmutables.sol';
-
 struct RouterParameters {
     address v2Factory;
     address v3Factory;
@@ -18,42 +16,19 @@ struct RouterParameters {
     bytes32 veloCLInitCodeHash3;
 }
 
-contract RouterImmutables is IRouterImmutables {
-    ///@inheritdoc IRouterImmutables
-    address public immutable UNISWAP_V2_FACTORY;
-
-    ///@inheritdoc IRouterImmutables
-    bytes32 public immutable UNISWAP_V2_PAIR_INIT_CODE_HASH;
-
-    ///@inheritdoc IRouterImmutables
-    address public immutable UNISWAP_V3_FACTORY;
-
-    ///@inheritdoc IRouterImmutables
-    bytes32 public immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
-
-    ///@inheritdoc IRouterImmutables
-    address public immutable VELODROME_V2_FACTORY;
-
-    ///@inheritdoc IRouterImmutables
-    bytes32 public immutable VELODROME_V2_INIT_CODE_HASH;
-
-    ///@inheritdoc IRouterImmutables
-    address public immutable VELODROME_CL_FACTORY;
-
-    ///@inheritdoc IRouterImmutables
-    bytes32 public immutable VELODROME_CL_POOL_INIT_CODE_HASH;
-
-    ///@inheritdoc IRouterImmutables
-    address public immutable VELODROME_CL_FACTORY_2;
-
-    ///@inheritdoc IRouterImmutables
-    bytes32 public immutable VELODROME_CL_POOL_INIT_CODE_HASH_2;
-
-    ///@inheritdoc IRouterImmutables
-    address public immutable VELODROME_CL_FACTORY_3;
-
-    ///@inheritdoc IRouterImmutables
-    bytes32 public immutable VELODROME_CL_POOL_INIT_CODE_HASH_3;
+contract RouterImmutables {
+    address internal immutable UNISWAP_V2_FACTORY;
+    bytes32 internal immutable UNISWAP_V2_PAIR_INIT_CODE_HASH;
+    address internal immutable UNISWAP_V3_FACTORY;
+    bytes32 internal immutable UNISWAP_V3_POOL_INIT_CODE_HASH;
+    address internal immutable VELODROME_V2_FACTORY;
+    bytes32 internal immutable VELODROME_V2_INIT_CODE_HASH;
+    address internal immutable VELODROME_CL_FACTORY;
+    bytes32 internal immutable VELODROME_CL_POOL_INIT_CODE_HASH;
+    address internal immutable VELODROME_CL_FACTORY_2;
+    bytes32 internal immutable VELODROME_CL_POOL_INIT_CODE_HASH_2;
+    address internal immutable VELODROME_CL_FACTORY_3;
+    bytes32 internal immutable VELODROME_CL_POOL_INIT_CODE_HASH_3;
 
     constructor(RouterParameters memory params) {
         UNISWAP_V2_FACTORY = params.v2Factory;

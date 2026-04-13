@@ -58,4 +58,5 @@ interface IXVeloTokenBridge {
     /// @notice Registers a domain on the bridge
     /// @param _domain The domain to register
     function registerDomain(uint32 _domain) external;
+
 }

@@ -7,5 +7,6 @@ library BridgeTypes {
     // Bridge type identifiers (1 byte)
     uint8 constant HYP_XERC20 = 0x01;
     uint8 constant XVELO = 0x02;
+    uint8 constant HYP_ERC20_COLLATERAL = 0x03;
     // Future bridge types can be added here
 }
